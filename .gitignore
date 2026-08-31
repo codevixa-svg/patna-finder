@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+
+# production
+*.tsbuildinfo
+
+# env files
+.env
+.env.*
+!.env.example
+
+# laravel
+vendor/
+storage/*.key
+storage/**/*.cache
+storage/**/*.sessions
+storage/**/*.views
+storage/logs/*.log
+public/hot
+public/storage
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# vscode
+.vscode/
+.idea/
+
+# vercel
+.vercel
