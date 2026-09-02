@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -116,6 +117,24 @@ const Icon = ({
       return (
         <svg {...common}>
           <path strokeLinecap="round" d="M19 12H6M12 5l-7 7 7 7" />
+        </svg>
+      );
+
+    case 'chevron-right':
+      return (
+        <svg {...common}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
+        </svg>
+      );
+
+    case 'home':
+      return (
+        <svg {...common}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5"
+          />
         </svg>
       );
 
@@ -346,18 +365,104 @@ export default function PublicBusinessPage() {
       <Toaster position="top-right" />
 
       <main className="bg-[#f7f8fa] min-h-screen">
-        {/* Back Button */}
-        <div className="bg-white border-b border-gray-200">
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="bg-white border-b border-gray-200">
           <div className="max-w-[1060px] mx-auto px-4 sm:px-6 py-3">
-            <button
-              onClick={() => router.push('/businesses')}
-              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
-            >
-              <Icon name="arrow-left" className="w-4 h-4" />
-              Back to Listings
-            </button>
+            <ol className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-sm">
+              <li>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-1.5 text-gray-500 hover:text-[#153b78] font-medium transition"
+                >
+                  <Icon name="home" className="w-4 h-4" />
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden="true" className="text-gray-300 flex items-center">
+                <Icon name="chevron-right" className="w-4 h-4" />
+              </li>
+              <li>
+                <Link
+                  href="/businesses"
+                  className="text-gray-500 hover:text-[#153b78] font-medium transition"
+                >
+                  Businesses
+                </Link>
+              </li>
+              {business.category?.name && (
+                <>
+                  <li aria-hidden="true" className="text-gray-300 flex items-center">
+                    <Icon name="chevron-right" className="w-4 h-4" />
+                  </li>
+                  <li>
+                    <Link
+                      href={`/categories/${business.category.slug || ''}`}
+                      className="text-gray-500 hover:text-[#153b78] font-medium transition"
+                    >
+                      {business.category.name}
+                    </Link>
+                  </li>
+                </>
+              )}
+              <li aria-hidden="true" className="text-gray-300 flex items-center">
+                <Icon name="chevron-right" className="w-4 h-4" />
+              </li>
+              <li className="text-[#153b78] font-semibold truncate max-w-[260px]">
+                {business.name}
+              </li>
+            </ol>
           </div>
-        </div>
+        </nav>
+
+        {/* BreadcrumbList Schema for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                {
+                  '@type': 'ListItem',
+                  position: 1,
+                  name: 'Home',
+                  item:
+                    typeof window !== 'undefined'
+                      ? window.location.origin
+                      : 'https://patnafinder.com',
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 2,
+                  name: 'Businesses',
+                  item:
+                    (typeof window !== 'undefined'
+                      ? window.location.origin
+                      : 'https://patnafinder.com') + '/businesses',
+                },
+                ...(business.category?.name
+                  ? [
+                      {
+                        '@type': 'ListItem',
+                        position: 3,
+                        name: business.category.name,
+                        item:
+                          (typeof window !== 'undefined'
+                            ? window.location.origin
+                            : 'https://patnafinder.com') +
+                          `/categories/${business.category.slug || ''}`,
+                      },
+                    ]
+                  : []),
+                {
+                  '@type': 'ListItem',
+                  position: business.category?.name ? 4 : 3,
+                  name: business.name,
+                },
+              ],
+            }),
+          }}
+        />
 
         <div className="max-w-[1060px] mx-auto px-4 sm:px-6 py-6">
           {/* Hero Card */}
