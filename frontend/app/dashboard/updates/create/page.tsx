@@ -67,6 +67,32 @@ function CreateUpdatePageContent() {
     }
   };
 
+  const selectedBusinessData = businesses.find((b) => String(b.id) === String(selectedBusiness));
+
+  // Auto-fill CTA URL from already-saved business contact details:
+  // "Call Now" -> business phone number, other types -> business website
+  const handleCtaTypeChange = (newType: string) => {
+    const business = businesses.find((b) => String(b.id) === String(selectedBusiness));
+    let autoUrl = '';
+    let defaultText = '';
+    if (newType === 'call') {
+      autoUrl = business?.phone || business?.alternate_phone || business?.whatsapp || '';
+      defaultText = 'Call Now';
+    } else {
+      if (business?.website) {
+        const site = String(business.website);
+        autoUrl = /^https?:\/\//i.test(site) ? site : `https://${site}`;
+      }
+      defaultText = CTA_TYPES.find((t) => t.value === newType)?.label || '';
+    }
+    setFormData({
+      ...formData,
+      cta_type: newType,
+      cta_url: autoUrl || '',
+      cta_text: formData.cta_text || defaultText,
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -179,7 +205,7 @@ function CreateUpdatePageContent() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Button Type</label>
-                <select value={formData.cta_type} onChange={(e) => setFormData({ ...formData, cta_type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500">
+                <select value={formData.cta_type} onChange={(e) => handleCtaTypeChange(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500">
                   {CTA_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
@@ -189,7 +215,22 @@ function CreateUpdatePageContent() {
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Button URL</label>
-                <input type="url" value={formData.cta_url} onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })} placeholder="https://..." className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500" />
+                <input
+                  type={formData.cta_type === 'call' ? 'tel' : 'url'}
+                  value={formData.cta_url}
+                  onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
+                  placeholder={formData.cta_type === 'call' ? 'Auto-filled from business phone' : 'https://...'}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">
+                  {formData.cta_type === 'call'
+                    ? selectedBusinessData?.phone || selectedBusinessData?.alternate_phone || selectedBusinessData?.whatsapp
+                      ? '✓ Auto-filled from business contact details'
+                      : 'Select a business that has a phone number'
+                    : selectedBusinessData?.website
+                      ? '✓ Auto-filled from business website (editable)'
+                      : 'Select a business that has a website'}
+                </p>
               </div>
             </div>
           </div>

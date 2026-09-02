@@ -29,13 +29,18 @@ class UpdateController extends Controller
 
     public function store(Request $request)
     {
+        // Phone numbers are allowed as cta_url for "call" type; URLs required otherwise
+        $ctaUrlRule = $request->input('cta_type') === 'call'
+            ? 'nullable|string|max:30'
+            : 'nullable|url|max:500';
+
         $validator = Validator::make($request->all(), [
             'business_id' => 'required|exists:businesses,id',
             'title' => 'nullable|string|max:255',
             'content' => 'required|string|max:5000',
             'image' => 'nullable|string',
             'cta_text' => 'nullable|string|max:100',
-            'cta_url' => 'nullable|url|max:500',
+            'cta_url' => $ctaUrlRule,
             'cta_type' => 'nullable|in:learn_more,call,book,order,visit',
             'is_active' => 'boolean',
         ]);
@@ -113,12 +118,17 @@ class UpdateController extends Controller
             ], 404);
         }
 
+        // Phone numbers are allowed as cta_url for "call" type; URLs required otherwise
+        $ctaUrlRule = $request->input('cta_type', $update->cta_type) === 'call'
+            ? 'nullable|string|max:30'
+            : 'nullable|url|max:500';
+
         $validator = Validator::make($request->all(), [
             'title' => 'nullable|string|max:255',
             'content' => 'sometimes|string|max:5000',
             'image' => 'nullable|string',
             'cta_text' => 'nullable|string|max:100',
-            'cta_url' => 'nullable|url|max:500',
+            'cta_url' => $ctaUrlRule,
             'cta_type' => 'nullable|in:learn_more,call,book,order,visit',
             'is_active' => 'boolean',
         ]);
