@@ -177,4 +177,45 @@ export const userSubscriptionApi = {
   },
 };
 
+// Updates API (GMB-style posts)
+export const userUpdateApi = {
+  getAll: async () => {
+    const response = await userApi.get('/user/updates');
+    return response.data;
+  },
+
+  getOne: async (id: number) => {
+    const response = await userApi.get(`/user/updates/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await userApi.post('/user/updates', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: any) => {
+    const response = await userApi.put(`/user/updates/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number) => {
+    const response = await userApi.delete(`/user/updates/${id}`);
+    return response.data;
+  },
+
+  toggleActive: async (id: number) => {
+    const response = await userApi.post(`/user/updates/${id}/toggle-active`);
+    return response.data;
+  },
+
+  uploadImage: async (imageData: string) => {
+    const response = await userApi.post('/user/upload-image-base64', {
+      image: imageData,
+      type: 'update'
+    });
+    return response.data;
+  },
+};
+
 export default userApi;

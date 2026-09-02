@@ -275,7 +275,7 @@ export default function EditBusinessPage() {
                   Cancel
                 </Link>
                 <button
-                  onClick={() => document.getElementById('edit-form')?.requestSubmit()}
+                  onClick={() => (document.getElementById('edit-form') as HTMLFormElement | null)?.requestSubmit()}
                   disabled={saving}
                   className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition disabled:opacity-50 shadow-sm"
                 >
@@ -512,7 +512,7 @@ export default function EditBusinessPage() {
                               <div key={day} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                                 <span className="text-sm font-medium text-gray-700 capitalize">{day}</span>
                                 <span className="text-sm text-gray-500">
-                                  {hours?.closed ? 'Closed' : `${hours?.open || hours?.open_time || '-'} - ${hours?.close || hours?.close_time || '-'}`}
+                                  {hours && (hours.is_open === false || hours.closed === true) ? 'Closed' : `${hours?.open_time || hours?.open || '—'} - ${hours?.close_time || hours?.close || '—'}`}
                                 </span>
                               </div>
                             ))}

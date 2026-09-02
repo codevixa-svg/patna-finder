@@ -98,6 +98,9 @@ class Business extends Model
         'is_hidden_gem' => 'boolean',
     ];
 
+    // Computed attributes included in every JSON response
+    protected $appends = ['is_open_now'];
+
     protected static function boot()
     {
         parent::boot();
@@ -139,28 +142,102 @@ class Business extends Model
         return $this->hasMany(Faq::class);
     }
 
+    /**
+     * Normalize opening_hours on write so the database always stores ONE canonical format:
+     * { "monday": { "is_open": true, "open_time": "09:00", "close_time": "18:00" }, ... }
+     * Accepts JSON strings (also accidentally double-encoded ones) or arrays,
+     * and legacy keys (open/close/closed).
+     */
+    public function setOpeningHoursAttribute($value)
+    {
+        if (empty($value)) {
+            $this->attributes['opening_hours'] = null;
+            return;
+        }
+
+        $hours = $value;
+
+        // Decode JSON strings — loop handles accidentally double-encoded values
+        for ($i = 0; $i < 2 && is_string($hours); $i++) {
+            $decoded = json_decode($hours, true);
+            $hours = json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+        }
+
+        if (!is_array($hours)) {
+            $this->attributes['opening_hours'] = null;
+            return;
+        }
+
+        $normalized = [];
+        foreach ($hours as $day => $dayHours) {
+            if (!is_array($dayHours)) {
+                continue;
+            }
+            $isOpen = array_key_exists('is_open', $dayHours)
+                ? (bool) $dayHours['is_open']
+                : !($dayHours['closed'] ?? false);
+            $normalized[strtolower($day)] = [
+                'is_open'    => $isOpen,
+                'open_time'  => $dayHours['open_time'] ?? $dayHours['open'] ?? null,
+                'close_time' => $dayHours['close_time'] ?? $dayHours['close'] ?? null,
+            ];
+        }
+
+        $this->attributes['opening_hours'] = json_encode($normalized);
+    }
+
+    /**
+     * Whether the business is open right now.
+     * Always evaluated against Asia/Kolkata time (Patna) so the result is
+     * correct even when the server timezone is UTC.
+     */
     public function isOpenNow()
     {
         if (empty($this->opening_hours)) {
             return null;
         }
 
-        $day = strtolower(now()->format('l'));
-        $currentTime = now()->format('H:i');
+        $now = now('Asia/Kolkata');
+        $day = strtolower($now->format('l'));
+        $minutesNow = ((int) $now->format('H')) * 60 + (int) $now->format('i');
 
-        if (isset($this->opening_hours[$day])) {
-            $hours = $this->opening_hours[$day];
-            if (isset($hours['is_open']) && !$hours['is_open']) {
-                return false;
-            }
-            $open = $hours['open_time'] ?? $hours['open'] ?? null;
-            $close = $hours['close_time'] ?? $hours['close'] ?? null;
-            if ($open && $close) {
-                return $currentTime >= $open && $currentTime <= $close;
-            }
+        $todayHours = $this->opening_hours[$day] ?? null;
+        if (!is_array($todayHours)) {
+            return false;
         }
 
-        return false;
+        $isOpenDay = array_key_exists('is_open', $todayHours)
+            ? (bool) $todayHours['is_open']
+            : !($todayHours['closed'] ?? false);
+        if (!$isOpenDay) {
+            return false;
+        }
+
+        $open = $todayHours['open_time'] ?? $todayHours['open'] ?? null;
+        $close = $todayHours['close_time'] ?? $todayHours['close'] ?? null;
+        if (!$open || !$close) {
+            return false;
+        }
+
+        $toMinutes = function ($time) {
+            $parts = explode(':', $time);
+            return ((int) ($parts[0] ?? 0)) * 60 + (int) ($parts[1] ?? 0);
+        };
+
+        $openM = $toMinutes($open);
+        $closeM = $toMinutes($close);
+
+        // Overnight hours (e.g. 21:00 - 02:00)
+        if ($closeM <= $openM) {
+            return $minutesNow >= $openM || $minutesNow <= $closeM;
+        }
+
+        return $minutesNow >= $openM && $minutesNow <= $closeM;
+    }
+
+    public function getIsOpenNowAttribute()
+    {
+        return $this->isOpenNow();
     }
 
     public function getRouteKeyName()

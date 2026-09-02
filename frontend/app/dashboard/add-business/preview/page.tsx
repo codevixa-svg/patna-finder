@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserAuthStore } from '@/store/userAuthStore';
 import { userBusinessApi } from '@/lib/userApi';
@@ -216,7 +216,7 @@ const serviceIcon = (name: string) => {
   return '✓';
 };
 
-export default function PreviewListingPage() {
+function PreviewListingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const businessId = searchParams.get('id');
@@ -1330,3 +1330,12 @@ export default function PreviewListingPage() {
     </>
   );
 }
+
+export default function PreviewListingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div></div>}>
+      <PreviewListingPageContent />
+    </Suspense>
+  );
+}
+

@@ -1,4 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+// Base URL without the /api/v1 suffix — used to build storage/asset URLs
+export const API_BASE_URL = API_URL.replace(/\/api\/v1\/?$/, '');
 
 async function fetchJson(url: string, options?: RequestInit) {
   const res = await fetch(url, options);
@@ -64,6 +66,10 @@ export const api = {
   },
 
   // Reviews
+  getLatestReviews: async () => {
+    return fetchJson(`${API_URL}/reviews/latest`);
+  },
+
   getReviews: async (slug: string, params?: any) => {
     const queryString = params ? `?${new URLSearchParams(params)}` : '';
     return fetchJson(`${API_URL}/businesses/${slug}/reviews${queryString}`);

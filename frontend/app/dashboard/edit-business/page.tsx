@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserAuthStore } from '@/store/userAuthStore';
 import { userBusinessApi } from '@/lib/userApi';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import toast from 'react-hot-toast';
 
-export default function EditBusinessPage() {
+function EditBusinessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const businessId = searchParams.get('id');
@@ -426,3 +426,12 @@ export default function EditBusinessPage() {
     </DashboardLayout>
   );
 }
+
+export default function EditBusinessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div></div>}>
+      <EditBusinessPageContent />
+    </Suspense>
+  );
+}
+

@@ -65,6 +65,17 @@ class ReviewController extends Controller
         ], 201);
     }
 
+    public function latest()
+    {
+        $reviews = Review::with(['business:id,name,slug'])
+            ->approved()
+            ->latest()
+            ->limit(6)
+            ->get();
+
+        return response()->json($reviews);
+    }
+
     public function like($id)
     {
         $review = Review::approved()->findOrFail($id);

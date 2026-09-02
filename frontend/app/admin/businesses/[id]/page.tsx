@@ -42,7 +42,7 @@ interface Business {
   is_sponsored: boolean;
   is_trending: boolean;
   is_popular: boolean;
-  opening_hours: Record<string, { open: string; close: string; closed?: boolean; is_open?: boolean }> | null;
+  opening_hours: Record<string, { open: string; close: string; open_time?: string; close_time?: string; closed?: boolean; is_open?: boolean }> | null;
   services: any[];
   gallery: any[];
   social_links: Record<string, any> | null;
@@ -418,17 +418,20 @@ export default function AdminBusinessDetailPage() {
                   <div className="bg-white rounded-xl border border-gray-100 p-6">
                     <h2 className="text-sm font-semibold text-gray-900 mb-4">Opening Hours</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {Object.entries(business.opening_hours).map(([day, hours]) => {
+                      {Object.entries(business.opening_hours).map(([day, hours]: [string, any]) => {
                         if (typeof hours !== 'object' || hours === null) return null;
-                        const isOpen = today === day && !hours.closed;
+                        const isClosed = hours.is_open === false || hours.closed === true;
+                        const isOpen = today === day && !isClosed;
+                        const openT = hours.open_time || hours.open;
+                        const closeT = hours.close_time || hours.close;
                         return (
                           <div key={day} className={`flex items-center justify-between p-3 rounded-lg ${isOpen ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-100'}`}>
                             <span className={`text-sm font-medium ${isOpen ? 'text-green-700' : 'text-gray-700'}`}>
                               {day.charAt(0).toUpperCase() + day.slice(1)}
                               {isOpen && <span className="ml-2 text-xs text-green-600">Today</span>}
                             </span>
-                            <span className={`text-sm ${hours.closed ? 'text-red-500 font-medium' : 'text-gray-600'}`}>
-                              {hours.closed ? 'Closed' : `${hours.open || hours.open_time || ''} - ${hours.close || hours.close_time || ''}`}
+                            <span className={`text-sm ${isClosed ? 'text-red-500 font-medium' : 'text-gray-600'}`}>
+                              {isClosed ? 'Closed' : (openT && closeT ? `${openT} - ${closeT}` : '—')}
                             </span>
                           </div>
                         );

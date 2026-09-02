@@ -3,17 +3,153 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import { api, API_BASE_URL } from '@/lib/api';
 import BusinessCard from '@/components/BusinessCard';
 
 export default function Home() {
   const [trendingBusinesses, setTrendingBusinesses] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [areas, setAreas] = useState<any[]>([]);
+  const [popularSearches, setPopularSearches] = useState<string[]>([]);
+  const [latestReviews, setLatestReviews] = useState<any[]>([]);
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
     api.getTrendingBusinesses()
       .then(data => setTrendingBusinesses(Array.isArray(data) ? data : data.data || []))
       .catch(() => {});
+    api.getCategories()
+      .then(data => setCategories(Array.isArray(data) ? data : data.data || []))
+      .catch(() => {});
+    api.getAreas()
+      .then(data => setAreas(Array.isArray(data) ? data : data.data || []))
+      .catch(() => {});
+    api.getPopularSearches()
+      .then(data => setPopularSearches(Array.isArray(data) ? data : []))
+      .catch(() => {});
+    api.getLatestReviews()
+      .then(data => setLatestReviews(Array.isArray(data) ? data : data.data || []))
+      .catch(() => {});
+    api.getLatestBlogPosts()
+      .then(data => setBlogPosts(Array.isArray(data) ? data : data.data || []))
+      .catch(() => {});
   }, []);
+
+  // Color palette for dynamic category tiles
+  const categoryColors = [
+    'bg-blue-100', 'bg-green-100', 'bg-orange-100', 'bg-red-100', 'bg-yellow-100',
+    'bg-purple-100', 'bg-indigo-100', 'bg-teal-100', 'bg-pink-100', 'bg-cyan-100',
+  ];
+
+  // Fallback content so the page never looks broken while the database is empty
+  const fallbackAreas = [
+    { id: 'f1', name: 'Boring Road', slug: 'boring-road' },
+    { id: 'f2', name: 'Kankarbagh', slug: 'kankarbagh' },
+    { id: 'f3', name: 'Bailey Road', slug: 'bailey-road' },
+    { id: 'f4', name: 'Patliputra', slug: 'patliputra' },
+    { id: 'f5', name: 'Rajendra Nagar', slug: 'rajendra-nagar' },
+    { id: 'f6', name: 'Danapur', slug: 'danapur' },
+    { id: 'f7', name: 'Kurji', slug: 'kurji' },
+  ];
+
+  const fallbackSearches = [
+    'Best Judiciary Coaching', 'Top IAS Coaching', 'Best Orthopaedic Doctor', 'Best Wedding Halls',
+    'Best Restaurants in Patna', 'Affordable Gyms', 'Top Hospitals Near Me', 'Best Dentist in Boring Road',
+    'Coaching for UPSC', 'Best Cafes in Patna', 'Top Lawyers in Patna', 'Best Schools Near Me',
+  ];
+
+  const fallbackReviews = [
+    { id: 'f1', author_name: 'Ankit Raj', rating: 5, content: 'Aakash Tutorials is simply the best for Judiciary coaching in Patna. Highly recommend!', business: { name: 'Aakash Tutorials' } },
+    { id: 'f2', author_name: 'Priya Sinha', rating: 5, content: 'Dr. SureshKumar explained everything so well. Truly professional and friendly.', business: { name: 'Dr. SureshKumar Dental Clinic' } },
+    { id: 'f3', author_name: 'Rohit Kumar', rating: 5, content: 'Great place with amazing ambience and delicious food. Must visit with family!', business: { name: 'The Saffron Restaurant' } },
+  ];
+
+  const fallbackBlogPosts = [
+    { id: 'f1', title: '5 New Cafes in Patna You Must Try in 2024', published_at: '2024-05-12T00:00:00.000000Z', slug: '' },
+    { id: 'f2', title: 'New Coaching Batches Starting This Month', published_at: '2024-05-08T00:00:00.000000Z', slug: '' },
+    { id: 'f3', title: "Patna's New Flyover: Traffic to Get Easier", published_at: '2024-05-05T00:00:00.000000Z', slug: '' },
+  ];
+
+  const formatBlogDate = (date: any) => {
+    if (!date) return '';
+    try {
+      return new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  };
+
+  // Current time (client-side only, avoids hydration mismatch for Open/Closed status)
+  const [nowTime, setNowTime] = useState<Date | null>(null);
+  useEffect(() => {
+    setNowTime(new Date());
+  }, []);
+
+  // Saved (bookmarked) businesses — persisted in localStorage
+  const [savedBusinessIds, setSavedBusinessIds] = useState<number[]>([]);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('patna_finder_saved_businesses');
+      if (saved) setSavedBusinessIds(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  const toggleSaveBusiness = (id: number) => {
+    setSavedBusinessIds(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      try { localStorage.setItem('patna_finder_saved_businesses', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  // Build absolute image URL from backend storage paths like /storage/...
+  const buildImageUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${API_BASE_URL}${path}`;
+  };
+
+  // Compute Open Now / Closed — prefers the backend-computed is_open_now
+  // (timezone-safe) and falls back to evaluating opening_hours in browser time.
+  const getOpenStatus = (business: any): { isOpen: boolean } | null => {
+    if (typeof business?.is_open_now === 'boolean') {
+      return { isOpen: business.is_open_now };
+    }
+    if (!nowTime) return null;
+    try {
+      let hours = typeof business?.opening_hours === 'string' ? JSON.parse(business.opening_hours) : business?.opening_hours;
+      if (typeof hours === 'string') {
+        try { hours = JSON.parse(hours); } catch { return null; }
+      }
+      if (!hours || typeof hours !== 'object') return null;
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const today = hours[dayNames[nowTime.getDay()]];
+      if (!today || typeof today !== 'object') return null;
+      const isOpenDay = typeof today.is_open === 'boolean' ? today.is_open : !(today.closed ?? false);
+      if (!isOpenDay) return { isOpen: false };
+      const openT = today.open_time || today.open;
+      const closeT = today.close_time || today.close;
+      if (!openT || !closeT) return null;
+      const toMinutes = (t: string) => {
+        const m = String(t).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+        if (!m) return null;
+        let h = Number(m[1]);
+        const min = Number(m[2]);
+        const ap = m[3]?.toUpperCase();
+        if (ap === 'PM' && h < 12) h += 12;
+        if (ap === 'AM' && h === 12) h = 0;
+        return h * 60 + min;
+      };
+      const openM = toMinutes(openT);
+      const closeM = toMinutes(closeT);
+      if (openM === null || closeM === null) return null;
+      const nowM = nowTime.getHours() * 60 + nowTime.getMinutes();
+      const isOpen = closeM <= openM ? (nowM >= openM || nowM <= closeM) : (nowM >= openM && nowM <= closeM);
+      return { isOpen };
+    } catch {
+      return null;
+    }
+  };
   return (
     <main>
       {/* Hero Section */}
@@ -110,97 +246,22 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-3">
-              {/* Coaching Institutes */}
-              <Link href="/categories/coaching-institutes" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Coaching<br />Institutes</span>
-              </Link>
+              {(categories.length > 0 ? categories.slice(0, 9) : []).map((category: any, index: number) => (
+                <Link key={category.id} href={`/categories/${category.slug}`} className="flex flex-col items-center group">
+                  <div className={`w-14 h-14 ${categoryColors[index % categoryColors.length]} rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all`}>
+                    <span className="text-2xl">{category.icon || '🏢'}</span>
+                  </div>
+                  <span className="text-xs text-center font-medium text-gray-700 leading-tight">{category.name}</span>
+                </Link>
+              ))}
 
-              {/* Doctors */}
-              <Link href="/categories/doctors" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
+              {/* Loading placeholder until categories load */}
+              {categories.length === 0 && [1,2,3,4,5,6,7,8,9].map((i) => (
+                <div key={i} className="flex flex-col items-center animate-pulse">
+                  <div className="w-14 h-14 bg-gray-100 rounded-2xl mb-2"></div>
+                  <div className="h-3 bg-gray-100 rounded w-10"></div>
                 </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Doctors</span>
-              </Link>
-
-              {/* Dentists */}
-              <Link href="/categories/dentists" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Dentists</span>
-              </Link>
-
-              {/* Hospitals */}
-              <Link href="/categories/hospitals" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Hospitals</span>
-              </Link>
-
-              {/* Restaurants */}
-              <Link href="/categories/restaurants" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-yellow-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Restaurants</span>
-              </Link>
-
-              {/* Gyms */}
-              <Link href="/categories/gyms" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Gyms</span>
-              </Link>
-
-              {/* Lawyers */}
-              <Link href="/categories/lawyers" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Lawyers</span>
-              </Link>
-
-              {/* Cafes */}
-              <Link href="/categories/cafes" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Cafes</span>
-              </Link>
-
-              {/* Schools */}
-              <Link href="/categories/schools" className="flex flex-col items-center group">
-                <div className="w-14 h-14 bg-pink-100 rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all">
-                  <svg className="w-7 h-7 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                  </svg>
-                </div>
-                <span className="text-xs text-center font-medium text-gray-700 leading-tight">Schools</span>
-              </Link>
+              ))}
 
               {/* More */}
               <Link href="/categories" className="flex flex-col items-center group">
@@ -221,24 +282,27 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900">What&apos;s Trending in Patna This Month</h2>
-            <Link href="/explore" className="text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center gap-1">
-              See all trending →
+            <Link href="/businesses" className="text-blue-600 hover:text-blue-700 text-sm font-semibold flex items-center gap-1">
+              See all businesses →
             </Link>
           </div>
 
           {trendingBusinesses.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {trendingBusinesses.slice(0, 5).map((business: any) => (
+              {trendingBusinesses.slice(0, 5).map((business: any, index: number) => {
+                const openStatus = getOpenStatus(business);
+                const isSaved = savedBusinessIds.includes(business.id);
+                return (
                 <Link 
                   key={business.id} 
                   href={`/business/${business.slug}`}
-                  className="group"
+                  className="group block"
                 >
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
                     <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                       {business.cover_image || business.logo ? (
                         <img
-                          src={business.cover_image || business.logo}
+                          src={buildImageUrl(business.cover_image || business.logo)}
                           alt={business.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -247,30 +311,80 @@ export default function Home() {
                           <span className="text-4xl">{business.category?.icon || '🏢'}</span>
                         </div>
                       )}
-                      {business.is_trending && (
-                        <div className="absolute top-3 right-3 bg-amber-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                          Trending
+                      {/* Rank Badge (#1) */}
+                      <div className="absolute top-3 left-3 bg-gray-900/90 text-amber-400 text-xs font-extrabold px-2.5 py-1.5 rounded-lg shadow-md">
+                        #{index + 1}
+                      </div>
+                      {/* Bookmark / Save Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleSaveBusiness(business.id); }}
+                        aria-label={isSaved ? 'Remove from saved' : 'Save business'}
+                        className="absolute top-3 right-3 w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center hover:bg-gray-50 transition"
+                      >
+                        <svg className={`w-4 h-4 ${isSaved ? 'text-amber-500' : 'text-gray-700'}`} fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
+                      {/* Category Pill */}
+                      {business.category?.name && (
+                        <div className="absolute bottom-3 left-3 bg-indigo-600/95 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg shadow-md">
+                          {business.category.name}
                         </div>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-sm text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition">
-                        {business.name}
-                      </h3>
-                      <p className="text-xs text-gray-500 mb-2">{business.category?.name || ''}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      {/* Name + Verified Badge */}
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <h3 className="font-bold text-sm text-gray-900 line-clamp-1 group-hover:text-blue-600 transition">
+                          {business.name}
+                        </h3>
+                        {business.is_verified ? (
+                          <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
-                          <span className="text-xs font-semibold text-gray-900">{business.rating || '0.0'}</span>
+                        ) : null}
+                      </div>
+                      {/* Rating + Reviews */}
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <svg className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-gray-900">{Number(business.rating || 0).toFixed(1)}</span>
+                        <span className="text-xs text-gray-400">({business.review_count || 0} reviews)</span>
+                      </div>
+                      {/* Location */}
+                      <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+                        <svg className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="line-clamp-1">{business.area?.name || business.city || 'Patna'}, Patna</span>
+                      </div>
+                      {/* Open Status + View Profile */}
+                      <div className="flex items-center justify-between">
+                        {openStatus ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full ${openStatus.isOpen ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                            <span className={`text-xs font-medium ${openStatus.isOpen ? 'text-green-600' : 'text-red-500'}`}>
+                              {openStatus.isOpen ? 'Open Now' : 'Closed'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span></span>
+                        )}
+                        <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 group-hover:bg-gray-100 transition">
+                          <span className="text-xs font-semibold text-gray-700">View Profile</span>
+                          <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
                         </div>
-                        <span className="text-xs text-gray-400">({business.review_count || 0})</span>
                       </div>
                     </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -299,18 +413,10 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-            {[
-              { name: 'Boring Road' },
-              { name: 'Kankarbagh' },
-              { name: 'Bailey Road' },
-              { name: 'Patliputra' },
-              { name: 'Rajendra Nagar' },
-              { name: 'Danapur' },
-              { name: 'Kurji' },
-            ].map((area) => (
+            {(areas.length > 0 ? areas.slice(0, 7) : fallbackAreas).map((area: any) => (
               <Link
-                key={area.name}
-                href={`/areas/${area.name.toLowerCase().replace(/\s+/g, '-')}`}
+                key={area.id}
+                href={`/areas/${area.slug}`}
                 className="relative h-24 rounded-2xl overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900"></div>
@@ -365,20 +471,7 @@ export default function Home() {
               className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth pb-2"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {[
-                'Best Judiciary Coaching',
-                'Top IAS Coaching',
-                'Best Orthopaedic Doctor',
-                'Best Wedding Halls',
-                'Best Restaurants in Patna',
-                'Affordable Gyms',
-                'Top Hospitals Near Me',
-                'Best Dentist in Boring Road',
-                'Coaching for UPSC',
-                'Best Cafes in Patna',
-                'Top Lawyers in Patna',
-                'Best Schools Near Me',
-              ].map((search, index) => (
+              {(popularSearches.length > 0 ? popularSearches : fallbackSearches).map((search: string, index: number) => (
                 <Link
                   key={index}
                   href={`/search?q=${encodeURIComponent(search)}`}
@@ -754,33 +847,29 @@ export default function Home() {
 
               {/* Reviews - 3 Cards Side by Side */}
               <div className="grid grid-cols-3 gap-4">
-                {[
-                  { name: 'Ankit Raj', location: 'Judiciary Aspirant', rating: 5, review: 'Aakash Tutorials is simply the best for Judiciary coaching in Patna. Highly recommend!', business: 'Aakash Tutorials', avatar: 'A' },
-                  { name: 'Priya Sinha', location: 'Patna', rating: 5, review: 'Dr. SureshKumar explained everything so well. Truly professional and friendly.', business: 'Dr. SureshKumar Dental Clinic', avatar: 'P' },
-                  { name: 'Rohit Kumar', location: 'Local Guide', rating: 5, review: 'Great place with amazing ambience and delicious food. Must visit with family!', business: 'The Saffron Restaurant', avatar: 'R' },
-                ].map((review, index) => (
-                  <div key={index} className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition">
+                {(latestReviews.length > 0 ? latestReviews.slice(0, 3) : fallbackReviews).map((review: any) => (
+                  <div key={review.id} className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition">
                     <div className="flex items-start gap-3 mb-3">
                       {/* Avatar */}
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                        {review.avatar}
+                        {(review.author_name || 'A').charAt(0).toUpperCase()}
                       </div>
                       
                       {/* Name and Stars */}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-sm text-gray-900">{review.name}</h4>
-                        <p className="text-xs text-gray-500 mb-1">{review.location}</p>
+                        <h4 className="font-bold text-sm text-gray-900">{review.author_name}</h4>
+                        <p className="text-xs text-gray-500 mb-1">{review.business?.name || 'Patna'}</p>
                         <div className="flex text-amber-400 text-xs">
-                          {Array(review.rating).fill('★').join('')}
+                          {Array(Number(review.rating) || 5).fill('★').join('')}
                         </div>
                       </div>
                     </div>
                     
                     {/* Review Text */}
-                    <p className="text-xs text-gray-700 leading-relaxed mb-3">{review.review}</p>
+                    <p className="text-xs text-gray-700 leading-relaxed mb-3 line-clamp-3">{review.content}</p>
                     
                     {/* Business Name */}
-                    <p className="text-xs text-gray-900 font-bold">{review.business}</p>
+                    <p className="text-xs text-gray-900 font-bold">{review.business?.name}</p>
                   </div>
                 ))}
               </div>
@@ -812,25 +901,21 @@ export default function Home() {
               </div>
 
               {/* Blog Posts - 3 Cards Grid */}
-              {/* Blog Posts - 3 Cards Grid */}
               <div className="grid grid-cols-3 gap-4">
-                {[
-                  { title: '5 New Cafes in Patna You Must Try in 2024', date: 'May 12, 2024', badge: 'NEW', image: 'blog-1.jpg' },
-                  { title: 'New Coaching Batches Starting This Month', date: 'May 8, 2024', image: 'blog-2.jpg' },
-                  { title: "Patna's New Flyover: Traffic to Get Easier", date: 'May 5, 2024', image: 'blog-3.jpg' },
-                ].map((post, index) => (
-                  <Link key={index} href="/blog" className="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group">
+                {(blogPosts.length > 0 ? blogPosts.slice(0, 3) : fallbackBlogPosts).map((post: any) => (
+                  <Link key={post.id} href={post.slug ? `/blog/${post.slug}` : '/blog'} className="block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group">
                     {/* Blog Image - Top */}
                     <div className="relative w-full h-40">
-                      <Image
-                        src={`/images/blog/${post.image}`}
-                        alt={post.title}
-                        fill
-                        className="object-cover"
-                      />
-                      {/* Fallback gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-blue-400 -z-10"></div>
-                      
+                      {post.featured_image ? (
+                        <img
+                          src={post.featured_image.startsWith('http') ? post.featured_image : `${API_BASE_URL}${post.featured_image}`}
+                          alt={post.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-blue-400"></div>
+                      )}
+
                       {/* NEW Badge */}
                       {post.badge && (
                         <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded">
@@ -844,7 +929,7 @@ export default function Home() {
                       <h3 className="font-bold text-sm text-gray-900 mb-2 group-hover:text-blue-600 transition line-clamp-2">
                         {post.title}
                       </h3>
-                      <p className="text-xs text-gray-500">{post.date}</p>
+                      <p className="text-xs text-gray-500">{formatBlogDate(post.published_at)}</p>
                     </div>
                   </Link>
                 ))}

@@ -72,14 +72,24 @@ class BusinessController extends Controller
         return response()->json($businesses);
     }
 
-    public function show($slug)
+    public function show($slugOrId)
     {
-        $business = Business::with(['category', 'area', 'reviews' => function($query) {
-            $query->approved()->latest()->limit(10);
-        }, 'awards', 'faqs'])
-            ->where('slug', $slug)
-            ->approved()
-            ->firstOrFail();
+        // Check if parameter is numeric (ID) or string (slug)
+        if (is_numeric($slugOrId)) {
+            $business = Business::with(['category', 'area', 'reviews' => function($query) {
+                $query->approved()->latest()->limit(10);
+            }, 'awards', 'faqs'])
+                ->where('id', $slugOrId)
+                ->approved()
+                ->firstOrFail();
+        } else {
+            $business = Business::with(['category', 'area', 'reviews' => function($query) {
+                $query->approved()->latest()->limit(10);
+            }, 'awards', 'faqs'])
+                ->where('slug', $slugOrId)
+                ->approved()
+                ->firstOrFail();
+        }
 
         // Increment view count
         $business->increment('view_count');
@@ -122,11 +132,28 @@ class BusinessController extends Controller
 
     public function trending()
     {
+        // Businesses explicitly marked as trending by admins come first
         $businesses = Business::with(['category', 'area'])
             ->approved()
             ->trending()
+            ->orderByDesc('view_count')
             ->limit(12)
             ->get();
+
+        // Fallback: fill remaining slots with the newest approved businesses
+        // so dynamically added listings also appear in the trending section
+        if ($businesses->count() < 12) {
+            $excludeIds = $businesses->pluck('id')->all();
+
+            $latest = Business::with(['category', 'area'])
+                ->approved()
+                ->whereNotIn('id', $excludeIds)
+                ->orderByDesc('created_at')
+                ->limit(12 - $businesses->count())
+                ->get();
+
+            $businesses = $businesses->concat($latest)->values();
+        }
 
         return response()->json($businesses);
     }

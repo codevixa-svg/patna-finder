@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUserAuthStore } from '@/store/userAuthStore';
 import { userBusinessApi } from '@/lib/userApi';
@@ -68,7 +68,7 @@ type SocialLinks = {
   };
 };
 
-export default function AddBusinessPage() {
+function AddBusinessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('id');
@@ -592,9 +592,27 @@ export default function AddBusinessPage() {
         setServices(JSON.parse(business.services));
       }
       
-      // Load opening hours
+      // Load opening hours (API may return an object or a JSON string)
       if (business.opening_hours) {
-        setOpeningHours(JSON.parse(business.opening_hours));
+        let loadedHours = business.opening_hours;
+        if (typeof loadedHours === 'string') {
+          try { loadedHours = JSON.parse(loadedHours); } catch { loadedHours = null; }
+        }
+        if (loadedHours && typeof loadedHours === 'object') {
+          // Normalize any legacy fields to the canonical format used by this form
+          const normalizedHours: Record<string, { is_open: boolean; open_time: string; close_time: string }> = {};
+          Object.entries(loadedHours as Record<string, any>).forEach(([day, h]: [string, any]) => {
+            if (!h || typeof h !== 'object') return;
+            normalizedHours[day.toLowerCase()] = {
+              is_open: typeof h.is_open === 'boolean' ? h.is_open : !(h.closed ?? false),
+              open_time: h.open_time || h.open || '09:00',
+              close_time: h.close_time || h.close || '18:00',
+            };
+          });
+          if (Object.keys(normalizedHours).length > 0) {
+            setOpeningHours(normalizedHours);
+          }
+        }
       }
       
       // Load social links
@@ -2689,3 +2707,12 @@ export default function AddBusinessPage() {
     </>
   );
 }
+
+export default function AddBusinessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div></div>}>
+      <AddBusinessPageContent />
+    </Suspense>
+  );
+}
+

@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\User\AuthController as UserAuthController;
 use App\Http\Controllers\Api\User\BusinessController as UserBusinessController;
 use App\Http\Controllers\Api\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\Api\User\SubscriptionController as UserSubscriptionController;
+use App\Http\Controllers\Api\User\UpdateController as UserUpdateController;
 use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
 
 /*
@@ -53,7 +54,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/businesses/featured', [BusinessController::class, 'featured']);
     Route::get('/businesses/hidden-gems', [BusinessController::class, 'hiddenGems']);
     Route::post('/businesses', [BusinessController::class, 'store'])->middleware('throttle:5,1');
-    Route::get('/businesses/{slug}', [BusinessController::class, 'show']);
+    Route::get('/businesses/{slugOrId}', [BusinessController::class, 'show']);
     Route::get('/businesses/{slug}/nearby', [BusinessController::class, 'nearby']);
 
     // Hidden Gems (Admin Managed)
@@ -65,6 +66,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/hidden-gems/{slug}/share', [HiddenGemController::class, 'share']);
 
     // Reviews
+    Route::get('/reviews/latest', [ReviewController::class, 'latest']);
     Route::get('/businesses/{slug}/reviews', [ReviewController::class, 'index']);
     Route::post('/businesses/{slug}/reviews', [ReviewController::class, 'store'])->middleware('throttle:10,1');
     Route::post('/reviews/{id}/like', [ReviewController::class, 'like']);
@@ -113,6 +115,14 @@ Route::prefix('v1/user')->group(function () {
         Route::get('/subscription/current', [UserSubscriptionController::class, 'currentPlan']);
         Route::post('/subscription/cancel', [UserSubscriptionController::class, 'cancelSubscription']);
         Route::get('/subscription/history', [UserSubscriptionController::class, 'history']);
+
+        // Updates (GMB-style posts)
+        Route::get('/updates', [UserUpdateController::class, 'index']);
+        Route::post('/updates', [UserUpdateController::class, 'store']);
+        Route::get('/updates/{id}', [UserUpdateController::class, 'show']);
+        Route::put('/updates/{id}', [UserUpdateController::class, 'update']);
+        Route::delete('/updates/{id}', [UserUpdateController::class, 'destroy']);
+        Route::post('/updates/{id}/toggle-active', [UserUpdateController::class, 'toggleActive']);
     });
 });
 

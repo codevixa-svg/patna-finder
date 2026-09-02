@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useUserAuthStore } from '@/store/userAuthStore';
 import { userAuthApi } from '@/lib/userApi';
 
-export default function DashboardLoginPage() {
+function DashboardLoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/dashboard';
@@ -216,3 +216,12 @@ export default function DashboardLoginPage() {
     </div>
   );
 }
+
+export default function DashboardLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div></div>}>
+      <DashboardLoginPageContent />
+    </Suspense>
+  );
+}
+
