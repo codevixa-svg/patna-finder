@@ -13,8 +13,18 @@ async function fetchJson(url: string, options?: RequestInit) {
 
 export const api = {
   // Categories
-  getCategories: async () => {
-    return fetchJson(`${API_URL}/categories`);
+  getCategories: async (
+    params?: { limit?: number; search?: string },
+    options?: RequestInit,
+  ) => {
+    const queryString = params
+      ? `?${new URLSearchParams(params as Record<string, string>)}`
+      : '';
+    return fetchJson(`${API_URL}/categories${queryString}`, options);
+  },
+
+  getCategory: async (slug: string) => {
+    return fetchJson(`${API_URL}/categories/${slug}`);
   },
 
   // Areas

@@ -6,6 +6,7 @@ import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { adminCategoriesApi } from '@/lib/adminApi';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface Category {
   id: number;
@@ -224,7 +225,7 @@ export default function CategoriesPage() {
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                              <span className="text-lg">{category.icon || '📂'}</span>
+                              <CategoryIcon icon={category.icon} className="w-5 h-5 text-blue-700" />
                             </div>
                           </div>
                           <div className="ml-4">

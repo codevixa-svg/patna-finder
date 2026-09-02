@@ -1,5 +1,6 @@
 import { api } from '@/lib/api';
 import BusinessCard from '@/components/BusinessCard';
+import CategoryIcon from '@/components/CategoryIcon';
 import { notFound } from 'next/navigation';
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -7,9 +8,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   let data;
   
   try {
-    data = await api.getCategories().then((categories: any[]) => 
-      categories.find((c: any) => c.slug === slug)
-    );
+    data = await api.getCategory(slug);
     
     if (!data) notFound();
   } catch (error) {
@@ -27,7 +26,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       <section className="bg-gradient-to-br from-amber-400 to-amber-500 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
-            <span className="text-6xl">{data.icon || '📁'}</span>
+            <CategoryIcon icon={data.icon} className="w-16 h-16 text-gray-900" />
             <div>
               <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900">{data.name}</h1>
               <p className="text-xl text-gray-800 mt-2">

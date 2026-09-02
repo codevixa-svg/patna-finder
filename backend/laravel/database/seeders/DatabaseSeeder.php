@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             BusinessSeeder::class,
             HiddenGemsSeeder::class,
+            GmbCategorySeeder::class,
         ]);
     }
 }

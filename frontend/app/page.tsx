@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { api, API_BASE_URL } from '@/lib/api';
 import TrendingBusinessCard from '@/components/TrendingBusinessCard';
+import CategoryIcon from '@/components/CategoryIcon';
 
 export default function Home() {
   const [trendingBusinesses, setTrendingBusinesses] = useState<any[]>([]);
@@ -18,7 +19,7 @@ export default function Home() {
     api.getTrendingBusinesses()
       .then(data => setTrendingBusinesses(Array.isArray(data) ? data : data.data || []))
       .catch(() => {});
-    api.getCategories()
+    api.getCategories({ limit: 12 })
       .then(data => setCategories(Array.isArray(data) ? data : data.data || []))
       .catch(() => {});
     api.getAreas()
@@ -197,7 +198,7 @@ export default function Home() {
               {(categories.length > 0 ? categories.slice(0, 9) : []).map((category: any, index: number) => (
                 <Link key={category.id} href={`/categories/${category.slug}`} className="flex flex-col items-center group">
                   <div className={`w-14 h-14 ${categoryColors[index % categoryColors.length]} rounded-2xl flex items-center justify-center mb-2 group-hover:shadow-lg group-hover:scale-105 transition-all`}>
-                    <span className="text-2xl">{category.icon || '🏢'}</span>
+                    <CategoryIcon icon={category.icon} className="w-7 h-7 text-gray-700" />
                   </div>
                   <span className="text-xs text-center font-medium text-gray-700 leading-tight">{category.name}</span>
                 </Link>

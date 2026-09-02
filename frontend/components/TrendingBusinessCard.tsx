@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { API_BASE_URL } from '@/lib/api';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface TrendingBusinessCardProps {
   business: any;
@@ -143,7 +144,7 @@ export default function TrendingBusinessCard({
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-              <span className="text-4xl">{business.category?.icon || '🏢'}</span>
+              <CategoryIcon icon={business.category?.icon} className="w-12 h-12 text-amber-700" />
             </div>
           )}
 
