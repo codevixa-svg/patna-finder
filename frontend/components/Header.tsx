@@ -4,6 +4,17 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUserAuthStore } from '@/store/userAuthStore';
+import {
+  GraduationCap,
+  Stethoscope,
+  Hospital,
+  UtensilsCrossed,
+  Coffee,
+  Dumbbell,
+  Scale,
+  Trophy,
+  ArrowRight,
+} from 'lucide-react';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -113,32 +124,43 @@ export default function Header() {
               {categoriesOpen && (
                 <div className="absolute top-full left-0 pt-2">
                   <div className="bg-white rounded-xl shadow-lg py-2 w-56 max-h-96 overflow-y-auto">
-                    <Link href="/categories/coaching-institutes" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      📚 Coaching Institutes
+                    <Link href="/categories/coaching-institutes" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <GraduationCap className="w-4 h-4 text-amber-500 shrink-0" />
+                      Coaching Institutes
                     </Link>
-                    <Link href="/categories/doctors" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🩺 Doctors
+                    <Link href="/categories/doctors" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Stethoscope className="w-4 h-4 text-amber-500 shrink-0" />
+                      Doctors
                     </Link>
-                    <Link href="/categories/dentists" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🦷 Dentists
+                    <Link href="/categories/dentists" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <svg className="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 5.5C10.9 4.7 9.4 4 8 4 5.8 4 4 5.5 4 8c0 2.6 2 4.6 2.5 7 .3 1.8.5 4 2.5 4 1.5 0 1-2.5 3-2.5s1.5 2.5 3 2.5c2 0 2.2-2.2 2.5-4 .5-2.4 2.5-4.4 2.5-7 0-2.5-1.8-4-4-4-1.4 0-2.9.7-4 1.5z" />
+                      </svg>
+                      Dentists
                     </Link>
-                    <Link href="/categories/hospitals" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🏥 Hospitals
+                    <Link href="/categories/hospitals" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Hospital className="w-4 h-4 text-amber-500 shrink-0" />
+                      Hospitals
                     </Link>
-                    <Link href="/categories/restaurants" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🍽️ Restaurants
+                    <Link href="/categories/restaurants" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <UtensilsCrossed className="w-4 h-4 text-amber-500 shrink-0" />
+                      Restaurants
                     </Link>
-                    <Link href="/categories/cafes" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      ☕ Cafés
+                    <Link href="/categories/cafes" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Coffee className="w-4 h-4 text-amber-500 shrink-0" />
+                      Cafés
                     </Link>
-                    <Link href="/categories/gyms" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      💪 Gyms
+                    <Link href="/categories/gyms" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Dumbbell className="w-4 h-4 text-amber-500 shrink-0" />
+                      Gyms
                     </Link>
-                    <Link href="/categories/lawyers" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      ⚖️ Lawyers
+                    <Link href="/categories/lawyers" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Scale className="w-4 h-4 text-amber-500 shrink-0" />
+                      Lawyers
                     </Link>
-                    <Link href="/categories" className="block px-4 py-2 text-amber-600 hover:bg-gray-50 font-semibold transition border-t border-gray-100 mt-2">
-                      View All Categories →
+                    <Link href="/categories" className="flex items-center justify-between px-4 py-2 text-amber-600 hover:bg-gray-50 font-semibold transition border-t border-gray-100 mt-2">
+                      View All Categories
+                      <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>
@@ -160,23 +182,29 @@ export default function Header() {
               {bestOfPatnaOpen && (
                 <div className="absolute top-full left-0 pt-2">
                   <div className="bg-white rounded-xl shadow-lg py-2 w-56">
-                    <Link href="/best-of-patna/coaching" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🏆 Best Coaching
+                    <Link href="/best-of-patna/coaching" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+                      Best Coaching
                     </Link>
-                    <Link href="/best-of-patna/hospitals" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🏆 Best Hospitals
+                    <Link href="/best-of-patna/hospitals" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+                      Best Hospitals
                     </Link>
-                    <Link href="/best-of-patna/restaurants" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🏆 Best Restaurants
+                    <Link href="/best-of-patna/restaurants" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+                      Best Restaurants
                     </Link>
-                    <Link href="/best-of-patna/cafes" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🏆 Best Cafés
+                    <Link href="/best-of-patna/cafes" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+                      Best Cafés
                     </Link>
-                    <Link href="/best-of-patna/dentists" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
-                      🏆 Best Dentists
+                    <Link href="/best-of-patna/dentists" className="flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-amber-500 transition">
+                      <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
+                      Best Dentists
                     </Link>
-                    <Link href="/best-of-patna" className="block px-4 py-2 text-amber-600 hover:bg-gray-50 font-semibold transition border-t border-gray-100 mt-2">
-                      View All Awards →
+                    <Link href="/best-of-patna" className="flex items-center justify-between px-4 py-2 text-amber-600 hover:bg-gray-50 font-semibold transition border-t border-gray-100 mt-2">
+                      View All Awards
+                      <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>
