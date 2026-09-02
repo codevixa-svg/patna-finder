@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useUserAuthStore } from '@/store/userAuthStore';
 
 export default function Header() {
@@ -11,10 +12,20 @@ export default function Header() {
   const [bestOfPatnaOpen, setBestOfPatnaOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { isAuthenticated } = useUserAuthStore();
+  const pathname = usePathname();
+
+  // The global header is transparent (white text) and overlays dark hero
+  // sections. Business detail pages start with a light background, so there we
+  // render a solid white sticky header with dark text instead.
+  const solid = pathname?.startsWith('/business/') ?? false;
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const navLinkClass = solid
+    ? 'text-gray-700 hover:text-amber-500 font-medium transition'
+    : 'text-white hover:text-amber-400 font-medium transition';
 
   const handleAddBusiness = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,7 +37,13 @@ export default function Header() {
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
+    <header
+      className={
+        solid
+          ? 'sticky top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm'
+          : 'absolute top-0 left-0 right-0 z-50 bg-transparent'
+      }
+    >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
@@ -35,14 +52,14 @@ export default function Header() {
               <span className="text-2xl">📍</span>
             </div>
             <div>
-              <div className="text-xl font-extrabold text-white">PATNA FINDER</div>
-              <div className="text-xs text-gray-300 -mt-1">Discover Patna's Best</div>
+              <div className={`text-xl font-extrabold ${solid ? 'text-[#153b78]' : 'text-white'}`}>PATNA FINDER</div>
+              <div className={`text-xs -mt-1 ${solid ? 'text-gray-500' : 'text-gray-300'}`}>Discover Patna's Best</div>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-white hover:text-amber-400 font-medium transition">
+            <Link href="/" className={navLinkClass}>
               Home
             </Link>
             
@@ -52,7 +69,7 @@ export default function Header() {
               onMouseEnter={() => setExploreOpen(true)}
               onMouseLeave={() => setExploreOpen(false)}
             >
-              <button className="text-white hover:text-amber-400 font-medium transition flex items-center gap-1">
+              <button className={`${navLinkClass} flex items-center gap-1`}>
                 Explore
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -84,7 +101,7 @@ export default function Header() {
               onMouseEnter={() => setCategoriesOpen(true)}
               onMouseLeave={() => setCategoriesOpen(false)}
             >
-              <button className="text-white hover:text-amber-400 font-medium transition flex items-center gap-1">
+              <button className={`${navLinkClass} flex items-center gap-1`}>
                 Categories
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -131,7 +148,7 @@ export default function Header() {
               onMouseEnter={() => setBestOfPatnaOpen(true)}
               onMouseLeave={() => setBestOfPatnaOpen(false)}
             >
-              <button className="text-white hover:text-amber-400 font-medium transition flex items-center gap-1">
+              <button className={`${navLinkClass} flex items-center gap-1`}>
                 Best Of Patna
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -163,10 +180,10 @@ export default function Header() {
               )}
             </div>
             
-            <Link href="/blog" className="text-white hover:text-amber-400 font-medium transition">
+            <Link href="/blog" className={navLinkClass}>
               Blog
             </Link>
-            <Link href="/about" className="text-white hover:text-amber-400 font-medium transition">
+            <Link href="/about" className={navLinkClass}>
               About Us
             </Link>
           </div>
@@ -183,7 +200,7 @@ export default function Header() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-white"
+            className={`md:hidden p-2 ${solid ? 'text-gray-700' : 'text-white'}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
