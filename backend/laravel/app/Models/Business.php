@@ -142,6 +142,11 @@ class Business extends Model
         return $this->hasMany(Faq::class);
     }
 
+    public function updates()
+    {
+        return $this->hasMany(Update::class);
+    }
+
     /**
      * Normalize opening_hours on write so the database always stores ONE canonical format:
      * { "monday": { "is_open": true, "open_time": "09:00", "close_time": "18:00" }, ... }

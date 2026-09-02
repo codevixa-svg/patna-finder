@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/businesses/hidden-gems', [BusinessController::class, 'hiddenGems']);
     Route::post('/businesses', [BusinessController::class, 'store'])->middleware('throttle:5,1');
     Route::get('/businesses/{slugOrId}', [BusinessController::class, 'show']);
+    Route::get('/businesses/{slugOrId}/updates', [BusinessController::class, 'updates']);
     Route::get('/businesses/{slug}/nearby', [BusinessController::class, 'nearby']);
 
     // Hidden Gems (Admin Managed)

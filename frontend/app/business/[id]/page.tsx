@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
@@ -138,6 +139,33 @@ const Icon = ({
         </svg>
       );
 
+    case 'megaphone':
+      return (
+        <svg {...common}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M11 5 6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4V5z"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"
+          />
+        </svg>
+      );
+
+    case 'navigation':
+      return (
+        <svg {...common}>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+          />
+        </svg>
+      );
+
     default:
       return null;
   }
@@ -208,6 +236,7 @@ export default function PublicBusinessPage() {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [updates, setUpdates] = useState<any[]>([]);
 
   useEffect(() => {
     fetchBusiness();
@@ -226,6 +255,21 @@ export default function PublicBusinessPage() {
       const result = await response.json();
       // Handle response structure
       setBusiness(result.data || result);
+
+      // Business updates (sidebar) — optional, fail silently
+      try {
+        const updatesRes = await fetch(
+          `${API_URL}/businesses/${businessId}/updates`,
+        );
+        if (updatesRes.ok) {
+          const updatesJson = await updatesRes.json();
+          setUpdates(
+            Array.isArray(updatesJson.data) ? updatesJson.data : [],
+          );
+        }
+      } catch {
+        // Updates are optional
+      }
     } catch (error) {
       console.error('Failed to fetch business:', error);
       toast.error('Business not found');
@@ -325,6 +369,26 @@ export default function PublicBusinessPage() {
     business.phone_number ||
     '';
 
+  // Map (sidebar) — prefer exact coordinates, fallback to address
+  const hasCoords = Boolean(business.latitude && business.longitude);
+  const hasAddress = address !== 'Address not set';
+  const mapQuery = hasCoords
+    ? `${business.latitude},${business.longitude}`
+    : hasAddress
+      ? address
+      : 'Patna, Bihar';
+  const mapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery)}`;
+
+  const formatUpdateDate = (value: any) => {
+    if (!value) return '';
+    try {
+      return formatDistanceToNow(new Date(value), { addSuffix: true });
+    } catch {
+      return '';
+    }
+  };
+
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'services', label: 'Services' },
@@ -367,7 +431,7 @@ export default function PublicBusinessPage() {
       <main className="bg-[#f7f8fa] min-h-screen">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="bg-white border-b border-gray-200">
-          <div className="max-w-[1060px] mx-auto px-4 sm:px-6 py-3">
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6 py-3">
             <ol className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-sm">
               <li>
                 <Link
@@ -464,7 +528,9 @@ export default function PublicBusinessPage() {
           }}
         />
 
-        <div className="max-w-[1060px] mx-auto px-4 sm:px-6 py-6">
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-6 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_330px] gap-6 items-start">
+            <div className="min-w-0 space-y-5">
           {/* Hero Card */}
           <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
             {/* Cover */}
@@ -647,7 +713,7 @@ export default function PublicBusinessPage() {
           </section>
 
           {/* Tabs */}
-          <section className="mt-5 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+          <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
             <div className="overflow-x-auto scrollbar-hide">
               <div className="flex min-w-max px-4 border-b border-gray-200">
                 {tabs.map((tab) => (
@@ -736,6 +802,119 @@ export default function PublicBusinessPage() {
               )}
             </div>
           </section>
+            </div>
+
+            {/* Sidebar: Map + Business Updates */}
+            <aside className="space-y-5 lg:sticky lg:top-24">
+              {/* Map */}
+              <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold text-gray-900 inline-flex items-center gap-2">
+                    <Icon name="location" className="w-4 h-4 text-[#153b78]" />
+                    Location
+                  </h3>
+                  <a
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#153b78] hover:text-amber-600 transition"
+                  >
+                    <Icon name="navigation" className="w-3.5 h-3.5" />
+                    Directions
+                  </a>
+                </div>
+
+                <iframe
+                  title={`${business.name} location map`}
+                  src={mapEmbedUrl}
+                  className="w-full h-[240px] border-0"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+
+                <div className="px-4 py-3 border-t border-gray-100">
+                  <p className="text-xs leading-5 text-gray-500 flex items-start gap-1.5">
+                    <Icon name="location" className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                    <span>{address}</span>
+                  </p>
+                </div>
+              </section>
+
+              {/* Business Updates */}
+              <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <h3 className="text-sm font-semibold text-gray-900 inline-flex items-center gap-2">
+                    <Icon name="megaphone" className="w-4 h-4 text-amber-500" />
+                    Updates
+                    {updates.length > 0 && (
+                      <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                        {updates.length}
+                      </span>
+                    )}
+                  </h3>
+                </div>
+
+                {updates.length === 0 ? (
+                  <div className="px-4 py-6 text-center">
+                    <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-100 flex items-center justify-center">
+                      <Icon name="megaphone" className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <p className="text-xs text-gray-500 leading-5">
+                      No updates posted yet.
+                      <br />
+                      Check back later for offers &amp; news.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 max-h-[560px] overflow-y-auto">
+                    {updates.map((update) => (
+                      <article key={update.id} className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                            {update.type || 'Update'}
+                          </span>
+                          <span className="text-[11px] text-gray-400">
+                            {formatUpdateDate(update.published_at || update.created_at)}
+                          </span>
+                        </div>
+
+                        <h4 className="text-sm font-semibold text-gray-900 leading-5 mb-1 line-clamp-2">
+                          {update.title}
+                        </h4>
+
+                        {update.content && (
+                          <p className="text-xs text-gray-600 leading-5 line-clamp-3 mb-2">
+                            {update.content}
+                          </p>
+                        )}
+
+                        {update.image && (
+                          <img
+                            src={getImageUrl(update.image)}
+                            alt={update.title || 'Update'}
+                            className="w-full h-36 object-cover rounded-lg border border-gray-100 mb-2"
+                          />
+                        )}
+
+                        {update.cta_text && update.cta_url && (
+                          <a
+                            href={update.cta_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#153b78] hover:text-amber-600 transition"
+                          >
+                            {update.cta_text}
+                            <Icon name="chevron-right" className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </aside>
+          </div>
         </div>
       </main>
     </>

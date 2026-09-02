@@ -97,6 +97,31 @@ class BusinessController extends Controller
         return response()->json($business);
     }
 
+    /**
+     * Public: active & published updates (GMB-style posts) of a business.
+     */
+    public function updates($slugOrId)
+    {
+        $query = Business::query()->approved();
+
+        $business = is_numeric($slugOrId)
+            ? $query->where('id', $slugOrId)->first()
+            : $query->where('slug', $slugOrId)->first();
+
+        if (!$business) {
+            return response()->json(['message' => 'Business not found'], 404);
+        }
+
+        $updates = $business->updates()
+            ->active()
+            ->published()
+            ->orderByDesc('published_at')
+            ->limit(10)
+            ->get();
+
+        return response()->json(['data' => $updates]);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
