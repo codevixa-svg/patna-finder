@@ -893,6 +893,9 @@ export default function PublicBusinessPage() {
                           <img
                             src={getImageUrl(update.image)}
                             alt={update.title || 'Update'}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
                             className="w-full h-36 object-cover rounded-lg border border-gray-100 mb-2"
                           />
                         )}

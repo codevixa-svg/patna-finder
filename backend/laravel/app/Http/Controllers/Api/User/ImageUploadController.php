@@ -13,7 +13,7 @@ class ImageUploadController extends Controller
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
-            'type' => 'required|in:logo,cover,gallery'
+            'type' => 'required|in:logo,cover,gallery,update'
         ]);
 
         try {
@@ -48,7 +48,7 @@ class ImageUploadController extends Controller
     {
         $request->validate([
             'image' => 'required|string',
-            'type' => 'required|in:logo,cover,gallery'
+            'type' => 'required|in:logo,cover,gallery,update'
         ]);
 
         try {
