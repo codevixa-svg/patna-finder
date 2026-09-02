@@ -12,6 +12,22 @@ use Illuminate\Support\Str;
 
 class BusinessController extends Controller
 {
+    /**
+     * Generate a clean, unique kebab-case slug for a business name.
+     * Appends a numeric suffix (-2, -3, ...) only when the slug is already taken.
+     */
+    protected function generateUniqueSlug(string $name): string
+    {
+        $base = Str::slug($name) ?: 'business';
+        $slug = $base;
+        $counter = 2;
+        while (Business::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $counter;
+            $counter++;
+        }
+        return $slug;
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -101,7 +117,7 @@ class BusinessController extends Controller
 
         $data = $validator->validated();
         $data['user_id'] = $request->user()->id;
-        $data['slug'] = Str::slug($request->name) . '-' . Str::random(6);
+        $data['slug'] = $this->generateUniqueSlug($request->name);
         $data['status'] = 'pending';
 
         $business = Business::create($data);
@@ -172,7 +188,7 @@ class BusinessController extends Controller
         $data = $request->except(['user_id', 'slug', 'status']);
         
         if ($request->has('name') && $request->name !== $business->name) {
-            $data['slug'] = Str::slug($request->name) . '-' . Str::random(6);
+            $data['slug'] = $this->generateUniqueSlug($request->name);
         }
 
         $business->update($data);
