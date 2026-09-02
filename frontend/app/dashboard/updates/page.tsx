@@ -119,7 +119,7 @@ export default function UpdatesPage() {
               <div key={update.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition group">
                 {update.image ? (
                   <div className="aspect-video bg-gray-100 relative overflow-hidden">
-                    <img src={getImageUrl(update.image)} alt={update.title || 'Update'} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                    <img src={getImageUrl(update.image)} alt="Update" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     <div className="absolute top-2 right-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${update.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                         {update.is_active ? 'Active' : 'Inactive'}
@@ -134,7 +134,6 @@ export default function UpdatesPage() {
                   </div>
                 )}
                 <div className="p-4">
-                  {update.title && <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{update.title}</h3>}
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">{update.content}</p>
                   <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
                     <span className="bg-gray-100 px-2 py-0.5 rounded">{update.business?.name}</span>

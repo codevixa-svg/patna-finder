@@ -36,7 +36,6 @@ function CreateUpdatePageContent() {
   const [imagePreview, setImagePreview] = useState('');
   const [selectedBusiness, setSelectedBusiness] = useState('');
   const [formData, setFormData] = useState({
-    title: '',
     content: '',
     image: '',
     cta_text: '',
@@ -190,10 +189,6 @@ function CreateUpdatePageContent() {
             </div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Title (optional)</label>
-              <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="e.g., Special Offer This Week!" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" maxLength={255} />
-            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Content *</label>
               <textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder="Write your update here..." rows={5} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none" maxLength={5000} required />

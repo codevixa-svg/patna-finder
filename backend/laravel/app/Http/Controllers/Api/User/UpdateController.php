@@ -36,7 +36,6 @@ class UpdateController extends Controller
 
         $validator = Validator::make($request->all(), [
             'business_id' => 'required|exists:businesses,id',
-            'title' => 'nullable|string|max:255',
             'content' => 'required|string|max:5000',
             'image' => 'nullable|string',
             'cta_text' => 'nullable|string|max:100',
@@ -124,7 +123,6 @@ class UpdateController extends Controller
             : 'nullable|url|max:500';
 
         $validator = Validator::make($request->all(), [
-            'title' => 'nullable|string|max:255',
             'content' => 'sometimes|string|max:5000',
             'image' => 'nullable|string',
             'cta_text' => 'nullable|string|max:100',

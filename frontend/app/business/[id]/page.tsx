@@ -238,6 +238,7 @@ export default function PublicBusinessPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [updates, setUpdates] = useState<any[]>([]);
   const [activeUpdate, setActiveUpdate] = useState<any>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     fetchBusiness();
@@ -281,6 +282,7 @@ export default function PublicBusinessPage() {
           setUpdates(
             Array.isArray(updatesJson.data) ? updatesJson.data : [],
           );
+          setActiveSlide(0);
         }
       } catch {
         // Updates are optional
@@ -403,6 +405,13 @@ export default function PublicBusinessPage() {
       return '';
     }
   };
+
+  // Updates slider (GMB-style: one post at a time)
+  const currentUpdate =
+    updates.length > 0 ? updates[Math.min(activeSlide, updates.length - 1)] : null;
+  const prevSlide = () =>
+    setActiveSlide((activeSlide - 1 + updates.length) % updates.length);
+  const nextSlide = () => setActiveSlide((activeSlide + 1) % updates.length);
 
   // CTA: "call" type -> tel: link, everything else -> normal URL
   const getCtaHref = (update: any) => {
@@ -892,67 +901,108 @@ export default function PublicBusinessPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-100 max-h-[560px] overflow-y-auto">
-                    {updates.map((update) => (
-                      <article
-                        key={update.id}
-                        onClick={() => setActiveUpdate(update)}
-                        className="p-4 cursor-pointer group hover:bg-amber-50/40 transition"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
-                            {update.type || 'Update'}
-                          </span>
-                          <span className="text-[11px] text-gray-400">
-                            {formatUpdateDate(update.published_at || update.created_at)}
-                          </span>
-                        </div>
-
-                        {update.image && (
+                  currentUpdate && (
+                    <div>
+                      {/* Slide: image + slider controls (GMB style) */}
+                      <div className="relative">
+                        {currentUpdate.image ? (
                           <img
-                            src={getImageUrl(update.image)}
-                            alt={update.title || 'Update'}
+                            src={getImageUrl(currentUpdate.image)}
+                            alt="Update"
                             onError={(e) => {
                               (e.currentTarget as HTMLImageElement).style.display = 'none';
                             }}
-                            className="w-full h-36 object-cover rounded-lg border border-gray-100 mb-2"
+                            className="w-full aspect-video object-cover"
                           />
+                        ) : (
+                          <div className="w-full aspect-video bg-gradient-to-br from-[#17365d] via-[#1f5a8c] to-[#0b243f] flex items-center justify-center">
+                            <Icon name="megaphone" className="w-8 h-8 text-white/60" />
+                          </div>
                         )}
 
-                        {update.title && (
-                          <h4 className="text-sm font-semibold text-gray-900 leading-5 mb-1 line-clamp-2 group-hover:text-[#153b78]">
-                            {update.title}
-                          </h4>
-                        )}
-
-                        {update.content && (
-                          <p className="text-xs text-gray-600 leading-5 line-clamp-2 mb-2.5">
-                            {update.content}
-                          </p>
-                        )}
-
-                        <div className="flex items-center justify-between gap-2">
-                          {update.cta_text && update.cta_url ? (
-                            <a
-                              href={getCtaHref(update)}
-                              target={update.cta_type === 'call' ? undefined : '_blank'}
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg bg-[#153b78] text-white text-xs font-semibold hover:bg-[#0f2c5c] transition"
+                        {updates.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={prevSlide}
+                              aria-label="Previous update"
+                              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:text-[#153b78] transition"
                             >
-                              {update.cta_text}
-                            </a>
-                          ) : (
-                            <span />
-                          )}
-                          <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-gray-400 group-hover:text-amber-600 transition">
-                            View
-                            <Icon name="chevron-right" className="w-3.5 h-3.5" />
+                              <Icon name="chevron-right" className="w-4 h-4 rotate-180" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={nextSlide}
+                              aria-label="Next update"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:text-[#153b78] transition"
+                            >
+                              <Icon name="chevron-right" className="w-4 h-4" />
+                            </button>
+                            <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-semibold">
+                              {activeSlide + 1} / {updates.length}
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Slide body: short description + CTA */}
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                            {currentUpdate.type || 'Update'}
+                          </span>
+                          <span className="text-[11px] text-gray-400">
+                            {formatUpdateDate(currentUpdate.published_at || currentUpdate.created_at)}
                           </span>
                         </div>
-                      </article>
-                    ))}
-                  </div>
+
+                        <p
+                          onClick={() => setActiveUpdate(currentUpdate)}
+                          className="text-xs text-gray-600 leading-5 line-clamp-3 mb-3 cursor-pointer hover:text-[#153b78] transition"
+                        >
+                          {currentUpdate.content}
+                        </p>
+
+                        {currentUpdate.cta_text && currentUpdate.cta_url ? (
+                          <a
+                            href={getCtaHref(currentUpdate)}
+                            target={currentUpdate.cta_type === 'call' ? undefined : '_blank'}
+                            rel="noopener noreferrer"
+                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#153b78] text-white text-xs font-semibold hover:bg-[#0f2c5c] transition"
+                          >
+                            {currentUpdate.cta_text}
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setActiveUpdate(currentUpdate)}
+                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-xs font-semibold hover:bg-gray-50 transition"
+                          >
+                            View Details
+                          </button>
+                        )}
+
+                        {/* Dots */}
+                        {updates.length > 1 && (
+                          <div className="flex items-center justify-center gap-1.5 mt-3">
+                            {updates.map((u, idx) => (
+                              <button
+                                key={u.id}
+                                type="button"
+                                onClick={() => setActiveSlide(idx)}
+                                aria-label={`Go to update ${idx + 1}`}
+                                className={`h-1.5 rounded-full transition-all ${
+                                  idx === activeSlide
+                                    ? 'w-4 bg-[#153b78]'
+                                    : 'w-1.5 bg-gray-300 hover:bg-gray-400'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
                 )}
               </section>
             </aside>
@@ -982,7 +1032,7 @@ export default function PublicBusinessPage() {
                 {activeUpdate.image ? (
                   <img
                     src={getImageUrl(activeUpdate.image)}
-                    alt={activeUpdate.title || 'Update'}
+                    alt="Update"
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).style.display = 'none';
                     }}
@@ -1003,12 +1053,6 @@ export default function PublicBusinessPage() {
                       {formatUpdateDate(activeUpdate.published_at || activeUpdate.created_at)}
                     </span>
                   </div>
-
-                  {activeUpdate.title && (
-                    <h3 className="text-lg font-bold text-gray-900 leading-6 mb-2">
-                      {activeUpdate.title}
-                    </h3>
-                  )}
 
                   <p className="text-sm text-gray-600 leading-6 whitespace-pre-line">
                     {activeUpdate.content}
