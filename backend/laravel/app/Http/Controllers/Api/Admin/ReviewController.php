@@ -97,20 +97,25 @@ class ReviewController extends Controller
             'action' => 'required|in:approve,reject,delete',
         ]);
 
-        $reviews = Review::whereIn('id', $request->ids);
+        $reviews = Review::with('business')->whereIn('id', $request->ids)->get();
         $count = $reviews->count();
 
         switch ($request->action) {
             case 'approve':
-                $reviews->update(['status' => 'approved']);
+                Review::whereIn('id', $request->ids)->update(['status' => 'approved']);
                 break;
             case 'reject':
-                $reviews->update(['status' => 'rejected']);
+                Review::whereIn('id', $request->ids)->update(['status' => 'rejected']);
                 break;
             case 'delete':
-                $reviews->delete();
+                Review::whereIn('id', $request->ids)->delete();
                 break;
         }
+
+        // Recalculate rating for every affected business
+        $reviews->pluck('business')->filter()->unique('id')->each(function ($business) {
+            $business->recalculateRating();
+        });
 
         return response()->json([
             'message' => ucfirst($request->action) . " applied to {$count} reviews",

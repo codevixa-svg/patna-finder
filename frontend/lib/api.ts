@@ -6,7 +6,13 @@ async function fetchJson(url: string, options?: RequestInit) {
   const res = await fetch(url, options);
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Request failed' }));
-    throw new Error(error.message || `HTTP ${res.status}`);
+    // Laravel validation errors: { errors: { field: [msg, ...] } }
+    const firstValidationMsg = error?.errors
+      ? (Object.values(error.errors).flat()[0] as string | undefined)
+      : undefined;
+    throw new Error(
+      firstValidationMsg || error?.message || `Request failed (HTTP ${res.status})`,
+    );
   }
   return res.json();
 }

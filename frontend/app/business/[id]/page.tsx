@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import BusinessReviews from '@/components/BusinessReviews';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 const BACKEND_URL = API_URL.replace('/api/v1', '');
@@ -562,6 +563,30 @@ export default function PublicBusinessPage() {
           }}
         />
 
+        {/* AggregateRating Schema for SEO (reviews & ratings) */}
+        {rating > 0 && reviewCount > 0 && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'LocalBusiness',
+                name: business.name,
+                ...(business.cover_image || business.featured_image
+                  ? { image: getImageUrl(business.cover_image || business.featured_image) }
+                  : {}),
+                aggregateRating: {
+                  '@type': 'AggregateRating',
+                  ratingValue: rating,
+                  reviewCount: reviewCount,
+                  bestRating: 5,
+                  worstRating: 1,
+                },
+              }),
+            }}
+          />
+        )}
+
         <div className="max-w-[1240px] mx-auto px-4 sm:px-6 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_330px] gap-6 items-start">
             <div className="min-w-0 space-y-5">
@@ -822,10 +847,7 @@ export default function PublicBusinessPage() {
               )}
 
               {activeTab === 'reviews' && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Customer Reviews</h3>
-                  <p className="text-sm text-gray-500">No reviews yet.</p>
-                </div>
+                <BusinessReviews businessId={businessId} businessName={business.name} />
               )}
 
               {activeTab === 'videos' && (

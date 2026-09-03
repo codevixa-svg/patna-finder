@@ -10,9 +10,24 @@ use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
+    /**
+     * Resolve a business by slug OR numeric id so reviews work for both
+     * /business/{slug} and /business/{id} style URLs.
+     */
+    private function resolveBusiness($slugOrId): ?Business
+    {
+        return is_numeric($slugOrId)
+            ? Business::where('id', $slugOrId)->first()
+            : Business::where('slug', $slugOrId)->first();
+    }
+
     public function index($businessSlug, Request $request)
     {
-        $business = Business::where('slug', $businessSlug)->firstOrFail();
+        $business = $this->resolveBusiness($businessSlug);
+
+        if (!$business) {
+            return response()->json(['message' => 'Business not found'], 404);
+        }
 
         $query = $business->reviews()->approved();
 
@@ -29,15 +44,38 @@ class ReviewController extends Controller
             $query->latest();
         }
 
-        $perPage = $request->get('per_page', 10);
+        $perPage = (int) $request->get('per_page', 10);
         $reviews = $query->paginate($perPage);
 
-        return response()->json($reviews);
+        // Aggregate stats (average + per-star distribution) from ALL approved reviews
+        $ratings = $business->reviews()->approved()->pluck('rating');
+
+        $distribution = ['5' => 0, '4' => 0, '3' => 0, '2' => 0, '1' => 0];
+        foreach ($ratings as $rating) {
+            $key = (string) min(5, max(1, (int) $rating));
+            $distribution[$key]++;
+        }
+
+        return response()->json([
+            'data' => $reviews->items(),
+            'meta' => [
+                'current_page' => $reviews->currentPage(),
+                'last_page' => $reviews->lastPage(),
+                'per_page' => $reviews->perPage(),
+                'total' => $reviews->total(),
+                'average' => $ratings->count() > 0 ? round((float) $ratings->avg(), 2) : 0,
+                'distribution' => $distribution,
+            ],
+        ]);
     }
 
     public function store(Request $request, $businessSlug)
     {
-        $business = Business::where('slug', $businessSlug)->firstOrFail();
+        $business = $this->resolveBusiness($businessSlug);
+
+        if (!$business) {
+            return response()->json(['message' => 'Business not found'], 404);
+        }
 
         $validator = Validator::make($request->all(), [
             'author_name' => 'required|string|max:255',
