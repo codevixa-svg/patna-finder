@@ -94,6 +94,12 @@ export const userDashboardApi = {
     const response = await userApi.get('/user/dashboard/quick-stats');
     return response.data;
   },
+
+  // GMB-style performance analytics
+  getAnalytics: async (params?: { business_id?: number | string; range?: number }) => {
+    const response = await userApi.get('/user/analytics', { params });
+    return response.data;
+  },
 };
 
 // Business API

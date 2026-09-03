@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business;
+use App\Models\BusinessInteraction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -91,10 +92,47 @@ class BusinessController extends Controller
                 ->firstOrFail();
         }
 
-        // Increment view count
-        $business->increment('view_count');
+        // View counting is handled by the public /businesses/{slugOrId}/track
+        // endpoint (event: "view") so that a single source of truth
+        // (business_interactions) powers both view_count and the dashboard
+        // performance analytics.
 
         return response()->json($business);
+    }
+
+    /**
+     * Public: record a user interaction (view, call click, website click,
+     * whatsapp click, directions request, share) for performance analytics.
+     */
+    public function track(Request $request, $slugOrId)
+    {
+        $validator = Validator::make($request->all(), [
+            'event' => 'required|string|in:' . implode(',', BusinessInteraction::EVENTS),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $business = is_numeric($slugOrId)
+            ? Business::find($slugOrId)
+            : Business::where('slug', $slugOrId)->first();
+
+        if (!$business) {
+            return response()->json(['message' => 'Business not found'], 404);
+        }
+
+        $business->interactions()->create([
+            'event_type' => $request->event,
+            'ip_address' => $request->ip(),
+        ]);
+
+        // Keep the legacy aggregate column in sync for listings.
+        if ($request->event === 'view') {
+            $business->increment('view_count');
+        }
+
+        return response()->json(['success' => true], 201);
     }
 
     /**

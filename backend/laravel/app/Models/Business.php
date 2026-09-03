@@ -132,6 +132,11 @@ class Business extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function interactions()
+    {
+        return $this->hasMany(BusinessInteraction::class);
+    }
+
     public function awards()
     {
         return $this->hasMany(Award::class);

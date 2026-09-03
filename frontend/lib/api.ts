@@ -103,6 +103,18 @@ export const api = {
     return fetchJson(`${API_URL}/reviews/${id}/like`, { method: 'POST' });
   },
 
+  // Performance tracking (fire-and-forget interaction events)
+  trackBusinessEvent: async (slugOrId: string | number, event: string) => {
+    return fetch(`${API_URL}/businesses/${slugOrId}/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event }),
+      keepalive: true,
+    }).catch(() => {
+      // Tracking must never break the page
+    });
+  },
+
   // Blog
   getBlogPosts: async (params?: any) => {
     const queryString = params ? `?${new URLSearchParams(params)}` : '';

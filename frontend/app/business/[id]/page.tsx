@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import BusinessReviews from '@/components/BusinessReviews';
+import ServiceIcon from '@/components/ServiceIcon';
+import { api } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 const BACKEND_URL = API_URL.replace('/api/v1', '');
@@ -33,6 +35,27 @@ const safeJson = <T,>(value: unknown, fallback: T): T => {
     return JSON.parse(value) as T;
   } catch {
     return fallback;
+  }
+};
+
+/**
+ * Fire-and-forget performance tracking (GMB-style). Views are deduped per
+ * session (30 min) so refreshes don't inflate the numbers. Tracking must
+ * never break the page — every failure is swallowed.
+ */
+const VIEW_TRACK_KEY = 'pf_view_tracked';
+const trackEvent = (businessId: string, event: string) => {
+  try {
+    if (event === 'view') {
+      const stored = JSON.parse(sessionStorage.getItem(VIEW_TRACK_KEY) || '{}');
+      const last = stored[businessId];
+      if (last && Date.now() - last < 30 * 60 * 1000) return;
+      stored[businessId] = Date.now();
+      sessionStorage.setItem(VIEW_TRACK_KEY, JSON.stringify(stored));
+    }
+    api.trackBusinessEvent(businessId, event);
+  } catch {
+    // ignore tracking errors
   }
 };
 
@@ -195,7 +218,15 @@ const StarRating = ({
   </div>
 );
 
-const SocialIcon = ({ type, url }: { type: string; url?: string }) => {
+const SocialIcon = ({
+  type,
+  url,
+  onTrack,
+}: {
+  type: string;
+  url?: string;
+  onTrack?: () => void;
+}) => {
   if (!url) return null;
 
   const styles: Record<string, string> = {
@@ -221,6 +252,9 @@ const SocialIcon = ({ type, url }: { type: string; url?: string }) => {
       href={type === 'whatsapp_business' ? `https://wa.me/${url}` : url}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => {
+        if (type === 'whatsapp_business') onTrack?.();
+      }}
       className={`w-8 h-8 rounded-full ${styles[type] || 'bg-gray-700'} text-white flex items-center justify-center font-bold text-xs hover:scale-105 transition`}
     >
       {labels[type] || type.substring(0, 1).toUpperCase()}
@@ -272,6 +306,9 @@ export default function PublicBusinessPage() {
       const result = await response.json();
       // Handle response structure
       setBusiness(result.data || result);
+
+      // GMB-style: record the profile view (deduped per session)
+      trackEvent(businessId, 'view');
 
       // Business updates (sidebar) — optional, fail silently
       try {
@@ -433,6 +470,8 @@ export default function PublicBusinessPage() {
   ];
 
   const handleShare = async () => {
+    trackEvent(businessId, 'share');
+
     const shareData = {
       title: business.name,
       text: business.short_description || business.description || '',
@@ -453,6 +492,7 @@ export default function PublicBusinessPage() {
 
   const handleContact = () => {
     if (phone) {
+      trackEvent(businessId, 'call');
       window.location.href = `tel:${String(phone).replace(/\s+/g, '')}`;
       return;
     }
@@ -746,6 +786,7 @@ export default function PublicBusinessPage() {
                       href={website}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackEvent(businessId, 'website')}
                       className="text-sm text-blue-600 hover:underline truncate"
                     >
                       {business.website}
@@ -764,6 +805,7 @@ export default function PublicBusinessPage() {
                       key={type}
                       type={type}
                       url={typeof value === 'string' ? value : value?.url}
+                      onTrack={() => trackEvent(businessId, 'whatsapp')}
                     />
                   ))}
                 </div>
@@ -810,18 +852,61 @@ export default function PublicBusinessPage() {
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 mb-4">Our Services</h3>
                   {data.services.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {data.services.map((service: any, index: number) => (
-                        <div key={index} className="p-4 border border-gray-200 rounded-lg">
-                          <h4 className="font-semibold text-gray-900">{service.name || service.title}</h4>
-                          {service.description && (
-                            <p className="text-sm text-gray-600 mt-1">{service.description}</p>
-                          )}
-                        </div>
-                      ))}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                      {data.services.map((service: any, index: number) => {
+                        const name = (
+                          typeof service === 'string'
+                            ? service
+                            : service.name || service.title || ''
+                        ).toString().trim();
+                        const description =
+                          typeof service === 'object' && service?.description
+                            ? service.description
+                            : '';
+                        const rawPrice =
+                          typeof service === 'object' ? service?.price : '';
+                        const price =
+                          typeof rawPrice === 'string' || typeof rawPrice === 'number'
+                            ? String(rawPrice).trim()
+                            : '';
+
+                        return (
+                          <div
+                            key={index}
+                            className="group flex items-start gap-3.5 p-4 bg-white border border-gray-200 rounded-xl hover:border-[#153b78]/40 hover:shadow-md transition-all duration-200"
+                          >
+                            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#eef4fd] to-[#e0ebfa] text-[#153b78] flex items-center justify-center shrink-0 group-hover:from-[#153b78] group-hover:to-[#0f2c5c] group-hover:text-white group-hover:scale-105 transition-all duration-300">
+                              <ServiceIcon name={name} className="w-5 h-5" />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h4 className="font-semibold text-gray-900 text-sm leading-5">
+                                  {name || 'Service'}
+                                </h4>
+                                {price && (
+                                  <span className="text-xs font-bold text-[#153b78] bg-[#eef4fd] border border-[#dfeafa] rounded-md px-2 py-0.5 whitespace-nowrap">
+                                    {/^[0-9]/.test(price) ? `₹${price}` : price}
+                                  </span>
+                                )}
+                              </div>
+                              {description && (
+                                <p className="text-sm text-gray-500 leading-6 mt-1">
+                                  {description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">No services listed yet.</p>
+                    <div className="text-center py-12 border border-dashed border-gray-200 rounded-xl">
+                      <div className="w-14 h-14 mx-auto mb-3 rounded-xl bg-gray-50 flex items-center justify-center">
+                        <ServiceIcon name="" className="w-7 h-7 text-gray-300" />
+                      </div>
+                      <p className="text-sm text-gray-500">No services listed yet.</p>
+                    </div>
                   )}
                 </div>
               )}
@@ -873,6 +958,7 @@ export default function PublicBusinessPage() {
                     href={directionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackEvent(businessId, 'directions')}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-[#153b78] hover:text-amber-600 transition"
                   >
                     <Icon name="navigation" className="w-3.5 h-3.5" />

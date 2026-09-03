@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\User\BusinessController as UserBusinessController;
 use App\Http\Controllers\Api\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\Api\User\SubscriptionController as UserSubscriptionController;
 use App\Http\Controllers\Api\User\UpdateController as UserUpdateController;
+use App\Http\Controllers\Api\User\AnalyticsController as UserAnalyticsController;
 use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
 
 /*
@@ -71,6 +72,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/businesses/{slug}/reviews', [ReviewController::class, 'index']);
     Route::post('/businesses/{slug}/reviews', [ReviewController::class, 'store'])->middleware('throttle:10,1');
     Route::post('/reviews/{id}/like', [ReviewController::class, 'like']);
+
+    // Performance tracking (GMB-style interactions)
+    Route::post('/businesses/{slugOrId}/track', [BusinessController::class, 'track'])->middleware('throttle:120,1');
 
     // Blog (Patna Pulse)
     Route::get('/blog', [BlogController::class, 'index']);
@@ -124,6 +128,9 @@ Route::prefix('v1/user')->group(function () {
         Route::put('/updates/{id}', [UserUpdateController::class, 'update']);
         Route::delete('/updates/{id}', [UserUpdateController::class, 'destroy']);
         Route::post('/updates/{id}/toggle-active', [UserUpdateController::class, 'toggleActive']);
+
+        // Performance analytics (GMB-style)
+        Route::get('/analytics', [UserAnalyticsController::class, 'index']);
     });
 });
 
