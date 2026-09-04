@@ -121,6 +121,21 @@ export const api = {
     return fetchJson(`${API_URL}/blog${queryString}`);
   },
 
+  // Government Events
+  getEvents: async (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params)}` : '';
+    return fetchJson(`${API_URL}/events${queryString}`);
+  },
+
+  getLatestEvents: async () => {
+    return fetchJson(`${API_URL}/events/latest`);
+  },
+
+  // Blog Categories (public)
+  getBlogCategories: async () => {
+    return fetchJson(`${API_URL}/blog-categories`);
+  },
+
   getLatestBlogPosts: async () => {
     return fetchJson(`${API_URL}/blog/latest`);
   },

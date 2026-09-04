@@ -264,6 +264,44 @@ export const adminBlogApi = {
   },
 };
 
+// Events API
+export const adminEventsApi = {
+  getAll: async (params?: any) => {
+    const response = await adminApi.get('/admin/events', { params });
+    return response.data;
+  },
+
+  getOne: async (id: number) => {
+    const response = await adminApi.get(`/admin/events/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await adminApi.post('/admin/events', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: any) => {
+    const response = await adminApi.put(`/admin/events/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number) => {
+    const response = await adminApi.delete(`/admin/events/${id}`);
+    return response.data;
+  },
+
+  toggleActive: async (id: number) => {
+    const response = await adminApi.post(`/admin/events/${id}/toggle-active`);
+    return response.data;
+  },
+
+  toggleFeature: async (id: number) => {
+    const response = await adminApi.post(`/admin/events/${id}/toggle-feature`);
+    return response.data;
+  },
+};
+
 // Categories API
 export const adminCategoriesApi = {
   getAll: async (params?: any) => {
@@ -377,6 +415,46 @@ export const adminSubscriptionsApi = {
 
   cancel: async (id: number) => {
     const response = await adminApi.post(`/admin/subscriptions/${id}/cancel`);
+    return response.data;
+  },
+};
+
+// Blog Categories API (admin managed)
+export const adminBlogCategoriesApi = {
+  getAll: async () => {
+    const response = await adminApi.get('/admin/blog-categories');
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await adminApi.post('/admin/blog-categories', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: any) => {
+    const response = await adminApi.put(`/admin/blog-categories/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number) => {
+    const response = await adminApi.delete(`/admin/blog-categories/${id}`);
+    return response.data;
+  },
+};
+
+// Media Upload API (images for blog editor / featured images)
+export const adminMediaApi = {
+  upload: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await adminApi.post('/admin/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  delete: async (path: string) => {
+    const response = await adminApi.delete('/admin/upload', { params: { path } });
     return response.data;
   },
 };

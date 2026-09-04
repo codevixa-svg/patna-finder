@@ -81,6 +81,19 @@ export default function AdminSidebar() {
       ],
     },
     {
+      label: 'Events',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" />
+        </svg>
+      ),
+      active: pathname.startsWith('/admin/events'),
+      submenu: [
+        { label: 'All Events', href: '/admin/events' },
+        { label: 'Add New', href: '/admin/events/create' },
+      ],
+    },
+    {
       label: 'Categories',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

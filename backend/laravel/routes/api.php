@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\HiddenGemController;
+use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\BlogCategoryController;
 use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\Admin\BusinessController as AdminBusinessController;
@@ -17,6 +19,9 @@ use App\Http\Controllers\Api\Admin\AreaController as AdminAreaController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Api\Admin\HiddenGemController as AdminHiddenGemController;
+use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Api\Admin\BlogCategoryController as AdminBlogCategoryController;
+use App\Http\Controllers\Api\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\User\AuthController as UserAuthController;
 use App\Http\Controllers\Api\User\BusinessController as UserBusinessController;
@@ -66,6 +71,13 @@ Route::prefix('v1')->group(function () {
     Route::get('/hidden-gems/{slug}', [HiddenGemController::class, 'show']);
     Route::post('/hidden-gems/{slug}/like', [HiddenGemController::class, 'like']);
     Route::post('/hidden-gems/{slug}/share', [HiddenGemController::class, 'share']);
+
+    // Government Events
+    // Blog Categories (public — for filters & forms)
+    Route::get('/blog-categories', [BlogCategoryController::class, 'index']);
+    Route::get('/events', [EventController::class, 'index']);
+    Route::get('/events/latest', [EventController::class, 'latest']);
+    Route::get('/events/{slug}', [EventController::class, 'show']);
 
     // Reviews
     Route::get('/reviews/latest', [ReviewController::class, 'latest']);
@@ -208,6 +220,25 @@ Route::prefix('v1/admin')->group(function () {
         Route::post('/hidden-gems/{id}/toggle-active', [AdminHiddenGemController::class, 'toggleActive']);
         Route::delete('/hidden-gems/{id}', [AdminHiddenGemController::class, 'destroy']);
         Route::post('/hidden-gems/bulk-action', [AdminHiddenGemController::class, 'bulkAction']);
+
+        // Government Events
+        Route::get('/events', [AdminEventController::class, 'index']);
+        Route::post('/events', [AdminEventController::class, 'store']);
+        Route::get('/events/{id}', [AdminEventController::class, 'show']);
+        Route::put('/events/{id}', [AdminEventController::class, 'update']);
+        Route::post('/events/{id}/toggle-active', [AdminEventController::class, 'toggleActive']);
+        Route::post('/events/{id}/toggle-feature', [AdminEventController::class, 'toggleFeature']);
+        Route::delete('/events/{id}', [AdminEventController::class, 'destroy']);
+
+        // Media Uploads (blog editor images)
+        Route::post('/upload', [AdminMediaController::class, 'store']);
+        Route::delete('/upload', [AdminMediaController::class, 'destroy']);
+
+        // Blog Categories (admin managed)
+        Route::get('/blog-categories', [AdminBlogCategoryController::class, 'index']);
+        Route::post('/blog-categories', [AdminBlogCategoryController::class, 'store']);
+        Route::put('/blog-categories/{id}', [AdminBlogCategoryController::class, 'update']);
+        Route::delete('/blog-categories/{id}', [AdminBlogCategoryController::class, 'destroy']);
 
         // Subscriptions
         Route::get('/subscriptions', [AdminSubscriptionController::class, 'index']);

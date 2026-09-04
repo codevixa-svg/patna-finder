@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
-import { adminBlogApi } from '@/lib/adminApi';
+import { adminBlogApi, adminBlogCategoriesApi } from '@/lib/adminApi';
+import BlockEditor, { ImageSourceInput } from '@/components/admin/BlockEditor';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 
@@ -20,7 +21,10 @@ export default function EditBlogPage() {
     excerpt: '',
     content: '',
     featured_image: '',
+    image_alt: '',
     author_name: '',
+    author_bio: '',
+    reading_time: '',
     category: '',
     tags: '',
     status: 'draft',
@@ -34,9 +38,37 @@ export default function EditBlogPage() {
     created_at: '',
     updated_at: '',
   });
+  const [categories, setCategories] = useState<string[]>(['News', 'Events', 'Guides', 'Festivals', 'Lifestyle', 'Food', 'Education', 'Tourism']);
+  const [newCategory, setNewCategory] = useState('');
+  const [addingCategory, setAddingCategory] = useState(false);
+
+  const handleAddCategory = async () => {
+    const name = newCategory.trim();
+    if (!name) return;
+    setAddingCategory(true);
+    try {
+      await adminBlogCategoriesApi.create({ name });
+      setCategories((prev) => Array.from(new Set([...prev, name])));
+      setFormData((prev: any) => ({ ...prev, category: name }));
+      setNewCategory('');
+      alert(`Category "${name}" added successfully!`);
+    } catch (e: any) {
+      alert(e.response?.data?.message || 'Failed to add category');
+    } finally {
+      setAddingCategory(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
+    // Load admin-managed blog categories for the dropdown
+    adminBlogCategoriesApi
+      .getAll()
+      .then((res: any) => {
+        const names = (Array.isArray(res) ? res : []).map((c: any) => c.name).filter(Boolean);
+        if (names.length > 0) setCategories(names);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -57,7 +89,10 @@ export default function EditBlogPage() {
         excerpt: data.excerpt || '',
         content: data.content || '',
         featured_image: data.featured_image || '',
+        image_alt: data.image_alt || '',
         author_name: data.author_name || '',
+        author_bio: data.author_bio || '',
+        reading_time: data.reading_time ? String(data.reading_time) : '',
         category: data.category || '',
         tags: Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''),
         status: data.status || 'draft',
@@ -101,6 +136,7 @@ export default function EditBlogPage() {
         tags: formData.tags
           ? formData.tags.split(',').map((t) => t.trim()).filter(Boolean)
           : [],
+        reading_time: formData.reading_time ? Number(formData.reading_time) : null,
         published_at: formData.published_at || null,
       };
       await adminBlogApi.update(Number(id), payload);
@@ -175,14 +211,12 @@ export default function EditBlogPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Content *</label>
-                      <textarea
-                        name="content"
+                      <p className="text-xs text-gray-500 mb-2">
+                        Build the article with template blocks — cards, lists, buttons, badges, images & more. Every block has a live preview.
+                      </p>
+                      <BlockEditor
                         value={formData.content}
-                        onChange={handleChange}
-                        required
-                        rows={16}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm min-h-[400px]"
-                        placeholder="Write your content here (supports HTML)..."
+                        onChange={(html: string) => setFormData({ ...formData, content: html })}
                       />
                     </div>
 
@@ -201,14 +235,35 @@ export default function EditBlogPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <input
-                          type="text"
+                        <select
                           name="category"
                           value={formData.category}
                           onChange={handleChange}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="e.g. Travel, Food, Culture"
-                        />
+                        >
+                          <option value="">— Select category —</option>
+                          {Array.from(new Set([formData.category, ...categories].filter(Boolean))).map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                        <div className="mt-2 flex gap-2">
+                          <input
+                            type="text"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            placeholder="New category name…"
+                            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddCategory}
+                            disabled={addingCategory || !newCategory.trim()}
+                            className="whitespace-nowrap px-3 py-2 text-xs font-semibold bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+                          >
+                            {addingCategory ? 'Adding…' : '+ Add Category'}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">New category database me save hoti hai aur dono forms me turant dikhne lagti hai.</p>
                       </div>
                     </div>
 
@@ -226,15 +281,55 @@ export default function EditBlogPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Featured Image URL</label>
-                      <input
-                        type="url"
-                        name="featured_image"
+                      <ImageSourceInput
+                        label="Featured Image (URL or upload)"
                         value={formData.featured_image}
+                        onChange={(url: string) => setFormData({ ...formData, featured_image: url })}
+                      />
+                      <p className="text-xs text-gray-400 mt-1">
+                        Google Discover: min <strong>1200px wide</strong> high-quality image (16:9 / 4:3 / 1:1)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Image Alt Text</label>
+                      <input
+                        type="text"
+                        name="image_alt"
+                        value={formData.image_alt}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="https://example.com/image.jpg"
+                        placeholder="Describe the image for accessibility & image SEO"
                       />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Author Bio (E-E-A-T)</label>
+                        <textarea
+                          name="author_bio"
+                          value={formData.author_bio}
+                          onChange={handleChange}
+                          rows={2}
+                          maxLength={1000}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Short author bio for Google Discover trust signals"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Reading Time (minutes)</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={120}
+                          name="reading_time"
+                          value={formData.reading_time}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="e.g. 5"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

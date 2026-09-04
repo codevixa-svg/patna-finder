@@ -1,14 +1,30 @@
 import { api } from '@/lib/api';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Patna Pulse - Blog | Patna Finder',
-  description: 'Latest news, stories, and events from Patna',
+export const metadata: Metadata = {
+  title: 'Patna Pulse - Blog',
+  description: 'Latest news, stories, guides, festivals & events from Patna, Bihar — Patna Pulse by Patna Finder.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    title: 'Patna Pulse - Blog',
+    description: 'Latest news, stories, guides, festivals & events from Patna, Bihar.',
+    type: 'website',
+  },
 };
 
-export default async function BlogPage() {
-  const posts = await api.getBlogPosts();
-  const blogCategories = ['News', 'Events', 'Guides', 'Festivals', 'Lifestyle', 'Food', 'Education', 'Tourism'];
+export default async function BlogPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const { category } = await searchParams;
+  const posts = await api.getBlogPosts(category ? { category, per_page: 24 } : { per_page: 24 });
+
+  // Dynamic admin-managed categories (fallback to defaults)
+  const fallbackCategories = ['News', 'Events', 'Guides', 'Festivals', 'Lifestyle', 'Food', 'Education', 'Tourism'];
+  let blogCategories = fallbackCategories;
+  try {
+    const cats = await api.getBlogCategories();
+    const names = (Array.isArray(cats) ? cats : []).map((c: any) => c.name).filter(Boolean);
+    if (names.length > 0) blogCategories = names;
+  } catch {}
 
   return (
     <main className="min-h-screen">
@@ -24,16 +40,20 @@ export default async function BlogPage() {
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap gap-3">
-            <button className="px-6 py-3 bg-amber-400 text-gray-900 rounded-xl font-semibold">
+            <Link
+              href="/blog"
+              className={`px-6 py-3 rounded-xl font-semibold transition ${!category ? 'bg-amber-400 text-gray-900' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
+            >
               All Posts
-            </button>
+            </Link>
             {blogCategories.map((cat) => (
-              <button
+              <Link
                 key={cat}
-                className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-semibold transition"
+                href={`/blog?category=${encodeURIComponent(cat)}`}
+                className={`px-6 py-3 rounded-xl font-semibold transition ${category === cat ? 'bg-amber-400 text-gray-900' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
               >
                 {cat}
-              </button>
+              </Link>
             ))}
           </div>
         </div>

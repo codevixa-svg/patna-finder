@@ -61,8 +61,18 @@ class BlogController extends Controller
 
     public function categories()
     {
+        // Admin-managed categories from DB, fallback to defaults if table is empty
+        try {
+            $categories = \App\Models\BlogCategory::active()->pluck('name')->values()->all();
+            if (!empty($categories)) {
+                return response()->json($categories);
+            }
+        } catch (\Throwable $e) {
+            // fall through to defaults
+        }
+
         $categories = ['News', 'Events', 'Guides', 'Festivals', 'Lifestyle', 'Food', 'Education', 'Tourism'];
-        
+
         return response()->json($categories);
     }
 }

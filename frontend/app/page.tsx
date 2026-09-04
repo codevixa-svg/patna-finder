@@ -2,10 +2,16 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api, API_BASE_URL } from '@/lib/api';
 import TrendingBusinessCard from '@/components/TrendingBusinessCard';
 import CategoryIcon from '@/components/CategoryIcon';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
 
 export default function Home() {
   const [trendingBusinesses, setTrendingBusinesses] = useState<any[]>([]);
@@ -14,6 +20,7 @@ export default function Home() {
   const [popularSearches, setPopularSearches] = useState<string[]>([]);
   const [latestReviews, setLatestReviews] = useState<any[]>([]);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [govtEvents, setGovtEvents] = useState<any[]>([]);
 
   useEffect(() => {
     api.getTrendingBusinesses()
@@ -34,6 +41,9 @@ export default function Home() {
     api.getLatestBlogPosts()
       .then(data => setBlogPosts(Array.isArray(data) ? data : data.data || []))
       .catch(() => {});
+    api.getLatestEvents()
+      .then(data => setGovtEvents(Array.isArray(data) ? data : data.data || []))
+      .catch(() => {});
   }, []);
 
   // Color palette for dynamic category tiles
@@ -41,6 +51,29 @@ export default function Home() {
     'bg-blue-100', 'bg-green-100', 'bg-orange-100', 'bg-red-100', 'bg-yellow-100',
     'bg-purple-100', 'bg-indigo-100', 'bg-teal-100', 'bg-pink-100', 'bg-cyan-100',
   ];
+
+  // Styles per government event type
+  const eventTypeStyles: Record<string, { color: string; iconColor: string; icon: string }> = {
+    'kavi-samelan': { color: 'bg-purple-100', iconColor: 'text-purple-600', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+    'job-mela': { color: 'bg-blue-100', iconColor: 'text-blue-600', icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+    'industrial': { color: 'bg-orange-100', iconColor: 'text-orange-600', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+    'doctors-camp': { color: 'bg-red-100', iconColor: 'text-red-600', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+    'it-sector': { color: 'bg-green-100', iconColor: 'text-green-600', icon: 'M2.5 7a2.5 2.5 0 012.5-2.5h10A2.5 2.5 0 0117.5 7v7a2.5 2.5 0 01-2.5 2.5H7.5A2.5 2.5 0 015 14V7zM8 19h8' },
+    'other': { color: 'bg-gray-100', iconColor: 'text-gray-600', icon: 'M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z' },
+  };
+
+  const formatEventDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
+  // Events Swiper slider state
+  const swiperRef = useRef<any>(null);
+
+  const scrollEventsBy = (dir: number) => {
+    if (dir > 0) swiperRef.current?.slideNext();
+    else swiperRef.current?.slidePrev();
+  };
 
   // Fallback content so the page never looks broken while the database is empty
   const fallbackAreas = [
@@ -58,6 +91,15 @@ export default function Home() {
     'Best Restaurants in Patna', 'Affordable Gyms', 'Top Hospitals Near Me', 'Best Dentist in Boring Road',
     'Coaching for UPSC', 'Best Cafes in Patna', 'Top Lawyers in Patna', 'Best Schools Near Me',
   ];
+
+  const fallbackEvents = [
+    { id: 'fe1', title: 'Kavi Samelan', description: 'National poetry gathering featuring celebrated kavis, ghazals & cultural performances.', event_type: 'kavi-samelan', venue: 'Kalidas Rangalaya, Patna', event_date: '2026-08-25' },
+    { id: 'fe2', title: 'Job Interview & Rojgar Mela', description: 'Govt job interviews, walk-in drives & recruitment fair for unemployed youth.', event_type: 'job-mela', venue: 'Gandhi Maidan Hall, Patna', event_date: '2026-08-30' },
+    { id: 'fe3', title: 'Industrial Function', description: 'Industrial development meet, investment summit & MSME business showcase.', event_type: 'industrial', venue: 'Bihar Industries Association, Patna', event_date: '2026-09-06' },
+    { id: 'fe4', title: 'Doctors Camp', description: 'Free health checkup & specialist consultation medical camp for all age groups.', event_type: 'doctors-camp', venue: 'Patna Medical College & Hospital', event_date: '2026-09-12' },
+    { id: 'fe5', title: 'IT Sector Event', description: 'IT conclave, startup showcase & tech workshops for students and professionals.', event_type: 'it-sector', venue: 'Bihar State IT Hub, Patna', event_date: '2026-09-18' },
+  ];
+  const displayEvents = govtEvents.length > 0 ? govtEvents : fallbackEvents;
 
   const fallbackReviews = [
     { id: 'f1', author_name: 'Ankit Raj', rating: 5, content: 'Aakash Tutorials is simply the best for Judiciary coaching in Patna. Highly recommend!', business: { name: 'Aakash Tutorials' } },
@@ -530,7 +572,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hidden Gems & Best of Patna Awards - Combined Row */}
+      {/* Hidden Gems & Recent Government Events - Combined Row */}
       <section className="bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-start">
@@ -606,77 +648,102 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Best of Patna Awards - Right Side */}
+            {/* Recent Government Events - Right Side (Dynamic Swipe Slider) */}
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                Best Of Patna Awards
-                <svg className="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              </h2>
-              <p className="text-gray-600 mb-8 text-sm">
-                Honoring the best businesses as voted by Patna.
-              </p>
-              
-              {/* Awards - 4 in a row with Laurel Wreaths */}
-              <div className="grid grid-cols-4 gap-4 mb-8">
-                {[
-                  { title: 'Best Coaching', year: '2024', winner: 'Elite IAS', color: 'text-orange-600', image: 'award-1.png' },
-                  { title: 'Best Dental Clinic', year: '2024', winner: 'Smile Care', color: 'text-blue-600', image: 'award-2.png' },
-                  { title: 'Best Hospital', year: '2024', winner: 'City Hospital', color: 'text-red-600', image: 'award-3.png' },
-                  { title: 'Best Restaurant', year: '2024', winner: 'Food Paradise', color: 'text-green-600', image: 'award-4.png' },
-                ].map((award, index) => (
-                  <div key={index} className="text-center">
-                    {/* Laurel Wreath Image */}
-                    <div className="relative w-24 h-24 mx-auto mb-3">
-                      {/* Wreath Image */}
-                      <Image
-                        src={`/images/awards/${award.image}`}
-                        alt={award.title}
-                        fill
-                        className="object-contain"
-                      />
-                      
-                      {/* Fallback SVG Laurel if image not found */}
-                      <div className="absolute inset-0 -z-10">
-                        <svg className="w-full h-full" viewBox="0 0 100 100" fill="none">
-                          {/* Left Laurel Branch */}
-                          <path d="M20 50 Q15 30, 20 10" stroke="#F59E0B" strokeWidth="3" fill="none"/>
-                          <ellipse cx="18" cy="15" rx="4" ry="6" fill="#F59E0B" transform="rotate(-30 18 15)"/>
-                          <ellipse cx="16" cy="25" rx="4" ry="6" fill="#F59E0B" transform="rotate(-20 16 25)"/>
-                          <ellipse cx="15" cy="35" rx="4" ry="6" fill="#F59E0B" transform="rotate(-10 15 35)"/>
-                          <ellipse cx="16" cy="45" rx="4" ry="6" fill="#F59E0B" transform="rotate(0 16 45)"/>
-                          
-                          {/* Right Laurel Branch */}
-                          <path d="M80 50 Q85 30, 80 10" stroke="#F59E0B" strokeWidth="3" fill="none"/>
-                          <ellipse cx="82" cy="15" rx="4" ry="6" fill="#F59E0B" transform="rotate(30 82 15)"/>
-                          <ellipse cx="84" cy="25" rx="4" ry="6" fill="#F59E0B" transform="rotate(20 84 25)"/>
-                          <ellipse cx="85" cy="35" rx="4" ry="6" fill="#F59E0B" transform="rotate(10 85 35)"/>
-                          <ellipse cx="84" cy="45" rx="4" ry="6" fill="#F59E0B" transform="rotate(0 84 45)"/>
-                          
-                          {/* Bottom Ribbon */}
-                          <path d="M30 85 L35 95 L40 85" fill="#F59E0B"/>
-                          <path d="M60 85 L65 95 L70 85" fill="#F59E0B"/>
-                        </svg>
-                      </div>
-                      
-                      {/* Award Text Inside Wreath */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className={`text-xs font-bold ${award.color} leading-tight text-center`}>
-                          {award.title.split(' ')[0]}<br/>{award.title.split(' ').slice(1).join(' ')}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">{award.year}</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500">{award.winner}</p>
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                    Recent Government Events
+                    <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 3.5A1.5 1.5 0 0111.5 5v.5h3a2 2 0 012 2v7a2 2 0 01-2 2h-9a2 2 0 01-2-2v-7a2 2 0 012-2h3V5A1.5 1.5 0 0110 3.5zm-3.5 4a1 1 0 011-1h5a1 1 0 011 1V8h-7V7.5zm0 2.5h7v4.5a.5.5 0 01-.5.5H7a.5.5 0 01-.5-.5V10z" clipRule="evenodd" />
+                    </svg>
+                  </h2>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Stay updated with govt programmes, camps & functions across Patna.
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                  <div className="flex gap-2">
+                    <button onClick={() => scrollEventsBy(-1)} aria-label="Previous event" className="w-8 h-8 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button onClick={() => scrollEventsBy(1)} aria-label="Next event" className="w-8 h-8 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-900 hover:text-white hover:border-gray-900 transition flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
                   </div>
-                ))}
+                  <Link href="/events" className="text-blue-600 hover:text-blue-700 text-sm font-semibold whitespace-nowrap">
+                    View all events →
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Govt Events - Swiper Slider */}
+              <div className="relative mb-8">
+                <Swiper
+                  modules={[Autoplay, Pagination]}
+                  onSwiper={(sw) => { swiperRef.current = sw; }}
+                  slidesPerView={1}
+                  spaceBetween={16}
+                  loop={displayEvents.length > 1}
+                  autoplay={{ delay: 4000, disableOnInteraction: false }}
+                  pagination={{ clickable: true }}
+                  className="events-swiper !pb-12"
+                  style={{ '--swiper-theme-color': '#2563eb' } as any}
+                >
+                  {displayEvents.map((event: any) => {
+                    const style = eventTypeStyles[event.event_type] || eventTypeStyles['other'];
+                    return (
+                      <SwiperSlide key={event.id}>
+                        <div className="flex items-start gap-4 bg-gray-50 border border-gray-100 rounded-xl p-4 hover:shadow-md hover:bg-white hover:border-gray-200 transition">
+                          {/* Event Icon */}
+                          <div className={`w-12 h-12 ${style.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                            <svg className={`w-6 h-6 ${style.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={style.icon} />
+                            </svg>
+                          </div>
+
+                          {/* Event Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="font-bold text-sm text-gray-900">{event.title}</h4>
+                              <span className="text-[10px] font-semibold uppercase tracking-wide text-blue-600 bg-blue-50 rounded-full px-2 py-0.5 shrink-0">Govt Event</span>
+                            </div>
+                            {event.description && (
+                              <p className="text-xs text-gray-600 mt-1 leading-relaxed line-clamp-2">{event.description}</p>
+                            )}
+                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                              <span className="flex items-center gap-1 shrink-0">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M3 11h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" />
+                                </svg>
+                                {formatEventDate(event.event_date)}
+                              </span>
+                              {event.venue && (
+                                <span className="flex items-center gap-1 min-w-0">
+                                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  </svg>
+                                  <span className="truncate">{event.venue}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </SwiperSlide>
+                    );
+                  })}
+                </Swiper>
               </div>
 
-              {/* View All Winners Button */}
+              {/* View All Events Button */}
               <div className="text-center">
-                <Link href="/best-of-patna" className="bg-white border-2 border-gray-300 text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition inline-block">
-                  View All Winners
+                <Link href="/events" className="bg-white border-2 border-gray-300 text-gray-900 px-8 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition inline-block">
+                  View All Events
                 </Link>
               </div>
             </div>
