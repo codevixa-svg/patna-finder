@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -46,18 +48,18 @@ export default function HiddenGemsPage() {
       fetchGems();
     } catch (error) {
       console.error('Failed to delete:', error);
-      alert('Failed to delete hidden gem');
+      toast.error('Failed to delete hidden gem');
     }
   };
 
   const handleSyncGmb = async (id: number) => {
     try {
       await adminHiddenGemsApi.syncGmb(id);
-      alert('GMB data synced successfully!');
+      toast.success('GMB data synced successfully!');
       fetchGems();
     } catch (error) {
       console.error('Failed to sync GMB:', error);
-      alert('Failed to sync GMB data');
+      toast.error('Failed to sync GMB data');
     }
   };
 

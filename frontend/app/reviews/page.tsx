@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function ReviewsPage() {
   const [businesses, setBusinesses] = useState<any[]>([]);
@@ -33,6 +34,9 @@ export default function ReviewsPage() {
           <p className="text-xl text-gray-300">Real reviews from real people across Patna</p>
         </div>
       </section>
+
+      {/* Breadcrumb — same UI as the business details page */}
+      <Breadcrumbs items={[{ label: 'Reviews' }]} />
 
       {/* Reviews */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

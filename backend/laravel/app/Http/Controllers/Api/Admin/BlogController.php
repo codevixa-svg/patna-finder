@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class BlogController extends Controller
 {
@@ -38,6 +40,11 @@ class BlogController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'slug' => [
+                'nullable', 'string', 'max:255',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                Rule::unique('blog_posts', 'slug'),
+            ],
             'excerpt' => 'nullable|string|max:1000',
             'content' => 'required|string',
             'featured_image' => 'nullable|string|max:500',
@@ -54,7 +61,19 @@ class BlogController extends Controller
             'meta_description' => 'nullable|string|max:500',
         ]);
 
-        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
+        // Custom slug from the admin, otherwise auto-generate from the title.
+        // Auto-generated slugs get -2, -3… suffixes instead of failing on the
+        // unique constraint when two posts share a title.
+        $baseSlug = !empty($validated['slug'])
+            ? $validated['slug']
+            : Str::slug($validated['title']);
+
+        if ($baseSlug === '') {
+            // Non-latin titles can slug to an empty string — fall back to a random slug
+            $baseSlug = 'post-' . strtolower(Str::random(6));
+        }
+
+        $validated['slug'] = $this->ensureUniqueSlug($baseSlug);
 
         if (($validated['status'] ?? 'draft') === 'published' && empty($validated['published_at'])) {
             $validated['published_at'] = now();
@@ -80,6 +99,11 @@ class BlogController extends Controller
 
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
+            'slug' => [
+                'nullable', 'string', 'max:255',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                Rule::unique('blog_posts', 'slug')->ignore($post->id),
+            ],
             'excerpt' => 'nullable|string|max:1000',
             'content' => 'sometimes|required|string',
             'featured_image' => 'nullable|string|max:500',
@@ -96,8 +120,17 @@ class BlogController extends Controller
             'meta_description' => 'nullable|string|max:500',
         ]);
 
-        if (isset($validated['title'])) {
-            $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']);
+        if (!empty($validated['slug'])) {
+            // Admin provided a custom slug — keep it (uniqueness is validated
+            // above; this is a safety net for concurrent requests)
+            $validated['slug'] = $this->ensureUniqueSlug($validated['slug'], $post->id);
+        } elseif (isset($validated['title'])) {
+            // No slug sent (auto mode) — regenerate from the title, keeping the
+            // existing slug if the new title slugs to an empty string
+            $baseSlug = Str::slug($validated['title']);
+            if ($baseSlug !== '') {
+                $validated['slug'] = $this->ensureUniqueSlug($baseSlug, $post->id);
+            }
         }
 
         if (isset($validated['status']) && $validated['status'] === 'published' && empty($post->published_at)) {
@@ -138,5 +171,27 @@ class BlogController extends Controller
             'message' => $message,
             'post' => $post,
         ]);
+    }
+
+    /**
+     * Returns $slug, or $slug-2, $slug-3… until a free slug is found.
+     * $ignoreId lets a post keep its own slug when updating.
+     */
+    private function ensureUniqueSlug(string $slug, ?int $ignoreId = null): string
+    {
+        $original = $slug;
+        $suffix = 2;
+
+        while (true) {
+            $query = BlogPost::where('slug', $slug);
+            if ($ignoreId !== null) {
+                $query->where('id', '!=', $ignoreId);
+            }
+            if (!$query->exists()) {
+                return $slug;
+            }
+            $slug = $original . '-' . $suffix;
+            $suffix++;
+        }
     }
 }

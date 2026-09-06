@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function AreasPage() {
   const [areas, setAreas] = useState<any[]>([]);
@@ -32,6 +33,9 @@ export default function AreasPage() {
           <p className="text-xl text-gray-300">Discover businesses in every corner of Patna</p>
         </div>
       </section>
+
+      {/* Breadcrumb — same UI as the business details page */}
+      <Breadcrumbs items={[{ label: 'Areas' }]} />
 
       {/* Areas Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

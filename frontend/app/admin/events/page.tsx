@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -64,7 +65,7 @@ export default function EventsPage() {
       fetchEvents();
     } catch (error) {
       console.error('Failed to delete:', error);
-      alert('Failed to delete event');
+      toast.error('Failed to delete event');
     }
   };
 
@@ -74,7 +75,7 @@ export default function EventsPage() {
       fetchEvents();
     } catch (error) {
       console.error('Failed to toggle:', error);
-      alert('Failed to update event status');
+      toast.error('Failed to update event status');
     }
   };
 

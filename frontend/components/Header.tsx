@@ -26,9 +26,9 @@ export default function Header() {
   const pathname = usePathname();
 
   // The global header is transparent (white text) and overlays dark hero
-  // sections. Business detail pages start with a light background, so there we
-  // render a solid white sticky header with dark text instead.
-  const solid = pathname?.startsWith('/business/') ?? false;
+  // sections. Pages that start with a light background (business details and
+  // all blog pages) render a solid white sticky header with dark text.
+  const solid = Boolean(pathname && (pathname.startsWith('/business/') || pathname.startsWith('/blog')));
 
   useEffect(() => {
     setMounted(true);
@@ -211,8 +211,15 @@ export default function Header() {
               )}
             </div>
             
-            <Link href="/blog" className={navLinkClass}>
-              Blog
+            <Link
+              href="/blog"
+              className={
+                pathname === '/blog'
+                  ? 'border-b-2 border-green-700 pb-0.5 font-semibold text-green-700'
+                  : navLinkClass
+              }
+            >
+              Blogs
             </Link>
             <Link href="/about" className={navLinkClass}>
               About Us
@@ -256,7 +263,7 @@ export default function Header() {
               Best Of Patna
             </Link>
             <Link href="/blog" className="block py-2 text-gray-700 hover:text-amber-500 font-medium">
-              Blog
+              Blogs
             </Link>
             <Link href="/about" className="block py-2 text-gray-700 hover:text-amber-500 font-medium">
               About Us

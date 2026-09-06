@@ -159,3 +159,87 @@ select:focus {
   border-color: #FFC107;
   box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
 }
+
+/* ── Blog article content (BlockEditor-generated HTML) ─────────────────── */
+.blog-content {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: #374151;
+  word-break: break-word;
+}
+.blog-content h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 2.25rem 0 0.75rem;
+  scroll-margin-top: 6.5rem;
+}
+.blog-content h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 1.75rem 0 0.6rem;
+  scroll-margin-top: 6.5rem;
+}
+.blog-content p {
+  margin: 0 0 1.15rem;
+}
+.blog-content a {
+  color: #b45309;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.blog-content a:hover {
+  color: #92400e;
+}
+.blog-content ul {
+  list-style: disc;
+  margin: 0 0 1.15rem;
+  padding-left: 1.5rem;
+}
+.blog-content ol {
+  list-style: decimal;
+  margin: 0 0 1.15rem;
+  padding-left: 1.5rem;
+}
+.blog-content li {
+  margin-bottom: 0.4rem;
+}
+.blog-content img {
+  border-radius: 1rem;
+}
+.blog-content code {
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 0.875em;
+  color: #b45309;
+}
+.blog-content pre {
+  background: #111827;
+  color: #f9fafb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0 0 1.15rem;
+}
+.blog-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+/* Theme look: amber quote block (also overrides any legacy quote classes
+   baked into previously saved posts — .blog-content blockquote (0,1,1)
+   outranks the single utility class (0,1,0)) */
+.blog-content blockquote {
+  background-color: #fffbeb !important;
+  border-color: #fbbf24 !important;
+  border-radius: 0 1rem 1rem 0;
+  color: #374151;
+}
+.blog-content hr {
+  border-color: #e5e7eb;
+  margin: 2rem 0;
+}
+

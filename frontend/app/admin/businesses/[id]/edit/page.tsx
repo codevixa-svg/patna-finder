@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -150,7 +152,7 @@ export default function EditBusinessPage() {
           : []
       );
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to load business');
+      toast.error(err.response?.data?.message || 'Failed to load business');
     } finally {
       setLoading(false);
     }
@@ -208,7 +210,7 @@ export default function EditBusinessPage() {
       });
       router.push(`/admin/businesses/${id}`);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to update business');
+      toast.error(err.response?.data?.message || 'Failed to update business');
     } finally {
       setSaving(false);
     }

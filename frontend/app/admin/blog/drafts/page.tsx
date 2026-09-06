@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -45,7 +47,7 @@ export default function DraftsPage() {
       fetchPosts();
     } catch (error) {
       console.error('Failed to publish:', error);
-      alert('Failed to publish post');
+      toast.error('Failed to publish post');
     }
   };
 
@@ -56,7 +58,7 @@ export default function DraftsPage() {
       fetchPosts();
     } catch (error) {
       console.error('Failed to delete:', error);
-      alert('Failed to delete draft');
+      toast.error('Failed to delete draft');
     }
   };
 

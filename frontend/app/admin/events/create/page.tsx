@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -56,7 +58,7 @@ export default function CreateEventPage() {
     e.preventDefault();
 
     if (!formData.event_date) {
-      alert('Event date is required');
+      toast.error('Event date is required');
       return;
     }
 
@@ -66,11 +68,11 @@ export default function CreateEventPage() {
         ...formData,
         display_order: Number(formData.display_order) || 0,
       });
-      alert('Event created successfully!');
+      toast.success('Event created successfully!');
       router.push('/admin/events');
     } catch (error: any) {
       console.error('Failed to create:', error);
-      alert(error.response?.data?.message || 'Failed to create event');
+      toast.error(error.response?.data?.message || 'Failed to create event');
     } finally {
       setLoading(false);
     }

@@ -1,10 +1,14 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { adminBlogApi, adminBlogCategoriesApi } from '@/lib/adminApi';
-import BlockEditor, { ImageSourceInput } from '@/components/admin/BlockEditor';
+import { slugify, sanitizeSlugInput } from '@/lib/slug';
+import { ImageSourceInput } from '@/components/admin/BlockEditor';
+import CkEditor from '@/components/admin/ckeditor/CkEditor';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 
@@ -16,6 +20,8 @@ export default function CreateBlogPage() {
   const [categories, setCategories] = useState<string[]>(['News', 'Events', 'Guides', 'Festivals', 'Lifestyle', 'Food', 'Education', 'Tourism']);
   const [newCategory, setNewCategory] = useState('');
   const [addingCategory, setAddingCategory] = useState(false);
+  // Once the admin edits the slug manually we stop auto-generating it
+  const [slugEdited, setSlugEdited] = useState(false);
 
   const handleAddCategory = async () => {
     const name = newCategory.trim();
@@ -26,15 +32,16 @@ export default function CreateBlogPage() {
       setCategories((prev) => Array.from(new Set([...prev, name])));
       setFormData((prev: any) => ({ ...prev, category: name }));
       setNewCategory('');
-      alert(`Category "${name}" added successfully!`);
+      toast.success(`Category "${name}" added successfully!`);
     } catch (e: any) {
-      alert(e.response?.data?.message || 'Failed to add category');
+      toast.error(e.response?.data?.message || 'Failed to add category');
     } finally {
       setAddingCategory(false);
     }
   };
   const [formData, setFormData] = useState({
     title: '',
+    slug: '',
     excerpt: '',
     content: '',
     status: 'draft',
@@ -75,16 +82,21 @@ export default function CreateBlogPage() {
     try {
       await adminBlogApi.create({
         ...formData,
+        // Empty slug = let the backend auto-generate it from the title
+        // (with automatic -2, -3… suffixes if a duplicate exists)
+        slug: slugEdited ? formData.slug : '',
         tags: formData.tags
           ? formData.tags.split(',').map((t) => t.trim()).filter(Boolean)
           : [],
         reading_time: formData.reading_time ? Number(formData.reading_time) : null,
       });
-      alert('Blog post created successfully!');
+      toast.success('Blog post created successfully!');
       router.push('/admin/blog');
     } catch (error: any) {
       console.error('Failed to create post:', error);
-      alert(error.response?.data?.message || 'Failed to create blog post');
+      const data = error.response?.data;
+      const detail = data?.errors ? Object.values(data.errors).flat().join(' ') : '';
+      toast.error(detail ? `${data?.message || 'Validation failed'} ${detail}` : data?.message || 'Failed to create blog post');
     } finally {
       setLoading(false);
     }
@@ -95,6 +107,32 @@ export default function CreateBlogPage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  // Title keystrokes keep the slug in sync until the admin customises it
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      title,
+      slug: slugEdited ? prev.slug : slugify(title),
+    }));
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugEdited(true);
+    const clean = sanitizeSlugInput(e.target.value);
+    setFormData((prev) => ({ ...prev, slug: clean }));
+  };
+
+  const handleSlugBlur = () => {
+    setFormData((prev) => ({ ...prev, slug: slugify(prev.slug) }));
+  };
+
+  // Go back to auto mode: slug follows the title again
+  const handleRegenerateSlug = () => {
+    setSlugEdited(false);
+    setFormData((prev) => ({ ...prev, slug: slugify(prev.title) }));
   };
 
   if (!mounted || !isAuthenticated) {
@@ -122,11 +160,45 @@ export default function CreateBlogPage() {
                   type="text"
                   name="title"
                   value={formData.title}
-                  onChange={handleChange}
+                  onChange={handleTitleChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Enter post title"
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">URL Slug</label>
+                  <button
+                    type="button"
+                    onClick={handleRegenerateSlug}
+                    className="text-xs font-medium text-green-600 hover:text-green-700"
+                    title="Regenerate the slug from the current title"
+                  >
+                    ↻ Auto-generate from title
+                  </button>
+                </div>
+                <div className="flex items-stretch rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent overflow-hidden">
+                  <span className="flex items-center pl-3 pr-1 text-sm text-gray-400 whitespace-nowrap select-none">
+                    /blog/
+                  </span>
+                  <input
+                    type="text"
+                    name="slug"
+                    value={formData.slug}
+                    onChange={handleSlugChange}
+                    onBlur={handleSlugBlur}
+                    maxLength={80}
+                    className="flex-1 min-w-0 py-2 pr-3 text-sm font-mono text-gray-800 focus:outline-none"
+                    placeholder="auto-generated-from-title"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  {slugEdited
+                    ? 'Custom URL — it will be saved exactly as typed.'
+                    : 'Auto-generated from the title — edit it to use a custom URL.'}
+                </p>
               </div>
 
               <div>
@@ -144,9 +216,10 @@ export default function CreateBlogPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Content *</label>
                 <p className="text-xs text-gray-500 mb-2">
-                  Build the article with template blocks — cards, lists, buttons, badges, images & more. Every block has a live preview.
+                  Write with CKEditor — rich formatting, theme Blocks (boxes, quotes, CTA…) and full
+                  article Templates. Images upload straight to the server.
                 </p>
-                <BlockEditor
+                <CkEditor
                   value={formData.content}
                   onChange={(html: string) => setFormData({ ...formData, content: html })}
                 />

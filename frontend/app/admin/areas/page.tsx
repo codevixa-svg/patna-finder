@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -96,7 +98,7 @@ export default function AreasPage() {
 
   const handleCreate = async () => {
     if (!formData.name.trim()) {
-      alert('Name is required');
+      toast.error('Name is required');
       return;
     }
     try {
@@ -106,19 +108,19 @@ export default function AreasPage() {
       if (formData.longitude) payload.longitude = parseFloat(formData.longitude);
       payload.is_active = formData.is_active;
       await adminAreasApi.create(payload);
-      alert('Area created successfully');
+      toast.success('Area created successfully');
       closeModals();
       fetchAreas();
     } catch (error) {
       console.error('Failed to create area:', error);
-      alert('Failed to create area');
+      toast.error('Failed to create area');
     }
   };
 
   const handleUpdate = async () => {
     if (!editData) return;
     if (!formData.name.trim()) {
-      alert('Name is required');
+      toast.error('Name is required');
       return;
     }
     try {
@@ -128,12 +130,12 @@ export default function AreasPage() {
       if (formData.longitude) payload.longitude = parseFloat(formData.longitude);
       payload.is_active = formData.is_active;
       await adminAreasApi.update(editData.id, payload);
-      alert('Area updated successfully');
+      toast.success('Area updated successfully');
       closeModals();
       fetchAreas();
     } catch (error) {
       console.error('Failed to update area:', error);
-      alert('Failed to update area');
+      toast.error('Failed to update area');
     }
   };
 
@@ -141,11 +143,11 @@ export default function AreasPage() {
     if (!confirm('Are you sure you want to delete this area?')) return;
     try {
       await adminAreasApi.delete(id);
-      alert('Area deleted successfully');
+      toast.success('Area deleted successfully');
       fetchAreas();
     } catch (error) {
       console.error('Failed to delete area:', error);
-      alert('Failed to delete area');
+      toast.error('Failed to delete area');
     }
   };
 
@@ -155,7 +157,7 @@ export default function AreasPage() {
       fetchAreas();
     } catch (error) {
       console.error('Failed to toggle active status:', error);
-      alert('Failed to toggle active status');
+      toast.error('Failed to toggle active status');
     }
   };
 

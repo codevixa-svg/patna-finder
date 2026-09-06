@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -33,7 +35,7 @@ export default function ProfilePage() {
     e.preventDefault();
     
     if (passwordData.new_password !== passwordData.new_password_confirmation) {
-      alert('New passwords do not match!');
+      toast.error('New passwords do not match!');
       return;
     }
 
@@ -44,7 +46,7 @@ export default function ProfilePage() {
         passwordData.new_password,
         passwordData.new_password_confirmation
       );
-      alert('Password changed successfully!');
+      toast.success('Password changed successfully!');
       setPasswordData({
         current_password: '',
         new_password: '',
@@ -52,7 +54,7 @@ export default function ProfilePage() {
       });
     } catch (error: any) {
       console.error('Failed to change password:', error);
-      alert(error.response?.data?.message || 'Failed to change password');
+      toast.error(error.response?.data?.message || 'Failed to change password');
     } finally {
       setLoading(false);
     }

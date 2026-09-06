@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 // Styles per government event type (kept in sync with the homepage slider)
 const eventTypeStyles: Record<string, { color: string; iconColor: string; icon: string }> = {
@@ -54,6 +55,9 @@ export default function EventsPage() {
           </p>
         </div>
       </div>
+
+      {/* Breadcrumb — same UI as the business details page */}
+      <Breadcrumbs items={[{ label: 'Events' }]} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Type Filters */}

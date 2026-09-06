@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { adminMediaApi } from '@/lib/adminApi';
 
 /**
@@ -84,27 +85,46 @@ function escapeHtml(str: string) {
     .replace(/"/g, '&quot;');
 }
 
+/**
+ * Inline formatting (markdown-lite) for text blocks — applied after escaping:
+ * **bold**, *italic*, `code`, [text](url). Lets the admin style text
+ * professionally without touching raw HTML.
+ */
+function inlineFmt(str: string) {
+  return escapeHtml(str)
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+    .replace(/(^|[^*\w])\*([^*\n]+)\*/g, '$1<em class="italic">$2</em>')
+    .replace(
+      /`([^`\n]+)`/g,
+      '<code class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[0.875em] text-pink-600">$1</code>',
+    )
+    .replace(
+      /\[([^\]\n]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="font-semibold text-amber-700 underline decoration-amber-300 underline-offset-2 transition hover:text-amber-800">$1</a>',
+    );
+}
+
 function serializeBlock(b: EditorBlock): string {
   const d = b.data;
   switch (b.type) {
     case 'paragraph':
-      return `<p class="mb-4 leading-relaxed text-gray-700" style="text-align:${d.align || 'left'}">${escapeHtml(d.text).replace(/\n/g, '<br/>')}</p>`;
+      return `<p class="mb-4 leading-relaxed text-gray-700" style="text-align:${d.align || 'left'}">${inlineFmt(d.text).replace(/\n/g, '<br/>')}</p>`;
     case 'heading': {
       const cls =
         d.level === 'h3'
           ? 'mt-8 mb-3 text-xl font-bold text-gray-900 md:text-2xl'
           : 'mt-10 mb-4 text-2xl font-bold text-gray-900 md:text-3xl';
-      return `<${d.level || 'h2'} class="${cls}" style="text-align:${d.align || 'left'}">${escapeHtml(d.text)}</${d.level || 'h2'}>`;
+      return `<${d.level || 'h2'} class="${cls}" style="text-align:${d.align || 'left'}">${inlineFmt(d.text)}</${d.level || 'h2'}>`;
     }
     case 'card':
-      return `<div class="my-8 rounded-2xl border-2 ${CARD_COLORS[d.color] || CARD_COLORS.amber} p-6 shadow-sm"><h3 class="mb-2 text-xl font-bold text-gray-900">${escapeHtml(d.icon || '')} ${escapeHtml(d.title || '')}</h3><p class="leading-relaxed text-gray-600">${escapeHtml(d.text || '').replace(/\n/g, '<br/>')}</p>${d.linkUrl ? `<a href="${escapeHtml(d.linkUrl)}" target="${d.target || '_self'}" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1 font-semibold text-amber-700 hover:text-amber-800">${escapeHtml(d.linkText || 'Read more')} →</a>` : ''}</div>`;
+      return `<div class="my-8 rounded-2xl border-2 ${CARD_COLORS[d.color] || CARD_COLORS.amber} p-6 shadow-sm"><h3 class="mb-2 text-xl font-bold text-gray-900">${escapeHtml(d.icon || '')} ${escapeHtml(d.title || '')}</h3><p class="leading-relaxed text-gray-600">${inlineFmt(d.text || '').replace(/\n/g, '<br/>')}</p>${d.linkUrl ? `<a href="${escapeHtml(d.linkUrl)}" target="${d.target || '_self'}" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1 font-semibold text-amber-700 hover:text-amber-800">${escapeHtml(d.linkText || 'Read more')} →</a>` : ''}</div>`;
     case 'list': {
       if (d.style === 'number') {
-        const items = (d.items || []).map((it: string) => `<li class="pl-1 text-gray-700">${escapeHtml(it)}</li>`).join('');
+        const items = (d.items || []).map((it: string) => `<li class="pl-1 text-gray-700">${inlineFmt(it)}</li>`).join('');
         return `<ol class="my-6 list-decimal space-y-2 pl-6 marker:font-bold marker:text-amber-600">${items}</ol>`;
       }
       const m = LIST_MARKERS[d.style] || LIST_MARKERS.check;
-      const items = (d.items || []).map((it: string) => `<li class="flex items-start gap-2"><span class="${m.color} shrink-0 font-bold">${m.marker}</span><span class="text-gray-700">${escapeHtml(it)}</span></li>`).join('');
+      const items = (d.items || []).map((it: string) => `<li class="flex items-start gap-2"><span class="${m.color} shrink-0 font-bold">${m.marker}</span><span class="text-gray-700">${inlineFmt(it)}</span></li>`).join('');
       return `<ul class="my-6 space-y-2">${items}</ul>`;
     }
     case 'button':
@@ -120,10 +140,10 @@ function serializeBlock(b: EditorBlock): string {
       return `<div class="my-8 grid grid-cols-2 gap-3 md:grid-cols-3">${figs}</div>`;
     }
     case 'quote':
-      return `<blockquote class="my-6 rounded-r-xl border-l-4 border-amber-400 bg-amber-50 py-3 pl-4 pr-4 italic text-gray-700">${escapeHtml(d.text || '')}${d.author ? `<cite class="mt-2 block text-sm font-semibold not-italic text-gray-500">— ${escapeHtml(d.author)}</cite>` : ''}</blockquote>`;
+      return `<blockquote class="my-6 rounded-r-xl border-l-4 border-amber-400 bg-amber-50 py-3 pl-4 pr-4 italic text-gray-700">${inlineFmt(d.text || '')}${d.author ? `<cite class="mt-2 block text-sm font-semibold not-italic text-gray-500">— ${escapeHtml(d.author)}</cite>` : ''}</blockquote>`;
     case 'alert': {
       const v = ALERT_VARIANTS[d.variant] || ALERT_VARIANTS.info;
-      return `<div class="my-6 flex items-start gap-3 rounded-xl border-l-4 ${v.box} p-4"><span class="shrink-0 text-lg">${v.icon}</span><div><p class="font-bold">${escapeHtml(d.title || v.label)}</p><p class="mt-0.5 text-sm opacity-90">${escapeHtml(d.text || '').replace(/\n/g, '<br/>')}</p></div></div>`;
+      return `<div class="my-6 flex items-start gap-3 rounded-xl border-l-4 ${v.box} p-4"><span class="shrink-0 text-lg">${v.icon}</span><div><p class="font-bold">${escapeHtml(d.title || v.label)}</p><p class="mt-0.5 text-sm opacity-90">${inlineFmt(d.text || '').replace(/\n/g, '<br/>')}</p></div></div>`;
     }
     case 'divider':
       return '<hr class="my-8 border-gray-200" />';
@@ -163,7 +183,7 @@ const TEMPLATES: { name: string; icon: string; build: () => EditorBlock[] }[] = 
         id: uid(),
         type: 'html',
         data: {
-          code: '<div class="my-8 grid gap-4 md:grid-cols-2"><div class="rounded-2xl border-2 border-green-300 bg-green-50 p-5"><h3 class="mb-3 text-lg font-bold text-green-900">✅ Pros</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-green-600">✔</span><span class="text-gray-700">Advantage one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-green-600">✔</span><span class="text-gray-700">Advantage two</span></li></ul></div><div class="rounded-2xl border-2 border-red-300 bg-red-50 p-5"><h3 class="mb-3 text-lg font-bold text-red-900">❌ Cons</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback two</span></li></ul></div></div>',
+          code: '<div class="my-8 grid gap-4 md:grid-cols-2"><div class="rounded-2xl border-2 border-green-300 bg-amber-50 p-5"><h3 class="mb-3 text-lg font-bold text-green-900">✅ Pros</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-green-600">✔</span><span class="text-gray-700">Advantage one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-green-600">✔</span><span class="text-gray-700">Advantage two</span></li></ul></div><div class="rounded-2xl border-2 border-red-300 bg-red-50 p-5"><h3 class="mb-3 text-lg font-bold text-red-900">❌ Cons</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback two</span></li></ul></div></div>',
         },
       },
     ],
@@ -206,7 +226,7 @@ export function ImageSourceInput({ label = 'Image', value, onChange }: { label?:
       const res = await adminMediaApi.upload(file);
       onChange(res.url);
     } catch (e: any) {
-      alert(e.response?.data?.message || 'Image upload failed');
+      toast.error(e.response?.data?.message || 'Image upload failed');
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -280,6 +300,31 @@ const BLOCK_TYPES: { type: BlockType; label: string; icon: string }[] = [
   { type: 'html', label: 'Custom HTML', icon: '</>' },
 ];
 
+/**
+ * Mini formatting toolbar for text fields — inserts markdown-lite markers
+ * (**bold**, *italic*, `code`, [link](url)) around the selected text.
+ */
+function FormatBar({ onWrap }: { onWrap: (before: string, after: string) => void }) {
+  const btn =
+    'rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-bold text-gray-500 transition hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700';
+  return (
+    <div className="flex items-center gap-1">
+      <button type="button" className={btn} onClick={() => onWrap('**', '**')} title="Bold — **text**">
+        B
+      </button>
+      <button type="button" className={`${btn} italic`} onClick={() => onWrap('*', '*')} title="Italic — *text*">
+        I
+      </button>
+      <button type="button" className={`${btn} font-mono`} onClick={() => onWrap('`', '`')} title="Inline code — `text`">
+        {'</>'}
+      </button>
+      <button type="button" className={btn} onClick={() => onWrap('[', '](https://)')} title="Link — [text](url)">
+        🔗
+      </button>
+    </div>
+  );
+}
+
 export default function BlockEditor({ value, onChange }: BlockEditorProps) {
   const initialized = useRef(false);
   const [blocks, setBlocks] = useState<EditorBlock[]>(() =>
@@ -288,6 +333,12 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [htmlMode, setHtmlMode] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  // Textarea/input refs per block — used by the inline formatting toolbar
+  const textRefs = useRef<Record<string, HTMLTextAreaElement | HTMLInputElement | null>>({});
+  // Drag & drop reorder state
+  const dragIndex = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     initialized.current = true;
@@ -336,6 +387,49 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
     });
   };
 
+  // Wrap the current textarea selection with inline formatting markers
+  const surround = (blockId: string, before: string, after: string, placeholder = 'text') => {
+    const el = textRefs.current[blockId];
+    if (!el) return;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+    const selected = el.value.slice(start, end) || placeholder;
+    const next = el.value.slice(0, start) + before + selected + after + el.value.slice(end);
+    updateBlock(blockId, { text: next });
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(start + before.length, start + before.length + selected.length);
+    });
+  };
+
+  // Drag & drop reorder
+  const reorder = (from: number, to: number) => {
+    setBlocks((prev) => {
+      if (from === to || from < 0 || to < 0 || from >= prev.length || to >= prev.length) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
+
+  // Short summary shown in a collapsed block's header
+  const blockSummary = (b: EditorBlock) => {
+    const d = b.data as Record<string, any>;
+    const raw =
+      d.text ||
+      d.title ||
+      d.label ||
+      d.alt ||
+      (Array.isArray(d.items) ? `${d.items.length} item(s)` : '') ||
+      (Array.isArray(d.images) ? `${d.images.length} image(s)` : '') ||
+      d.code ||
+      '';
+    const clean = String(raw).replace(/\s+/g, ' ').trim();
+    if (!clean) return b.type === 'divider' ? '———' : 'Empty — click to edit';
+    return clean.length > 44 ? `${clean.slice(0, 44)}…` : clean;
+  };
+
   const renderSettings = (block: EditorBlock) => {
     const d = block.data;
     const set = (patch: Record<string, any>) => updateBlock(block.id, patch);
@@ -344,28 +438,51 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
       case 'paragraph':
         return (
           <div className="space-y-2">
-            <textarea value={d.text} onChange={(e) => set({ text: e.target.value })} rows={3} className={inputCls} placeholder="Paragraph text…" />
-            <select value={d.align} onChange={(e) => set({ align: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
-              <option value="left">Align: Left</option>
-              <option value="center">Align: Center</option>
-              <option value="justify">Align: Justify</option>
-            </select>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <FormatBar onWrap={(b, a) => surround(block.id, b, a)} />
+              <select value={d.align} onChange={(e) => set({ align: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
+                <option value="left">Align: Left</option>
+                <option value="center">Align: Center</option>
+                <option value="justify">Align: Justify</option>
+              </select>
+            </div>
+            <textarea
+              ref={(el) => { textRefs.current[block.id] = el; }}
+              value={d.text}
+              onChange={(e) => set({ text: e.target.value })}
+              rows={4}
+              className={inputCls}
+              placeholder="Paragraph text…"
+            />
+            <p className="text-[11px] text-gray-400">
+              Inline styling: <span className="font-mono">**bold**</span>, <span className="font-mono">*italic*</span>, <span className="font-mono">`code`</span>, <span className="font-mono">[link](url)</span>
+            </p>
           </div>
         );
       case 'heading':
         return (
           <div className="space-y-2">
-            <input type="text" value={d.text} onChange={(e) => set({ text: e.target.value })} className={inputCls} placeholder="Heading text…" />
-            <div className="flex gap-2">
-              <select value={d.level} onChange={(e) => set({ level: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
-                <option value="h2">H2 (big)</option>
-                <option value="h3">H3 (small)</option>
-              </select>
-              <select value={d.align} onChange={(e) => set({ align: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
-                <option value="left">Align: Left</option>
-                <option value="center">Align: Center</option>
-              </select>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <FormatBar onWrap={(b, a) => surround(block.id, b, a)} />
+              <div className="flex gap-2">
+                <select value={d.level} onChange={(e) => set({ level: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
+                  <option value="h2">H2 (big)</option>
+                  <option value="h3">H3 (small)</option>
+                </select>
+                <select value={d.align} onChange={(e) => set({ align: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
+                  <option value="left">Align: Left</option>
+                  <option value="center">Align: Center</option>
+                </select>
+              </div>
             </div>
+            <input
+              ref={(el) => { textRefs.current[block.id] = el; }}
+              type="text"
+              value={d.text}
+              onChange={(e) => set({ text: e.target.value })}
+              className={inputCls}
+              placeholder="Heading text…"
+            />
           </div>
         );
       case 'card':
@@ -376,6 +493,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
               <input type="text" value={d.icon} onChange={(e) => set({ icon: e.target.value })} className={inputCls} placeholder="Icon 📌" />
             </div>
             <textarea value={d.text} onChange={(e) => set({ text: e.target.value })} rows={3} className={inputCls} placeholder="Card content…" />
+            <p className="text-[11px] text-gray-400">Tip: inline styling works here — <span className="font-mono">**bold**</span>, <span className="font-mono">*italic*</span>, <span className="font-mono">[link](url)</span></p>
             <select value={d.color} onChange={(e) => set({ color: e.target.value })} className="rounded-lg border border-gray-300 px-2 py-1.5 text-xs">
               {Object.keys(CARD_COLORS).map((c) => (<option key={c} value={c}>Color: {c}</option>))}
             </select>
@@ -493,7 +611,15 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
       case 'quote':
         return (
           <div className="space-y-2">
-            <textarea value={d.text} onChange={(e) => set({ text: e.target.value })} rows={2} className={inputCls} placeholder="Quote text…" />
+            <FormatBar onWrap={(b, a) => surround(block.id, b, a)} />
+            <textarea
+              ref={(el) => { textRefs.current[block.id] = el; }}
+              value={d.text}
+              onChange={(e) => set({ text: e.target.value })}
+              rows={2}
+              className={inputCls}
+              placeholder="Quote text…"
+            />
             <input type="text" value={d.author} onChange={(e) => set({ author: e.target.value })} className={inputCls} placeholder="Author (optional)…" />
           </div>
         );
@@ -504,7 +630,15 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
               {Object.entries(ALERT_VARIANTS).map(([k, v]) => (<option key={k} value={k}>{v.icon} {v.label}</option>))}
             </select>
             <input type="text" value={d.title} onChange={(e) => set({ title: e.target.value })} className={inputCls} placeholder="Alert title…" />
-            <textarea value={d.text} onChange={(e) => set({ text: e.target.value })} rows={2} className={inputCls} placeholder="Alert text…" />
+            <FormatBar onWrap={(b, a) => surround(block.id, b, a)} />
+            <textarea
+              ref={(el) => { textRefs.current[block.id] = el; }}
+              value={d.text}
+              onChange={(e) => set({ text: e.target.value })}
+              rows={2}
+              className={inputCls}
+              placeholder="Alert text…"
+            />
           </div>
         );
       case 'divider':
@@ -523,6 +657,11 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
         return null;
     }
   };
+
+  // Article stats — word count & estimated reading time from rendered content
+  const plain = serializeAll(blocks).replace(/<[^>]*>/g, ' ');
+  const wordCount = plain.trim() ? plain.trim().split(/\s+/).length : 0;
+  const readingTime = Math.max(1, Math.ceil(wordCount / 220));
 
   if (htmlMode) {
     return (
@@ -546,22 +685,35 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
 
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-      {/* Toolbar — add blocks, templates, HTML mode */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Add Block</span>
-        {BLOCK_TYPES.map((bt) => (
+      {/* Toolbar — add blocks, templates, HTML mode, stats */}
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
+        <div className="relative">
           <button
-            key={bt.type}
             type="button"
-            onClick={() => addBlock(bt.type)}
-            title={`Add ${bt.label}`}
-            className="rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:border-amber-400 hover:bg-amber-50"
+            onClick={() => { setAddOpen(!addOpen); setTemplatesOpen(false); }}
+            className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-gray-900 transition hover:bg-amber-500"
           >
-            <span className="mr-1">{bt.icon}</span>
-            {bt.label}
+            ＋ Add Block ▾
           </button>
-        ))}
-        <div className="relative ml-auto">
+          {addOpen && (
+            <div className="absolute left-0 z-20 mt-1 w-72 rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl">
+              <div className="grid grid-cols-2 gap-1">
+                {BLOCK_TYPES.map((bt) => (
+                  <button
+                    key={bt.type}
+                    type="button"
+                    onClick={() => { addBlock(bt.type); setAddOpen(false); }}
+                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-gray-700 transition hover:bg-amber-50"
+                  >
+                    <span className="w-5 text-center text-sm">{bt.icon}</span>
+                    {bt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="relative">
           <button
             type="button"
             onClick={() => setTemplatesOpen(!templatesOpen)}
@@ -592,6 +744,12 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
         >
           &lt;/&gt; HTML
         </button>
+
+        <div className="ml-auto flex items-center gap-2 text-[11px] font-medium text-gray-400">
+          <span className="rounded-full bg-gray-100 px-2.5 py-1">{blocks.length} blocks</span>
+          <span className="rounded-full bg-gray-100 px-2.5 py-1">{wordCount} words</span>
+          <span className="rounded-full bg-amber-100 px-2.5 py-1 font-semibold text-amber-700">~{readingTime} min read</span>
+        </div>
       </div>
 
       {/* Blocks list with live preview */}
@@ -602,24 +760,43 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
       ) : (
         <div className="space-y-3">
           {blocks.map((block, index) => (
-            <div key={block.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-              <div className="flex items-center justify-between bg-gray-100 px-3 py-1.5">
+            <div
+              key={block.id}
+              onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
+              onDragLeave={() => setDragOverIndex((i) => (i === index ? null : i))}
+              onDrop={(e) => { e.preventDefault(); reorder(dragIndex.current ?? index, index); dragIndex.current = null; setDragOverIndex(null); }}
+              className={`overflow-hidden rounded-xl border bg-white transition ${dragOverIndex === index ? 'border-amber-400 ring-2 ring-amber-200' : 'border-gray-200'}`}
+            >
+              <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5">
+                <span
+                  draggable
+                  onDragStart={(e) => { dragIndex.current = index; e.dataTransfer.effectAllowed = 'move'; }}
+                  onDragEnd={() => { dragIndex.current = null; setDragOverIndex(null); }}
+                  className="cursor-grab select-none text-gray-400 transition hover:text-gray-700 active:cursor-grabbing"
+                  title="Drag to reorder"
+                >
+                  ⠿
+                </span>
                 <button
                   type="button"
                   onClick={() => setExpandedId(expandedId === block.id ? null : block.id)}
-                  className="text-xs font-bold uppercase text-gray-700"
+                  className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
+                  title="Click to edit / collapse"
                 >
-                  {BLOCK_TYPES.find((x) => x.type === block.type)?.icon} {block.type}
+                  <span className="shrink-0 rounded bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase text-gray-600 shadow-sm">
+                    {BLOCK_TYPES.find((x) => x.type === block.type)?.icon} {block.type}
+                  </span>
+                  <span className="truncate text-xs text-gray-400">{blockSummary(block)}</span>
                 </button>
                 <div className="flex items-center gap-1">
-                  <button type="button" onClick={() => moveBlock(index, -1)} disabled={index === 0} className="px-1 text-gray-500 hover:text-gray-900 disabled:opacity-30" title="Move up">↑</button>
-                  <button type="button" onClick={() => moveBlock(index, 1)} disabled={index === blocks.length - 1} className="px-1 text-gray-500 hover:text-gray-900 disabled:opacity-30" title="Move down">↓</button>
-                  <button type="button" onClick={() => duplicateBlock(block.id)} className="px-1 text-gray-500 hover:text-gray-900" title="Duplicate">⧉</button>
-                  <button type="button" onClick={() => removeBlock(block.id)} className="px-1 text-red-400 hover:text-red-600" title="Delete">✕</button>
+                  <button type="button" onClick={() => moveBlock(index, -1)} disabled={index === 0} className="px-1 text-gray-500 transition hover:text-gray-900 disabled:opacity-30" title="Move up">↑</button>
+                  <button type="button" onClick={() => moveBlock(index, 1)} disabled={index === blocks.length - 1} className="px-1 text-gray-500 transition hover:text-gray-900 disabled:opacity-30" title="Move down">↓</button>
+                  <button type="button" onClick={() => duplicateBlock(block.id)} className="px-1 text-gray-500 transition hover:text-gray-900" title="Duplicate">⧉</button>
+                  <button type="button" onClick={() => removeBlock(block.id)} className="px-1 text-red-400 transition hover:text-red-600" title="Delete">✕</button>
                 </div>
               </div>
               {expandedId === block.id && (
-                <div className="border-b border-gray-100 p-3">{renderSettings(block)}</div>
+                <div className="border-b border-gray-100 bg-amber-50/40 p-3">{renderSettings(block)}</div>
               )}
               <div className="p-3">
                 <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">Live Preview</p>

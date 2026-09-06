@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -85,7 +87,7 @@ useEffect(() => {
         });
       } catch (error) {
         console.error('Failed to fetch event:', error);
-        alert('Failed to load event');
+        toast.error('Failed to load event');
         router.push('/admin/events');
       } finally {
         setLoading(false);
@@ -98,7 +100,7 @@ useEffect(() => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.event_date) {
-      alert('Event date is required');
+      toast.error('Event date is required');
       return;
     }
 
@@ -108,11 +110,11 @@ useEffect(() => {
         ...formData,
         display_order: Number(formData.display_order) || 0,
       });
-      alert('Event updated successfully!');
+      toast.success('Event updated successfully!');
       router.push('/admin/events');
     } catch (error: any) {
       console.error('Failed to update:', error);
-      alert(error.response?.data?.message || 'Failed to update event');
+      toast.error(error.response?.data?.message || 'Failed to update event');
     } finally {
       setSaving(false);
     }

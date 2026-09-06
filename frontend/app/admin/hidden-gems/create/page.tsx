@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -37,18 +39,18 @@ export default function CreateHiddenGemPage() {
     e.preventDefault();
     
     if (formData.story.length < 200 || formData.story.length > 300) {
-      alert('Story must be between 200-300 words');
+      toast.error('Story must be between 200-300 words');
       return;
     }
 
     setLoading(true);
     try {
       await adminHiddenGemsApi.create(formData);
-      alert('Hidden gem created successfully!');
+      toast.success('Hidden gem created successfully!');
       router.push('/admin/hidden-gems');
     } catch (error: any) {
       console.error('Failed to create:', error);
-      alert(error.response?.data?.message || 'Failed to create hidden gem');
+      toast.error(error.response?.data?.message || 'Failed to create hidden gem');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -40,25 +42,25 @@ export default function SettingsPage() {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      alert('New passwords do not match.');
+      toast.error('New passwords do not match.');
       return;
     }
 
     if (newPassword.length < 8) {
-      alert('New password must be at least 8 characters.');
+      toast.error('New password must be at least 8 characters.');
       return;
     }
 
     setChangingPassword(true);
     try {
       await adminAuthApi.changePassword(currentPassword, newPassword, confirmPassword);
-      alert('Password changed successfully.');
+      toast.success('Password changed successfully.');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
       const message = err?.response?.data?.message || 'Failed to change password.';
-      alert(message);
+      toast.error(message);
     } finally {
       setChangingPassword(false);
     }

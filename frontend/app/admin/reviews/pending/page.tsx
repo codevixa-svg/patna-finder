@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -45,7 +47,7 @@ export default function PendingReviewsPage() {
       fetchReviews();
     } catch (error) {
       console.error('Failed to approve:', error);
-      alert('Failed to approve review');
+      toast.error('Failed to approve review');
     }
   };
 
@@ -55,7 +57,7 @@ export default function PendingReviewsPage() {
       fetchReviews();
     } catch (error) {
       console.error('Failed to reject:', error);
-      alert('Failed to reject review');
+      toast.error('Failed to reject review');
     }
   };
 

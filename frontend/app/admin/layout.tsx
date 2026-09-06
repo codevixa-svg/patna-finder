@@ -1,3 +1,5 @@
+import AdminToaster from '@/components/admin/AdminToaster';
+
 export default function AdminLayout({
   children,
 }: {
@@ -5,6 +7,7 @@ export default function AdminLayout({
 }) {
   return (
     <>
+      <AdminToaster />
       {children}
     </>
   );

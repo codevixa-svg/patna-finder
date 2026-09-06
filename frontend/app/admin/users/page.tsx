@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -73,34 +75,34 @@ export default function UsersPage() {
   const handleUpdateRole = async (id: number, role: string) => {
     try {
       await adminUsersApi.updateRole(id, role);
-      alert('Role updated successfully');
+      toast.success('Role updated successfully');
       fetchUsers();
     } catch (error) {
       console.error('Failed to update role:', error);
-      alert('Failed to update role');
+      toast.error('Failed to update role');
     }
   };
 
   const handleToggleActive = async (id: number) => {
     try {
       await adminUsersApi.toggleActive(id);
-      alert('Status updated successfully');
+      toast.success('Status updated successfully');
       fetchUsers();
     } catch (error) {
       console.error('Failed to toggle active:', error);
-      alert('Failed to update status');
+      toast.error('Failed to update status');
     }
   };
 
   const handleUpdatePermissions = async () => {
     try {
       await adminUsersApi.updatePermissions(permissionsModal.userId, permissionsModal.current);
-      alert('Permissions updated successfully');
+      toast.success('Permissions updated successfully');
       setPermissionsModal({ open: false, userId: 0, current: [] });
       fetchUsers();
     } catch (error) {
       console.error('Failed to update permissions:', error);
-      alert('Failed to update permissions');
+      toast.error('Failed to update permissions');
     }
   };
 
@@ -108,11 +110,11 @@ export default function UsersPage() {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
     try {
       await adminUsersApi.delete(id);
-      alert('User deleted successfully');
+      toast.success('User deleted successfully');
       fetchUsers();
     } catch (error) {
       console.error('Failed to delete:', error);
-      alert('Failed to delete user');
+      toast.error('Failed to delete user');
     }
   };
 

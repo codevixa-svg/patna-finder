@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export const metadata = {
   title: 'About Us - Patna Finder',
@@ -17,6 +18,9 @@ export default function AboutPage() {
           </p>
         </div>
       </section>
+
+      {/* Breadcrumb — same UI as the business details page */}
+      <Breadcrumbs items={[{ label: 'About Us' }]} />
 
       {/* Mission */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">

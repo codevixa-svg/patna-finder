@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -64,7 +66,7 @@ export default function AdminSubscriptionsPage() {
       await adminSubscriptionsApi.cancel(id);
       fetchSubscriptions();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to cancel');
+      toast.error(err.response?.data?.message || 'Failed to cancel');
     }
   }
 

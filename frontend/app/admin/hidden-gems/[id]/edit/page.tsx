@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -113,7 +115,7 @@ export default function EditHiddenGemPage() {
         });
       } catch (error: any) {
         console.error('Failed to load:', error);
-        alert('Failed to load hidden gem data');
+        toast.error('Failed to load hidden gem data');
         router.push('/admin/hidden-gems');
       } finally {
         setLoading(false);
@@ -151,11 +153,11 @@ export default function EditHiddenGemPage() {
     setSaving(true);
     try {
       await adminHiddenGemsApi.update(Number(id), payload);
-      alert('Hidden gem updated successfully!');
+      toast.success('Hidden gem updated successfully!');
       router.push('/admin/hidden-gems');
     } catch (error: any) {
       console.error('Failed to update:', error);
-      alert(error.response?.data?.message || 'Failed to update hidden gem');
+      toast.error(error.response?.data?.message || 'Failed to update hidden gem');
     } finally {
       setSaving(false);
     }
@@ -165,9 +167,9 @@ export default function EditHiddenGemPage() {
     try {
       const res = await adminHiddenGemsApi.feature(Number(id));
       setGem((prev) => (prev ? { ...prev, is_featured: res.is_featured ?? !prev.is_featured } : prev));
-      alert('Featured status toggled');
+      toast.error('Featured status toggled');
     } catch (error: any) {
-      alert('Failed to toggle featured');
+      toast.error('Failed to toggle featured');
     }
   };
 
@@ -175,9 +177,9 @@ export default function EditHiddenGemPage() {
     try {
       const res = await adminHiddenGemsApi.toggleActive(Number(id));
       setGem((prev) => (prev ? { ...prev, is_active: res.is_active ?? !prev.is_active } : prev));
-      alert('Active status toggled');
+      toast.error('Active status toggled');
     } catch (error: any) {
-      alert('Failed to toggle active');
+      toast.error('Failed to toggle active');
     }
   };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
 export default function PricingPage() {
   return (
@@ -12,6 +13,9 @@ export default function PricingPage() {
           <p className="text-xl text-gray-300">Choose a plan that works for your business</p>
         </div>
       </section>
+
+      {/* Breadcrumb — same UI as the business details page */}
+      <Breadcrumbs items={[{ label: 'Pricing' }]} />
 
       {/* Plans */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

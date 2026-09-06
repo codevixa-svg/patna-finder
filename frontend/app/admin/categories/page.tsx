@@ -1,5 +1,7 @@
 'use client';
 
+import toast from 'react-hot-toast';
+
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
@@ -67,18 +69,18 @@ export default function CategoriesPage() {
 
   const handleCreate = async () => {
     if (!formData.name.trim()) {
-      alert('Category name is required');
+      toast.error('Category name is required');
       return;
     }
     try {
       await adminCategoriesApi.create(formData);
-      alert('Category created successfully');
+      toast.success('Category created successfully');
       setShowCreateModal(false);
       setFormData(defaultFormData);
       fetchCategories();
     } catch (error) {
       console.error('Failed to create category:', error);
-      alert('Failed to create category');
+      toast.error('Failed to create category');
     }
   };
 
@@ -97,19 +99,19 @@ export default function CategoriesPage() {
   const handleUpdate = async () => {
     if (!editData) return;
     if (!formData.name.trim()) {
-      alert('Category name is required');
+      toast.error('Category name is required');
       return;
     }
     try {
       await adminCategoriesApi.update(editData.id, formData);
-      alert('Category updated successfully');
+      toast.success('Category updated successfully');
       setShowEditModal(false);
       setEditData(null);
       setFormData(defaultFormData);
       fetchCategories();
     } catch (error) {
       console.error('Failed to update category:', error);
-      alert('Failed to update category');
+      toast.error('Failed to update category');
     }
   };
 
@@ -117,11 +119,11 @@ export default function CategoriesPage() {
     if (!confirm('Are you sure you want to delete this category?')) return;
     try {
       await adminCategoriesApi.delete(id);
-      alert('Category deleted successfully');
+      toast.success('Category deleted successfully');
       fetchCategories();
     } catch (error) {
       console.error('Failed to delete:', error);
-      alert('Failed to delete category');
+      toast.error('Failed to delete category');
     }
   };
 
@@ -131,7 +133,7 @@ export default function CategoriesPage() {
       fetchCategories();
     } catch (error) {
       console.error('Failed to toggle status:', error);
-      alert('Failed to toggle category status');
+      toast.error('Failed to toggle category status');
     }
   };
 

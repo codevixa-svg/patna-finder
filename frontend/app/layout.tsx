@@ -46,8 +46,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    // suppressHydrationWarning: browser extensions (e.g. QuickBooks injects
+    // `data-qb-installed` on <html>) mutate <html>/<body> before React
+    // hydrates, causing false-positive attribute mismatch errors.
+    // This only suppresses warnings for these two elements' own attributes —
+    // hydration mismatches deeper in the tree are still reported.
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
