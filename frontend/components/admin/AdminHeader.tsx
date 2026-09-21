@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
+import { useAdminUiStore } from '@/store/adminUiStore';
 import { adminAuthApi } from '@/lib/adminApi';
 
 export default function AdminHeader() {
   const router = useRouter();
   const { user, logout } = useAdminAuthStore();
+  const { toggleSidebar } = useAdminUiStore();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleLogout = async () => {
@@ -22,10 +24,19 @@ export default function AdminHeader() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 fixed top-0 right-0 left-64 z-30">
-      {/* Search Bar */}
-      <div className="flex-1 max-w-xl">
-        <div className="relative">
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 fixed top-0 right-0 left-0 lg:left-64 z-30">
+      {/* Mobile Sidebar Toggle + Search Bar */}
+      <div className="flex-1 max-w-xl flex items-center gap-2 min-w-0">
+        <button
+          onClick={toggleSidebar}
+          aria-label="Toggle admin menu"
+          className="lg:hidden p-2 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div className="relative hidden md:block flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -40,7 +51,7 @@ export default function AdminHeader() {
       </div>
 
       {/* Right Side Actions */}
-      <div className="flex items-center gap-4 ml-6">
+      <div className="flex items-center gap-2 sm:gap-4 ml-2 sm:ml-6 flex-shrink-0">
         {/* Notifications */}
         <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +70,7 @@ export default function AdminHeader() {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
-          <span>View Site</span>
+          <span className="hidden sm:inline">View Site</span>
         </a>
 
         {/* Profile Dropdown */}

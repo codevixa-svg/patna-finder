@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { adminAuthApi } from '@/lib/adminApi';
+import MfaCodeInput from '@/components/auth/MfaCodeInput';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -15,33 +16,121 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ── OTP Verification Step ──
+  const [step, setStep] = useState<'credentials' | 'otp'>('credentials');
+  const [challengeToken, setChallengeToken] = useState('');
+  const [emailMasked, setEmailMasked] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+  const [lockUntil, setLockUntil] = useState(0);
+  const [devCode, setDevCode] = useState('');
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setInterval(() => setResendIn((v) => (v > 0 ? v - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [resendIn]);
+
+  // Lockout countdown timer
+  useEffect(() => {
+    if (!lockUntil) return;
+    const t = setInterval(() => {
+      if (Math.floor(Date.now() / 1000) >= lockUntil) {
+        setLockUntil(0);
+        setError('');
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [lockUntil]);
+
+  const lockRemaining = lockUntil > 0 ? Math.max(0, lockUntil - Math.floor(Date.now() / 1000)) : 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const response = await adminAuthApi.login(email, password);
+      // Step 1: Send OTP to email after email+password verification
+      const response = await adminAuthApi.loginWithOtp(email, password);
       
-      // Store user and token
-      login(response.user, response.token);
-      
-      // Redirect to admin dashboard
-      router.push('/admin');
+      // OTP sent successfully
+      setChallengeToken(response.challenge_token);
+      setEmailMasked(response.email_masked || email);
+      setResendIn(response.resend_in || 60);
+      setDevCode(response.dev_code || '');
+      setStep('otp');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || err.response?.data?.error || 'Invalid email or password');
+      const status = err.response?.status;
+      if (status === 423 && err.response?.data?.retry_after_seconds) {
+        setLockUntil(Math.floor(Date.now() / 1000) + err.response.data.retry_after_seconds);
+        setError(err.response?.data?.error || 'Account temporarily locked.');
+      } else {
+        setError(err.response?.data?.error || err.response?.data?.message || 'Invalid email or password');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const handleOtpComplete = async (code: string) => {
+    setOtpError('');
+    setOtpLoading(true);
+
+    try {
+      // Step 2: Verify OTP code
+      const response = await adminAuthApi.verifyOtp(challengeToken, code);
+      login(response.user, response.token);
+      router.push('/admin');
+    } catch (err: any) {
+      console.error('OTP error:', err);
+      setOtpError(
+        err.response?.data?.errors?.code?.[0] ||
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        'Invalid verification code'
+      );
+      // OTP expired → back to credentials
+      if (err.response?.status === 410 || err.response?.status === 404) {
+        setTimeout(() => backToCredentials(), 1800);
+      }
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setOtpError('');
+    try {
+      const response = await adminAuthApi.resendOtp(challengeToken);
+      setResendIn(response.resend_in || 60);
+      setDevCode(response.dev_code || '');
+      setOtpError('');
+    } catch (err: any) {
+      const retryIn = err.response?.data?.resend_in;
+      if (retryIn) setResendIn(retryIn);
+      setOtpError(err.response?.data?.error || 'Could not resend code. Please wait and try again.');
+    }
+  };
+
+  const backToCredentials = () => {
+    setStep('credentials');
+    setOtpError('');
+    setPassword('');
+  };
+
+  const lockMinutes = Math.floor(lockRemaining / 60);
+  const lockSeconds = lockRemaining % 60;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155] flex items-center justify-center p-4">
       {/* Floating Shapes Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#D89E00]/10 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl"></div>
       </div>
 
@@ -49,7 +138,7 @@ export default function AdminLoginPage() {
         {/* Logo & Brand */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center gap-3 mb-6">
-            <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-[#F4B400] to-[#D89E00] rounded-2xl flex items-center justify-center shadow-lg shadow-[#D89E00]/30">
               <svg className="w-8 h-8 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
               </svg>
@@ -61,6 +150,65 @@ export default function AdminLoginPage() {
 
         {/* Login Card */}
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/20">
+          {step === 'otp' ? (
+            /* ───────── Step 2: OTP Verification ───────── */
+            <div>
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-50 rounded-2xl mb-4">
+                  <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Identity</h2>
+                <p className="text-gray-600 text-sm mb-1">
+                  We've sent a 6-digit verification code to
+                </p>
+                <p className="text-gray-900 font-semibold text-base">{emailMasked}</p>
+                <p className="text-gray-500 text-xs mt-2">Please check your inbox and enter the code below</p>
+              </div>
+
+              {devCode && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                  <p className="text-xs text-blue-700">
+                    Local dev mode — email is logged, not sent. Your code:
+                  </p>
+                  <p className="text-xl font-bold tracking-[0.4em] text-blue-800 mt-1">{devCode}</p>
+                </div>
+              )}
+
+              <MfaCodeInput
+                onComplete={handleOtpComplete}
+                disabled={otpLoading}
+                error={otpError}
+              />
+
+              {otpLoading && (
+                <p className="text-center text-sm text-blue-600 mt-4 font-medium">Verifying code...</p>
+              )}
+
+              <div className="flex items-center justify-between mt-6 text-sm">
+                <button
+                  type="button"
+                  onClick={backToCredentials}
+                  className="text-gray-500 hover:text-gray-700 font-medium flex items-center gap-1"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to login
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendIn > 0 || otpLoading}
+                  className="text-blue-600 hover:text-blue-700 font-semibold disabled:text-gray-400 disabled:cursor-not-allowed"
+                >
+                  {resendIn > 0 ? `Resend in ${resendIn}s` : 'Resend code'}
+                </button>
+              </div>
+            </div>
+          ) : (
+          /* ───────── Step 1: Credentials ───────── */
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Welcome Message */}
             <div className="text-center mb-6">
@@ -68,8 +216,23 @@ export default function AdminLoginPage() {
               <p className="text-gray-500 text-sm">Enter your credentials to access the admin panel</p>
             </div>
 
+            {/* Account Lockout Banner (AWS Cognito adaptive lockout) */}
+            {lockRemaining > 0 && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-800 px-4 py-3 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <div className="text-sm">
+                    <p className="font-semibold">Account temporarily locked</p>
+                    <p className="mt-0.5">Too many failed attempts. Try again in <span className="font-mono font-bold">{lockMinutes}:{String(lockSeconds).padStart(2, '0')}</span></p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Error Message */}
-            {error && (
+            {error && lockRemaining === 0 && (
               <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r-lg flex items-start gap-3">
                 <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -179,27 +342,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Demo Credentials - Development Only */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Demo Credentials</span>
-              </div>
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 space-y-2 text-xs">
-                <div className="flex items-center justify-between p-2 bg-white rounded border border-gray-200">
-                  <span className="text-gray-600 font-medium">Super Admin:</span>
-                  <span className="font-mono text-gray-900">admin@patnafinder.com</span>
-                </div>
-                <div className="flex items-center justify-between p-2 bg-white rounded border border-gray-200">
-                  <span className="text-gray-600 font-medium">Password:</span>
-                  <span className="font-mono text-gray-900">admin123</span>
-                </div>
-              </div>
-            </div>
           )}
         </div>
 

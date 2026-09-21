@@ -49,8 +49,50 @@ export const adminAuthApi = {
     return response.data;
   },
 
+  /** AWS Cognito MFA step 2: verify OTP/TOTP with the challenge token */
+  verifyMfa: async (challengeToken: string, code: string) => {
+    const response = await adminApi.post('/admin/verify-mfa', {
+      challenge_token: challengeToken,
+      code,
+    });
+    return response.data;
+  },
+
+  /** Resend the email OTP for an active MFA challenge */
+  resendMfa: async (challengeToken: string) => {
+    const response = await adminApi.post('/admin/resend-mfa', {
+      challenge_token: challengeToken,
+    });
+    return response.data;
+  },
+
+  // ── OTP-Based Login (Unified Flow) ──
+  /** Step 1: Request OTP after email+password verification */
+  loginWithOtp: async (email: string, password: string) => {
+    const response = await adminApi.post('/admin/login-with-otp', { email, password });
+    return response.data;
+  },
+
+  /** Step 2: Verify OTP code */
+  verifyOtp: async (challengeToken: string, code: string) => {
+    const response = await adminApi.post('/admin/verify-otp', { challenge_token: challengeToken, code });
+    return response.data;
+  },
+
+  /** Resend OTP code */
+  resendOtp: async (challengeToken: string) => {
+    const response = await adminApi.post('/admin/resend-otp', { challenge_token: challengeToken });
+    return response.data;
+  },
+
   logout: async () => {
     const response = await adminApi.post('/admin/logout');
+    return response.data;
+  },
+
+  /** Global sign-out — revoke tokens on ALL devices */
+  logoutAll: async () => {
+    const response = await adminApi.post('/admin/logout-all');
     return response.data;
   },
 
@@ -65,6 +107,37 @@ export const adminAuthApi = {
       new_password: newPassword,
       new_password_confirmation: newPasswordConfirmation,
     });
+    return response.data;
+  },
+
+  // ── Security Center ──
+  /** MFA status + recent login activity (audit log) */
+  securityOverview: async () => {
+    const response = await adminApi.get('/admin/security');
+    return response.data;
+  },
+
+  /** Toggle Email OTP MFA */
+  toggleMfa: async (enabled: boolean) => {
+    const response = await adminApi.post('/admin/security/mfa', { enabled });
+    return response.data;
+  },
+
+  /** Begin TOTP (authenticator app) setup — get secret + otpauth URL */
+  totpSetup: async () => {
+    const response = await adminApi.post('/admin/security/totp/setup');
+    return response.data;
+  },
+
+  /** Confirm TOTP setup with a live 6-digit code */
+  totpConfirm: async (code: string) => {
+    const response = await adminApi.post('/admin/security/totp/confirm', { code });
+    return response.data;
+  },
+
+  /** Remove authenticator app */
+  totpDisable: async () => {
+    const response = await adminApi.post('/admin/security/totp/disable');
     return response.data;
   },
 };
@@ -124,8 +197,61 @@ export const adminBusinessesApi = {
     return response.data;
   },
 
-  verify: async (id: number) => {
-    const response = await adminApi.post(`/admin/businesses/${id}/verify`);
+  verify: async (id: number, data?: { method: string; note: string }) => {
+    const response = await adminApi.post(`/admin/businesses/${id}/verify`, data);
+    return response.data;
+  },
+
+  unverify: async (id: number, data?: { note: string }) => {
+    const response = await adminApi.post(`/admin/businesses/${id}/unverify`, data);
+    return response.data;
+  },
+
+  verificationLogs: async (id: number) => {
+    const response = await adminApi.get(`/admin/businesses/${id}/verification-logs`);
+    return response.data;
+  },
+
+  // Verification Documents
+  verificationDocuments: async (id: number) => {
+    const response = await adminApi.get(`/admin/businesses/${id}/documents`);
+    return response.data;
+  },
+
+  uploadVerificationDocument: async (id: number, formData: FormData) => {
+    const response = await adminApi.post(`/admin/businesses/${id}/documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  reviewVerificationDocument: async (id: number, docId: number, data: { status: string; review_note?: string; expires_at?: string }) => {
+    const response = await adminApi.post(`/admin/businesses/${id}/documents/${docId}/review`, data);
+    return response.data;
+  },
+
+  deleteVerificationDocument: async (id: number, docId: number) => {
+    const response = await adminApi.delete(`/admin/businesses/${id}/documents/${docId}`);
+    return response.data;
+  },
+
+  // Secure private download via authenticated axios (blob -> browser save)
+  downloadVerificationDocument: async (id: number, docId: number, fileName: string) => {
+    const response = await adminApi.get(`/admin/businesses/${id}/documents/${docId}/download`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName || 'document';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  expiringDocuments: async () => {
+    const response = await adminApi.get('/admin/verification-documents/expiring');
     return response.data;
   },
 

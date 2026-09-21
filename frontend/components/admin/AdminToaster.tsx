@@ -22,7 +22,7 @@ export default function AdminToaster() {
           boxShadow:
             '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
         },
-        success: { iconTheme: { primary: '#16a34a', secondary: '#ffffff' } },
+        success: { iconTheme: { primary: '#F4B400', secondary: '#ffffff' } },
         error: { iconTheme: { primary: '#dc2626', secondary: '#ffffff' } },
       }}
     />

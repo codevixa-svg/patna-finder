@@ -1,15 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
+import { useAdminUiStore } from '@/store/adminUiStore';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { user } = useAdminAuthStore();
-  
+  const { sidebarOpen, setSidebarOpen } = useAdminUiStore();
+  const [isDesktop, setIsDesktop] = useState(false);
+
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  // The sidebar is permanently docked on lg+ screens; below that it works as
+  // an off-canvas drawer controlled from the header's hamburger button.
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const apply = () => {
+      setIsDesktop(mq.matches);
+      setSidebarOpen(mq.matches);
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, [setSidebarOpen]);
+
+  // Always start with the drawer closed after navigating on mobile.
+  useEffect(() => {
+    if (!isDesktop) setSidebarOpen(false);
+  }, [pathname, isDesktop, setSidebarOpen]);
+
+  const handleNavClick = () => {
+    if (!isDesktop) setSidebarOpen(false);
+  };
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
@@ -140,11 +165,24 @@ export default function AdminSidebar() {
   }
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-screen fixed left-0 top-0 z-40">
+    <>
+      {/* Mobile overlay */}
+      {sidebarOpen && !isDesktop && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`w-64 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col h-screen fixed left-0 top-0 z-50 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0`}
+      >
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-500 rounded-xl flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#F4B400] to-[#D89E00] rounded-xl flex items-center justify-center shadow-md">
             <svg className="w-6 h-6 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
             </svg>
@@ -154,6 +192,16 @@ export default function AdminSidebar() {
             <p className="text-xs text-gray-500">Patna Finder</p>
           </div>
         </div>
+        {/* Close button (mobile drawer only) */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close menu"
+          className="lg:hidden ml-auto p-2 -mr-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Navigation */}
@@ -187,6 +235,7 @@ export default function AdminSidebar() {
                       <Link
                         key={subItem.href}
                         href={subItem.href}
+                        onClick={handleNavClick}
                         className={`block px-4 py-2 rounded-lg text-sm transition-all ${
                           pathname === subItem.href
                             ? 'bg-blue-50 text-blue-600 font-medium'
@@ -202,6 +251,7 @@ export default function AdminSidebar() {
             ) : (
               <Link
                 href={item.href!}
+                onClick={handleNavClick}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all ${
                   item.active ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -227,5 +277,6 @@ export default function AdminSidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

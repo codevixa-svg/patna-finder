@@ -53,7 +53,7 @@ export default function SaveForLaterButton({ slug }: { slug: string }) {
       >
         <Bookmark
           size={14}
-          className={saved ? 'fill-amber-500 text-amber-500' : 'text-gray-500'}
+          className={saved ? 'fill-[#D89E00] text-[#D89E00]' : 'text-gray-500'}
         />
         {saved ? 'Saved' : 'Save for later'}
       </button>

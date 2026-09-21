@@ -2,18 +2,31 @@
 
 import toast from 'react-hot-toast';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthStore } from '@/store/adminAuthStore';
-import { adminAreasApi } from '@/lib/adminApi';
+import { adminAreasApi, adminMediaApi } from '@/lib/adminApi';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+
+// Base URL without the /api/v1 suffix — used to build storage image URLs
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1').replace(/\/api\/v1\/?$/, '');
+
+// Build an absolute image URL from backend storage paths (/storage/...)
+const buildImageUrl = (path: string | null | undefined): string | null => {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  if (path.startsWith('/storage/')) return `${API_BASE_URL}${path}`;
+  if (path.startsWith('storage/')) return `${API_BASE_URL}/${path}`;
+  return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 interface Area {
   id: number;
   name: string;
   slug: string;
   description?: string;
+  banner_image?: string;
   latitude?: number;
   longitude?: number;
   is_active: boolean;
@@ -24,6 +37,7 @@ interface Area {
 const defaultFormData = {
   name: '',
   description: '',
+  banner_image: '',
   latitude: '',
   longitude: '',
   is_active: true,
@@ -40,6 +54,8 @@ export default function AreasPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState<Area | null>(null);
   const [formData, setFormData] = useState(defaultFormData);
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const bannerFileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -82,6 +98,7 @@ export default function AreasPage() {
     setFormData({
       name: area.name,
       description: area.description || '',
+      banner_image: area.banner_image || '',
       latitude: area.latitude?.toString() || '',
       longitude: area.longitude?.toString() || '',
       is_active: area.is_active,
@@ -104,6 +121,7 @@ export default function AreasPage() {
     try {
       const payload: any = { name: formData.name.trim() };
       if (formData.description) payload.description = formData.description;
+      payload.banner_image = formData.banner_image?.trim() || null;
       if (formData.latitude) payload.latitude = parseFloat(formData.latitude);
       if (formData.longitude) payload.longitude = parseFloat(formData.longitude);
       payload.is_active = formData.is_active;
@@ -126,6 +144,7 @@ export default function AreasPage() {
     try {
       const payload: any = { name: formData.name.trim() };
       if (formData.description) payload.description = formData.description;
+      payload.banner_image = formData.banner_image?.trim() || null;
       if (formData.latitude) payload.latitude = parseFloat(formData.latitude);
       if (formData.longitude) payload.longitude = parseFloat(formData.longitude);
       payload.is_active = formData.is_active;
@@ -161,6 +180,34 @@ export default function AreasPage() {
     }
   };
 
+  const handleBannerFileSelect = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size should be less than 5MB');
+      return;
+    }
+    const toastId = toast.loading('Uploading image...');
+    setBannerUploading(true);
+    adminMediaApi
+      .upload(file)
+      .then((res: { url: string }) => {
+        setFormData((prev) => ({ ...prev, banner_image: res.url }));
+        toast.success('Image uploaded!', { id: toastId });
+      })
+      .catch((err) => {
+        console.error('Failed to upload banner image:', err);
+        toast.error('Image upload failed', { id: toastId });
+      })
+      .finally(() => {
+        setBannerUploading(false);
+        if (bannerFileRef.current) bannerFileRef.current.value = '';
+      });
+  };
+
   const AreaFormModal = ({ isEdit }: { isEdit: boolean }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
@@ -184,6 +231,51 @@ export default function AreasPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Area name"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Banner Image</label>
+            <div className="flex items-center gap-3">
+              {buildImageUrl(formData.banner_image) ? (
+                <img
+                  src={buildImageUrl(formData.banner_image)!}
+                  alt="Banner preview"
+                  className="h-14 w-24 rounded-lg border border-gray-300 object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="h-14 w-24 rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-gray-400 flex-shrink-0">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => bannerFileRef.current?.click()}
+                  disabled={bannerUploading}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
+                >
+                  {bannerUploading ? 'Uploading…' : 'Upload Image'}
+                </button>
+                {formData.banner_image && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, banner_image: '' }))}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <input
+                ref={bannerFileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => handleBannerFileSelect(e.target.files?.[0])}
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1">PNG, JPG or WebP, max 5MB. Shown on the All Areas page.</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -265,9 +357,9 @@ export default function AreasPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Areas</h1>
@@ -291,7 +383,7 @@ export default function AreasPage() {
             </div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="text-sm font-medium text-gray-500">Active</div>
-              <div className="mt-1 text-2xl font-bold text-green-600">{activeCount}</div>
+              <div className="mt-1 text-2xl font-bold text-[#062B49]">{activeCount}</div>
             </div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="text-sm font-medium text-gray-500">Inactive</div>
@@ -324,7 +416,7 @@ export default function AreasPage() {
                 <p className="mt-1 text-sm text-gray-500">Get started by creating a new area.</p>
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area</th>
@@ -340,12 +432,20 @@ export default function AreasPage() {
                     <tr key={area.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                          </div>
+                          {buildImageUrl(area.banner_image) ? (
+                            <img
+                              src={buildImageUrl(area.banner_image)!}
+                              alt={area.name}
+                              className="flex-shrink-0 h-10 w-10 rounded-lg object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            </div>
+                          )}
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{area.name}</div>
                             <div className="text-sm text-gray-500">{area.slug}</div>
@@ -360,7 +460,7 @@ export default function AreasPage() {
                           onClick={() => handleToggleActive(area.id)}
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition ${
                             area.is_active
-                              ? 'bg-green-100 text-green-800'
+                              ? 'bg-[#FFF4CC] text-green-800'
                               : 'bg-red-100 text-red-800'
                           }`}
                         >
@@ -404,7 +504,7 @@ export default function AreasPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </main>

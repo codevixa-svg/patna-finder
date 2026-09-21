@@ -46,7 +46,7 @@ const EVENT_CARD_COLORS: Record<string, { bg: string; text: string }> = {
   view: { bg: 'bg-blue-100', text: 'text-blue-600' },
   call: { bg: 'bg-orange-100', text: 'text-orange-600' },
   website: { bg: 'bg-purple-100', text: 'text-purple-600' },
-  whatsapp: { bg: 'bg-green-100', text: 'text-green-600' },
+  whatsapp: { bg: 'bg-[#FFF4CC]', text: 'text-[#062B49]' },
   directions: { bg: 'bg-teal-100', text: 'text-teal-600' },
   share: { bg: 'bg-pink-100', text: 'text-pink-600' },
 };
@@ -267,7 +267,7 @@ export default function AnalyticsPage() {
                       <span
                         className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                           isUp
-                            ? 'text-green-700 bg-green-50 border border-green-200'
+                            ? 'text-[#062B49] bg-[#FFF9E5] border border-green-200'
                             : isDown
                               ? 'text-red-700 bg-red-50 border border-red-200'
                               : 'text-gray-500 bg-gray-50 border border-gray-200'
@@ -384,7 +384,7 @@ export default function AnalyticsPage() {
                         activeDot={{ r: 4 }}
                       />
                       <Line type="monotone" dataKey="Website" stroke="#7c3aed" strokeWidth={2} dot={false} activeDot={{ r: 3.5 }} />
-                      <Line type="monotone" dataKey="WhatsApp" stroke="#16a34a" strokeWidth={2} dot={false} activeDot={{ r: 3.5 }} />
+                      <Line type="monotone" dataKey="WhatsApp" stroke="#0B3A63" strokeWidth={2} dot={false} activeDot={{ r: 3.5 }} />
                       <Line type="monotone" dataKey="Directions" stroke="#0d9488" strokeWidth={2} dot={false} activeDot={{ r: 3.5 }} />
                       <Line type="monotone" dataKey="Shares" stroke="#db2777" strokeWidth={2} dot={false} activeDot={{ r: 3.5 }} />
                     </ComposedChart>
@@ -433,7 +433,7 @@ export default function AnalyticsPage() {
                           <td className="px-3 py-3.5 text-right text-purple-600 font-semibold">
                             {formatNumber(b.totals.website || 0)}
                           </td>
-                          <td className="px-3 py-3.5 text-right text-green-600 font-semibold">
+                          <td className="px-3 py-3.5 text-right text-[#062B49] font-semibold">
                             {formatNumber(b.totals.whatsapp || 0)}
                           </td>
                           <td className="px-3 py-3.5 text-right text-teal-600 font-semibold">
@@ -446,7 +446,7 @@ export default function AnalyticsPage() {
                             <Link
                               href={`/business/${b.slug}`}
                               target="_blank"
-                              className="text-xs font-semibold text-[#153b78] hover:text-orange-600 transition"
+                              className="text-xs font-semibold text-[#062B49] hover:text-orange-600 transition"
                             >
                               View →
                             </Link>

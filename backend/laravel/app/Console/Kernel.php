@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Document expiry + re-verification reminders (daily)
+        $schedule->command('verification:check-expiry')->dailyAt('09:00');
     }
 
     /**

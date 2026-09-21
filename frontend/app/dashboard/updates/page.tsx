@@ -121,13 +121,13 @@ export default function UpdatesPage() {
                   <div className="aspect-video bg-gray-100 relative overflow-hidden">
                     <img src={getImageUrl(update.image)} alt="Update" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     <div className="absolute top-2 right-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${update.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${update.is_active ? 'bg-[#FFF4CC] text-[#062B49]' : 'bg-gray-100 text-gray-600'}`}>
                         {update.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="aspect-video bg-gradient-to-br from-orange-100 to-amber-50 flex items-center justify-center">
+                  <div className="aspect-video bg-gradient-to-br from-orange-100 to-[#FFF9E5] flex items-center justify-center">
                     <svg className="w-12 h-12 text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
@@ -147,7 +147,7 @@ export default function UpdatesPage() {
                   )}
                   <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
                     <Link href={`/dashboard/updates/${update.id}/edit`} className="flex-1 text-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Edit</Link>
-                    <button onClick={() => handleToggleActive(update.id)} className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition ${update.is_active ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-green-50 text-green-700 hover:bg-green-100'}`}>
+                    <button onClick={() => handleToggleActive(update.id)} className={`flex-1 px-3 py-2 text-sm font-medium rounded-lg transition ${update.is_active ? 'bg-[#FFF9E5] text-[#8A6400] hover:bg-[#FFF4CC]' : 'bg-[#FFF9E5] text-[#062B49] hover:bg-[#FFF4CC]'}`}>
                       {update.is_active ? 'Deactivate' : 'Activate'}
                     </button>
                     <button onClick={() => handleDelete(update.id)} className="px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">

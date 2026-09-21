@@ -5,6 +5,7 @@
  * server components without turning into client-reference proxies.
  */
 export const EXPLORE_FILTERS = [
+  { key: 'all', label: 'All' },
   { key: 'trending', label: 'Trending' },
   { key: 'highest-rated', label: 'Highest Rated' },
   { key: 'recently-added', label: 'Recently Added' },

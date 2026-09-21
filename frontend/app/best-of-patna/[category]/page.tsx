@@ -53,7 +53,7 @@ export default function BestOfCategoryPage() {
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link href="/best-of-patna" className="text-gray-400 hover:text-white text-sm mb-4 inline-flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>

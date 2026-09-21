@@ -22,7 +22,7 @@ const ALL_PERMISSIONS = [
 const ROLE_COLORS: Record<string, string> = {
   super_admin: 'bg-purple-100 text-purple-800',
   admin: 'bg-blue-100 text-blue-800',
-  moderator: 'bg-green-100 text-green-800',
+  moderator: 'bg-[#FFF4CC] text-green-800',
   user: 'bg-gray-100 text-gray-800',
 };
 
@@ -151,9 +151,9 @@ export default function UsersPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar />
-        <div className="ml-64 flex flex-col min-h-screen">
+        <div className="lg:ml-64 flex flex-col min-h-screen">
           <AdminHeader />
-          <main className="flex-1 p-6 overflow-y-auto mt-16">
+          <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
               <svg className="mx-auto h-16 w-16 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-6V9a4 4 0 00-8 0v2" />
@@ -170,9 +170,9 @@ export default function UsersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
@@ -191,7 +191,7 @@ export default function UsersPage() {
             </div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="text-sm font-medium text-gray-500">Active Users</div>
-              <div className="mt-1 text-2xl font-bold text-green-600">{activeUsers}</div>
+              <div className="mt-1 text-2xl font-bold text-[#062B49]">{activeUsers}</div>
             </div>
           </div>
 
@@ -246,7 +246,7 @@ export default function UsersPage() {
                 <p className="mt-1 text-sm text-gray-500">No users match your current filters.</p>
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
@@ -292,7 +292,7 @@ export default function UsersPage() {
                           onClick={() => handleToggleActive(u.id)}
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition ${
                             u.is_active
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                              ? 'bg-[#FFF4CC] text-green-800 hover:bg-green-200'
                               : 'bg-red-100 text-red-800 hover:bg-red-200'
                           }`}
                         >
@@ -338,7 +338,7 @@ export default function UsersPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
 

@@ -119,8 +119,8 @@ export default async function BlogPage({
 
   const pillClass = (active: boolean) =>
     active
-      ? 'rounded-full bg-amber-400 px-4 py-1.5 text-sm font-semibold text-gray-900 shadow-sm'
-      : 'rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 transition hover:border-amber-400 hover:text-amber-600';
+      ? 'rounded-full bg-[#F4B400] px-4 py-1.5 text-sm font-semibold text-gray-900 shadow-sm'
+      : 'rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 transition hover:border-[#F4B400] hover:text-[#B58200]';
 
   return (
     <main className="min-h-screen bg-white">
@@ -133,13 +133,13 @@ export default async function BlogPage({
           className="pointer-events-none absolute inset-y-0 right-0 h-full w-[55%] object-cover object-left opacity-25 [mask-image:linear-gradient(to_right,transparent,black_45%)]"
         />
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-amber-500">Patna Finder</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-[#D89E00]">Patna Finder</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 md:text-5xl">Blogs &amp; Articles</h1>
           <p className="mt-3 max-w-xl leading-relaxed text-gray-600">
             Discover stories, updates, and useful information about Patna, Bihar and beyond. Explore our
             latest articles, guides and insights.
           </p>
-          <div className="mt-6 h-1 w-12 rounded-full bg-amber-400" />
+          <div className="mt-6 h-1 w-12 rounded-full bg-[#F4B400]" />
         </div>
       </section>
 
@@ -147,7 +147,7 @@ export default async function BlogPage({
       <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
         <ol className="flex items-center gap-1.5 text-sm text-gray-500">
           <li>
-            <Link href="/" className="inline-flex items-center gap-1.5 transition hover:text-amber-600">
+            <Link href="/" className="inline-flex items-center gap-1.5 transition hover:text-[#B58200]">
               <Home size={14} /> Home
             </Link>
           </li>
@@ -188,7 +188,7 @@ export default async function BlogPage({
                     className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                   >
                     <Link href={`/blog/${post.slug}`} className="block">
-                      <div className="relative h-36 overflow-hidden bg-amber-50">
+                      <div className="relative h-36 overflow-hidden bg-[#FFF9E5]">
                         {post.featured_image ? (
                           <img
                             src={post.featured_image}
@@ -196,17 +196,17 @@ export default async function BlogPage({
                             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 text-amber-300">
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFF9E5] to-[#FFF4CC] text-[#FFDF80]">
                             <Newspaper size={40} />
                           </div>
                         )}
-                        <span className="absolute left-3 top-3 rounded-md bg-amber-400 px-2.5 py-1 text-[11px] font-semibold text-gray-900 shadow-sm">
+                        <span className="absolute left-3 top-3 rounded-md bg-[#F4B400] px-2.5 py-1 text-[11px] font-semibold text-gray-900 shadow-sm">
                           {post.category}
                         </span>
                       </div>
 
                       <div className="p-4">
-                        <h3 className="mb-1.5 line-clamp-2 text-lg font-bold leading-snug text-gray-900 transition group-hover:text-amber-600">
+                        <h3 className="mb-1.5 line-clamp-2 text-lg font-bold leading-snug text-gray-900 transition group-hover:text-[#B58200]">
                           {post.title}
                         </h3>
                         {post.excerpt && (
@@ -227,7 +227,7 @@ export default async function BlogPage({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-20 text-center">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-500">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF9E5] text-[#D89E00]">
                   <Newspaper size={26} />
                 </div>
                 <h3 className="mb-1 text-xl font-bold text-gray-900">No blog posts found</h3>
@@ -242,7 +242,7 @@ export default async function BlogPage({
                   <Link
                     href={buildHref({ page: currentPage - 1 })}
                     aria-label="Previous page"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-amber-400 hover:text-amber-600"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-[#F4B400] hover:text-[#B58200]"
                   >
                     <ChevronLeft size={16} />
                   </Link>
@@ -254,8 +254,8 @@ export default async function BlogPage({
                     aria-current={n === currentPage ? 'page' : undefined}
                     className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold transition ${
                       n === currentPage
-                        ? 'bg-amber-400 text-gray-900 shadow-sm'
-                        : 'border border-gray-200 bg-white text-gray-700 hover:border-amber-400 hover:text-amber-600'
+                        ? 'bg-[#F4B400] text-gray-900 shadow-sm'
+                        : 'border border-gray-200 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
                     }`}
                   >
                     {n}
@@ -265,7 +265,7 @@ export default async function BlogPage({
                   <Link
                     href={buildHref({ page: currentPage + 1 })}
                     aria-label="Next page"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-amber-400 hover:text-amber-600"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-[#F4B400] hover:text-[#B58200]"
                   >
                     <ChevronRight size={16} />
                   </Link>
@@ -277,8 +277,8 @@ export default async function BlogPage({
           {/* Sidebar — sticky on desktop; height grows with content (not fixed) */}
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             {/* Stay Updated */}
-            <div className="rounded-2xl bg-amber-50 p-6">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-500">
+            <div className="rounded-2xl bg-[#FFF9E5] p-6">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF4CC] text-[#D89E00]">
                 <Send size={18} />
               </div>
               <h3 className="mb-1.5 text-lg font-bold text-gray-900">Stay Updated</h3>
@@ -291,12 +291,12 @@ export default async function BlogPage({
             {/* Popular Blogs */}
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-                <TrendingUp size={18} className="text-amber-500" /> Popular Blogs
+                <TrendingUp size={18} className="text-[#D89E00]" /> Popular Blogs
               </h3>
               <div className="space-y-4">
                 {popular.map((p: any) => (
                   <Link key={p.id} href={`/blog/${p.slug}`} className="group flex gap-3">
-                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-amber-50">
+                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-[#FFF9E5]">
                       {p.featured_image ? (
                         <img
                           src={p.featured_image}
@@ -304,13 +304,13 @@ export default async function BlogPage({
                           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-amber-300">
+                        <div className="flex h-full w-full items-center justify-center text-[#FFDF80]">
                           <Newspaper size={18} />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 transition group-hover:text-amber-600">
+                      <h4 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 transition group-hover:text-[#B58200]">
                         {p.title}
                       </h4>
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-400">
@@ -330,7 +330,7 @@ export default async function BlogPage({
             {/* Categories */}
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-                <LayoutGrid size={18} className="text-amber-500" /> Categories
+                <LayoutGrid size={18} className="text-[#D89E00]" /> Categories
               </h3>
               <div className="space-y-1">
                 {categories.map((c) => {
@@ -339,16 +339,16 @@ export default async function BlogPage({
                     <Link
                       key={c}
                       href={`/blog?category=${encodeURIComponent(c)}`}
-                      className="group flex items-center justify-between rounded-lg px-2 py-2 transition hover:bg-amber-50"
+                      className="group flex items-center justify-between rounded-lg px-2 py-2 transition hover:bg-[#FFF9E5]"
                     >
-                      <span className="inline-flex items-center gap-2.5 text-sm font-medium text-gray-700 transition group-hover:text-amber-600">
-                        <Icon size={16} className="text-amber-500" /> {c}
+                      <span className="inline-flex items-center gap-2.5 text-sm font-medium text-gray-700 transition group-hover:text-[#B58200]">
+                        <Icon size={16} className="text-[#D89E00]" /> {c}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
                           {counts[c] || 0}
                         </span>
-                        <ChevronRight size={14} className="text-gray-300 transition group-hover:text-amber-600" />
+                        <ChevronRight size={14} className="text-gray-300 transition group-hover:text-[#B58200]" />
                       </span>
                     </Link>
                   );

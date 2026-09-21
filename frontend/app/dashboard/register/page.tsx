@@ -21,6 +21,26 @@ export default function RegisterPage() {
     password_confirmation: '',
   });
 
+  // ── AWS IAM-style password strength scoring ──
+  // Mirrors the backend StrongPassword rule, including the
+  // "must not contain your email local-part" policy.
+  const emailLocalPart = formData.email.split('@')[0]?.toLowerCase() ?? '';
+  const passwordChecks = {
+    length: formData.password.length >= 8,
+    uppercase: /[A-Z]/.test(formData.password),
+    lowercase: /[a-z]/.test(formData.password),
+    number: /\d/.test(formData.password),
+    special: /[^A-Za-z0-9]/.test(formData.password),
+    notEmail: !(
+      emailLocalPart.length >= 3 &&
+      formData.password.toLowerCase().includes(emailLocalPart)
+    ),
+  };
+  const passedChecks = Object.values(passwordChecks).filter(Boolean).length;
+  const strengthScore = formData.password ? Math.min(passedChecks + (formData.password.length >= 12 ? 1 : 0), 5) : 0;
+  const strength = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'][strengthScore];
+  const strengthColors = ['bg-gray-200', 'bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-lime-500', 'bg-green-600'];
+
   const validateForm = () => {
     const newErrors: any = {};
 
@@ -43,17 +63,24 @@ export default function RegisterPage() {
       newErrors.phone = 'Invalid phone number';
     }
 
-    // Password validation
+    // Password validation (AWS IAM-style strong password policy)
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     } else if (!/(?=.*[a-z])/.test(formData.password)) {
       newErrors.password = 'Password must contain at least one lowercase letter';
     } else if (!/(?=.*[A-Z])/.test(formData.password)) {
       newErrors.password = 'Password must contain at least one uppercase letter';
     } else if (!/(?=.*\d)/.test(formData.password)) {
       newErrors.password = 'Password must contain at least one number';
+    } else if (!/(?=.*[^A-Za-z0-9])/.test(formData.password)) {
+      newErrors.password = 'Password must contain at least one special character (e.g. !@#$%)';
+    }
+
+    // Must not contain the email local part (mirrors backend StrongPassword rule)
+    if (!newErrors.password && emailLocalPart.length >= 3 && formData.password.toLowerCase().includes(emailLocalPart)) {
+      newErrors.password = 'Password must not contain your email address or username';
     }
 
     // Password confirmation validation
@@ -107,7 +134,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#F4B400] to-orange-500 rounded-full flex items-center justify-center">
               <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
               </svg>
@@ -211,7 +238,7 @@ export default function RegisterPage() {
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12 ${
                     errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'
                   }`}
-                  placeholder="Min 6 characters (A-Z, a-z, 0-9)"
+                  placeholder="Min 8 characters with A-Z, a-z, 0-9 & special char"
                 />
                 <button
                   type="button"
@@ -221,6 +248,34 @@ export default function RegisterPage() {
                   {showPassword ? '🙈' : '👁️'}
                 </button>
               </div>
+
+              {/* Password Strength Meter (AWS IAM-style policy) */}
+              {formData.password && (
+                <div className="mt-2">
+                  <div className="flex gap-1 mb-1.5">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          i <= strengthScore ? strengthColors[strengthScore] : 'bg-gray-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Strength: <span className="font-semibold text-gray-700">{strength}</span>
+                  </p>
+                  <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                    <span className={passwordChecks.length ? 'text-green-600' : 'text-gray-400'}>✓ 8+ characters</span>
+                    <span className={passwordChecks.uppercase ? 'text-green-600' : 'text-gray-400'}>✓ Uppercase (A-Z)</span>
+                    <span className={passwordChecks.lowercase ? 'text-green-600' : 'text-gray-400'}>✓ Lowercase (a-z)</span>
+                    <span className={passwordChecks.number ? 'text-green-600' : 'text-gray-400'}>✓ Number (0-9)</span>
+                    <span className={passwordChecks.special ? 'text-green-600' : 'text-gray-400'}>✓ Special char (!@#$%)</span>
+                    <span className={passwordChecks.notEmail ? 'text-green-600' : 'text-gray-400'}>✓ Not your email/username</span>
+                  </div>
+                </div>
+              )}
+
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

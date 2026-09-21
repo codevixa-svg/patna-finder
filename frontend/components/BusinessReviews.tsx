@@ -16,8 +16,8 @@ const SORT_OPTIONS = [
 
 const AVATAR_COLORS = [
   'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
+  'bg-[#0B3A63]',
+  'bg-[#D89E00]',
   'bg-rose-500',
   'bg-violet-500',
   'bg-cyan-600',
@@ -45,7 +45,7 @@ const Star = ({
 }) => (
   <svg
     viewBox="0 0 20 20"
-    className={`${className} ${filled || half ? 'text-amber-400' : 'text-gray-300'}`}
+    className={`${className} ${filled || half ? 'text-[#F4B400]' : 'text-gray-300'}`}
     fill="currentColor"
     aria-hidden="true"
   >
@@ -245,7 +245,7 @@ export default function BusinessReviews({
                 <Star filled={true} className="w-3 h-3" />
                 <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-amber-400 rounded-full transition-all"
+                    className="h-full bg-[#F4B400] rounded-full transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -259,7 +259,7 @@ export default function BusinessReviews({
           <button
             type="button"
             onClick={() => setShowForm((v) => !v)}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#153b78] text-white text-sm font-semibold hover:bg-[#0f2c5c] transition"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#062B49] text-white text-sm font-semibold hover:bg-[#0f2c5c] transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -315,7 +315,7 @@ export default function BusinessReviews({
                 onChange={(e) => setFormName(e.target.value)}
                 maxLength={255}
                 placeholder="e.g. Rahul Kumar"
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#153b78]/30 focus:border-[#153b78] transition"
+                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#062B49]/30 focus:border-[#062B49] transition"
               />
             </div>
             <div>
@@ -327,7 +327,7 @@ export default function BusinessReviews({
                 value={formEmail}
                 onChange={(e) => setFormEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#153b78]/30 focus:border-[#153b78] transition"
+                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#062B49]/30 focus:border-[#062B49] transition"
               />
             </div>
           </div>
@@ -342,7 +342,7 @@ export default function BusinessReviews({
               rows={4}
               maxLength={1000}
               placeholder={`Share your experience with ${businessName}...`}
-              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#153b78]/30 focus:border-[#153b78] transition"
+              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-[#062B49]/30 focus:border-[#062B49] transition"
             />
             <p className="text-xs text-gray-400 mt-1 text-right">
               {formContent.length}/1000
@@ -380,7 +380,7 @@ export default function BusinessReviews({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#153b78]/30 focus:border-[#153b78] transition cursor-pointer"
+            className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#062B49]/30 focus:border-[#062B49] transition cursor-pointer"
           >
             {SORT_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -423,7 +423,7 @@ export default function BusinessReviews({
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="px-5 py-2 rounded-lg bg-[#153b78] text-white text-sm font-semibold hover:bg-[#0f2c5c] transition"
+              className="px-5 py-2 rounded-lg bg-[#062B49] text-white text-sm font-semibold hover:bg-[#0f2c5c] transition"
             >
               Write a Review
             </button>
@@ -454,7 +454,7 @@ export default function BusinessReviews({
                         {review.author_name || 'Anonymous'}
                       </span>
                       {review.is_verified && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#B58200] bg-[#FFF4CC] border border-[#FFF4CC] rounded-full px-2 py-0.5">
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 01-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
@@ -486,8 +486,8 @@ export default function BusinessReviews({
                         aria-label="Helpful"
                         className={`inline-flex items-center gap-1.5 text-xs font-medium transition ${
                           liked
-                            ? 'text-[#153b78] cursor-default'
-                            : 'text-gray-500 hover:text-[#153b78]'
+                            ? 'text-[#062B49] cursor-default'
+                            : 'text-gray-500 hover:text-[#062B49]'
                         }`}
                       >
                         <svg

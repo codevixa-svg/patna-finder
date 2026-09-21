@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
@@ -22,7 +22,7 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
   'job-mela': 'bg-blue-100 text-blue-700',
   'industrial': 'bg-orange-100 text-orange-700',
   'doctors-camp': 'bg-red-100 text-red-700',
-  'it-sector': 'bg-green-100 text-green-700',
+  'it-sector': 'bg-[#FFF4CC] text-[#062B49]',
   'other': 'bg-gray-100 text-gray-700',
 };
 
@@ -90,9 +90,9 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Government Events</h1>
@@ -118,7 +118,7 @@ export default function EventsPage() {
                 No events found. Click "Add Event" to create your first government event.
               </div>
             ) : (
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-500">
                     <th className="px-4 py-3">Event</th>
@@ -147,14 +147,14 @@ export default function EventsPage() {
                         {event.event_date
                           ? new Date(event.event_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
                           : '-'}
-                        {event.is_featured && <span className="ml-2 text-xs font-bold text-amber-600">* Featured</span>}
+                        {event.is_featured && <span className="ml-2 text-xs font-bold text-[#B58200]">* Featured</span>}
                       </td>
                       <td className="px-4 py-3 text-gray-600">{event.venue || '-'}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => handleToggleActive(event.id)}
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            event.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'
+                            event.is_active ? 'bg-[#FFF4CC] text-[#062B49]' : 'bg-gray-200 text-gray-600'
                           }`}
                           title="Toggle active"
                         >
@@ -181,7 +181,7 @@ export default function EventsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </main>

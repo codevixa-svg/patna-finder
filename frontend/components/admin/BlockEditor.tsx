@@ -39,18 +39,18 @@ const uid = () => `b${Date.now().toString(36)}${Math.random().toString(36).slice
 
 // Literal class strings so Tailwind compiles them for the rendered article
 const CARD_COLORS: Record<string, string> = {
-  amber: 'border-amber-300 bg-amber-50',
+  amber: 'border-[#FFDF80] bg-[#FFF9E5]',
   blue: 'border-blue-300 bg-blue-50',
-  green: 'border-green-300 bg-green-50',
+  green: 'border-[#FFDF80] bg-[#FFF9E5]',
   purple: 'border-purple-300 bg-purple-50',
   red: 'border-red-300 bg-red-50',
   gray: 'border-gray-300 bg-gray-50',
 };
 
 const BADGE_COLORS: Record<string, string> = {
-  amber: 'bg-amber-100 text-amber-800',
+  amber: 'bg-[#FFF4CC] text-amber-800',
   blue: 'bg-blue-100 text-blue-800',
-  green: 'bg-green-100 text-green-800',
+  green: 'bg-[#FFF4CC] text-green-800',
   red: 'bg-red-100 text-red-800',
   purple: 'bg-purple-100 text-purple-800',
   gray: 'bg-gray-100 text-gray-700',
@@ -58,23 +58,23 @@ const BADGE_COLORS: Record<string, string> = {
 
 const BUTTON_VARIANTS: Record<string, string> = {
   dark: 'bg-gray-900 text-white hover:bg-gray-800',
-  amber: 'bg-amber-400 text-gray-900 hover:bg-amber-500',
+  amber: 'bg-[#F4B400] text-gray-900 hover:bg-[#D89E00]',
   blue: 'bg-blue-600 text-white hover:bg-blue-700',
   outline: 'bg-white text-gray-900 border-2 border-gray-300 hover:border-gray-400',
 };
 
 const ALERT_VARIANTS: Record<string, { box: string; icon: string; label: string }> = {
   info: { box: 'bg-blue-50 border-blue-400 text-blue-900', icon: 'ℹ️', label: 'Info' },
-  success: { box: 'bg-green-50 border-green-400 text-green-900', icon: '✅', label: 'Success' },
+  success: { box: 'bg-[#FFF9E5] border-[#F4B400] text-green-900', icon: '✅', label: 'Success' },
   warning: { box: 'bg-yellow-50 border-yellow-400 text-yellow-900', icon: '⚠️', label: 'Warning' },
   danger: { box: 'bg-red-50 border-red-400 text-red-900', icon: '🚫', label: 'Important' },
 };
 
 const LIST_MARKERS: Record<string, { marker: string; color: string }> = {
-  check: { marker: '✔', color: 'text-green-600' },
-  arrow: { marker: '→', color: 'text-amber-600' },
+  check: { marker: '✔', color: 'text-[#062B49]' },
+  arrow: { marker: '→', color: 'text-[#B58200]' },
   dot: { marker: '•', color: 'text-gray-400' },
-  star: { marker: '★', color: 'text-amber-500' },
+  star: { marker: '★', color: 'text-[#D89E00]' },
 };
 
 function escapeHtml(str: string) {
@@ -100,7 +100,7 @@ function inlineFmt(str: string) {
     )
     .replace(
       /\[([^\]\n]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer" class="font-semibold text-amber-700 underline decoration-amber-300 underline-offset-2 transition hover:text-amber-800">$1</a>',
+      '<a href="$2" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#8A6400] underline decoration-[#FFDF80] underline-offset-2 transition hover:text-amber-800">$1</a>',
     );
 }
 
@@ -117,11 +117,11 @@ function serializeBlock(b: EditorBlock): string {
       return `<${d.level || 'h2'} class="${cls}" style="text-align:${d.align || 'left'}">${inlineFmt(d.text)}</${d.level || 'h2'}>`;
     }
     case 'card':
-      return `<div class="my-8 rounded-2xl border-2 ${CARD_COLORS[d.color] || CARD_COLORS.amber} p-6 shadow-sm"><h3 class="mb-2 text-xl font-bold text-gray-900">${escapeHtml(d.icon || '')} ${escapeHtml(d.title || '')}</h3><p class="leading-relaxed text-gray-600">${inlineFmt(d.text || '').replace(/\n/g, '<br/>')}</p>${d.linkUrl ? `<a href="${escapeHtml(d.linkUrl)}" target="${d.target || '_self'}" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1 font-semibold text-amber-700 hover:text-amber-800">${escapeHtml(d.linkText || 'Read more')} →</a>` : ''}</div>`;
+      return `<div class="my-8 rounded-2xl border-2 ${CARD_COLORS[d.color] || CARD_COLORS.amber} p-6 shadow-sm"><h3 class="mb-2 text-xl font-bold text-gray-900">${escapeHtml(d.icon || '')} ${escapeHtml(d.title || '')}</h3><p class="leading-relaxed text-gray-600">${inlineFmt(d.text || '').replace(/\n/g, '<br/>')}</p>${d.linkUrl ? `<a href="${escapeHtml(d.linkUrl)}" target="${d.target || '_self'}" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1 font-semibold text-[#8A6400] hover:text-amber-800">${escapeHtml(d.linkText || 'Read more')} →</a>` : ''}</div>`;
     case 'list': {
       if (d.style === 'number') {
         const items = (d.items || []).map((it: string) => `<li class="pl-1 text-gray-700">${inlineFmt(it)}</li>`).join('');
-        return `<ol class="my-6 list-decimal space-y-2 pl-6 marker:font-bold marker:text-amber-600">${items}</ol>`;
+        return `<ol class="my-6 list-decimal space-y-2 pl-6 marker:font-bold marker:text-[#B58200]">${items}</ol>`;
       }
       const m = LIST_MARKERS[d.style] || LIST_MARKERS.check;
       const items = (d.items || []).map((it: string) => `<li class="flex items-start gap-2"><span class="${m.color} shrink-0 font-bold">${m.marker}</span><span class="text-gray-700">${inlineFmt(it)}</span></li>`).join('');
@@ -140,7 +140,7 @@ function serializeBlock(b: EditorBlock): string {
       return `<div class="my-8 grid grid-cols-2 gap-3 md:grid-cols-3">${figs}</div>`;
     }
     case 'quote':
-      return `<blockquote class="my-6 rounded-r-xl border-l-4 border-amber-400 bg-amber-50 py-3 pl-4 pr-4 italic text-gray-700">${inlineFmt(d.text || '')}${d.author ? `<cite class="mt-2 block text-sm font-semibold not-italic text-gray-500">— ${escapeHtml(d.author)}</cite>` : ''}</blockquote>`;
+      return `<blockquote class="my-6 rounded-r-xl border-l-4 border-[#F4B400] bg-[#FFF9E5] py-3 pl-4 pr-4 italic text-gray-700">${inlineFmt(d.text || '')}${d.author ? `<cite class="mt-2 block text-sm font-semibold not-italic text-gray-500">— ${escapeHtml(d.author)}</cite>` : ''}</blockquote>`;
     case 'alert': {
       const v = ALERT_VARIANTS[d.variant] || ALERT_VARIANTS.info;
       return `<div class="my-6 flex items-start gap-3 rounded-xl border-l-4 ${v.box} p-4"><span class="shrink-0 text-lg">${v.icon}</span><div><p class="font-bold">${escapeHtml(d.title || v.label)}</p><p class="mt-0.5 text-sm opacity-90">${inlineFmt(d.text || '').replace(/\n/g, '<br/>')}</p></div></div>`;
@@ -183,7 +183,7 @@ const TEMPLATES: { name: string; icon: string; build: () => EditorBlock[] }[] = 
         id: uid(),
         type: 'html',
         data: {
-          code: '<div class="my-8 grid gap-4 md:grid-cols-2"><div class="rounded-2xl border-2 border-green-300 bg-amber-50 p-5"><h3 class="mb-3 text-lg font-bold text-green-900">✅ Pros</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-green-600">✔</span><span class="text-gray-700">Advantage one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-green-600">✔</span><span class="text-gray-700">Advantage two</span></li></ul></div><div class="rounded-2xl border-2 border-red-300 bg-red-50 p-5"><h3 class="mb-3 text-lg font-bold text-red-900">❌ Cons</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback two</span></li></ul></div></div>',
+          code: '<div class="my-8 grid gap-4 md:grid-cols-2"><div class="rounded-2xl border-2 border-[#FFDF80] bg-[#FFF9E5] p-5"><h3 class="mb-3 text-lg font-bold text-green-900">✅ Pros</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-[#062B49]">✔</span><span class="text-gray-700">Advantage one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-[#062B49]">✔</span><span class="text-gray-700">Advantage two</span></li></ul></div><div class="rounded-2xl border-2 border-red-300 bg-red-50 p-5"><h3 class="mb-3 text-lg font-bold text-red-900">❌ Cons</h3><ul class="space-y-2"><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback one</span></li><li class="flex items-start gap-2"><span class="shrink-0 font-bold text-red-600">✘</span><span class="text-gray-700">Drawback two</span></li></ul></div></div>',
         },
       },
     ],
@@ -207,7 +207,7 @@ const TEMPLATES: { name: string; icon: string; build: () => EditorBlock[] }[] = 
         id: uid(),
         type: 'html',
         data: {
-          code: '<div class="my-8 rounded-2xl bg-gray-900 p-8 text-center"><h3 class="mb-2 text-2xl font-bold text-white">Explore the best of Patna 🎉</h3><p class="mb-5 text-gray-300">Discover trusted businesses, hidden gems & local events near you.</p><a href="/" class="inline-flex items-center gap-2 rounded-xl bg-amber-400 px-6 py-3 font-semibold text-gray-900 transition hover:bg-amber-500">Start Exploring →</a></div>',
+          code: '<div class="my-8 rounded-2xl bg-gray-900 p-8 text-center"><h3 class="mb-2 text-2xl font-bold text-white">Explore the best of Patna 🎉</h3><p class="mb-5 text-gray-300">Discover trusted businesses, hidden gems & local events near you.</p><a href="/" class="inline-flex items-center gap-2 rounded-xl bg-[#F4B400] px-6 py-3 font-semibold text-gray-900 transition hover:bg-[#D89E00]">Start Exploring →</a></div>',
         },
       },
     ],
@@ -242,7 +242,7 @@ export function ImageSourceInput({ label = 'Image', value, onChange }: { label?:
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Paste image URL or choose a file…"
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-amber-400"
+          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#F4B400]"
         />
         <button
           type="button"
@@ -306,7 +306,7 @@ const BLOCK_TYPES: { type: BlockType; label: string; icon: string }[] = [
  */
 function FormatBar({ onWrap }: { onWrap: (before: string, after: string) => void }) {
   const btn =
-    'rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-bold text-gray-500 transition hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700';
+    'rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-bold text-gray-500 transition hover:border-[#F4B400] hover:bg-[#FFF9E5] hover:text-[#8A6400]';
   return (
     <div className="flex items-center gap-1">
       <button type="button" className={btn} onClick={() => onWrap('**', '**')} title="Bold — **text**">
@@ -433,7 +433,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
   const renderSettings = (block: EditorBlock) => {
     const d = block.data;
     const set = (patch: Record<string, any>) => updateBlock(block.id, patch);
-    const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-amber-400';
+    const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-[#F4B400]';
     switch (block.type) {
       case 'paragraph':
         return (
@@ -525,7 +525,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
                 <button type="button" onClick={() => set({ items: d.items.filter((_: any, j: number) => j !== i) })} className="px-2 text-red-400 hover:text-red-600">✕</button>
               </div>
             ))}
-            <button type="button" onClick={() => set({ items: [...(d.items || []), 'New item'] })} className="rounded-lg border border-dashed border-gray-400 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:border-amber-400 hover:text-amber-600">+ Add Item</button>
+            <button type="button" onClick={() => set({ items: [...(d.items || []), 'New item'] })} className="rounded-lg border border-dashed border-gray-400 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:border-[#F4B400] hover:text-[#B58200]">+ Add Item</button>
           </div>
         );
       case 'button':
@@ -568,7 +568,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
                 <button type="button" onClick={() => set({ items: d.items.filter((_: any, j: number) => j !== i) })} className="px-2 text-red-400 hover:text-red-600">✕</button>
               </div>
             ))}
-            <button type="button" onClick={() => set({ items: [...(d.items || []), { text: 'New badge', color: 'amber' }] })} className="rounded-lg border border-dashed border-gray-400 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:border-amber-400 hover:text-amber-600">+ Add Badge</button>
+            <button type="button" onClick={() => set({ items: [...(d.items || []), { text: 'New badge', color: 'amber' }] })} className="rounded-lg border border-dashed border-gray-400 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:border-[#F4B400] hover:text-[#B58200]">+ Add Badge</button>
           </div>
         );
       case 'image':
@@ -605,7 +605,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
                 />
               </div>
             ))}
-            <button type="button" onClick={() => set({ images: [...(d.images || []), { url: '', alt: '', caption: '' }] })} className="rounded-lg border border-dashed border-gray-400 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:border-amber-400 hover:text-amber-600">+ Add Image</button>
+            <button type="button" onClick={() => set({ images: [...(d.images || []), { url: '', alt: '', caption: '' }] })} className="rounded-lg border border-dashed border-gray-400 px-3 py-1.5 text-xs font-semibold text-gray-600 hover:border-[#F4B400] hover:text-[#B58200]">+ Add Image</button>
           </div>
         );
       case 'quote':
@@ -691,7 +691,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
           <button
             type="button"
             onClick={() => { setAddOpen(!addOpen); setTemplatesOpen(false); }}
-            className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-gray-900 transition hover:bg-amber-500"
+            className="rounded-lg bg-[#F4B400] px-3 py-1.5 text-xs font-bold text-gray-900 transition hover:bg-[#D89E00]"
           >
             ＋ Add Block ▾
           </button>
@@ -703,7 +703,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
                     key={bt.type}
                     type="button"
                     onClick={() => { addBlock(bt.type); setAddOpen(false); }}
-                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-gray-700 transition hover:bg-amber-50"
+                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-gray-700 transition hover:bg-[#FFF9E5]"
                   >
                     <span className="w-5 text-center text-sm">{bt.icon}</span>
                     {bt.label}
@@ -717,7 +717,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
           <button
             type="button"
             onClick={() => setTemplatesOpen(!templatesOpen)}
-            className="rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-bold text-gray-900 hover:bg-amber-500"
+            className="rounded-lg bg-[#F4B400] px-3 py-1.5 text-xs font-bold text-gray-900 hover:bg-[#D89E00]"
           >
             ✨ Templates ▾
           </button>
@@ -728,7 +728,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
                   key={t.name}
                   type="button"
                   onClick={() => insertTemplate(t)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-amber-50"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-[#FFF9E5]"
                 >
                   <span>{t.icon}</span>
                   {t.name}
@@ -748,7 +748,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
         <div className="ml-auto flex items-center gap-2 text-[11px] font-medium text-gray-400">
           <span className="rounded-full bg-gray-100 px-2.5 py-1">{blocks.length} blocks</span>
           <span className="rounded-full bg-gray-100 px-2.5 py-1">{wordCount} words</span>
-          <span className="rounded-full bg-amber-100 px-2.5 py-1 font-semibold text-amber-700">~{readingTime} min read</span>
+          <span className="rounded-full bg-[#FFF4CC] px-2.5 py-1 font-semibold text-[#8A6400]">~{readingTime} min read</span>
         </div>
       </div>
 
@@ -765,7 +765,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
               onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
               onDragLeave={() => setDragOverIndex((i) => (i === index ? null : i))}
               onDrop={(e) => { e.preventDefault(); reorder(dragIndex.current ?? index, index); dragIndex.current = null; setDragOverIndex(null); }}
-              className={`overflow-hidden rounded-xl border bg-white transition ${dragOverIndex === index ? 'border-amber-400 ring-2 ring-amber-200' : 'border-gray-200'}`}
+              className={`overflow-hidden rounded-xl border bg-white transition ${dragOverIndex === index ? 'border-[#F4B400] ring-2 ring-[#FFF4CC]' : 'border-gray-200'}`}
             >
               <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5">
                 <span
@@ -796,7 +796,7 @@ export default function BlockEditor({ value, onChange }: BlockEditorProps) {
                 </div>
               </div>
               {expandedId === block.id && (
-                <div className="border-b border-gray-100 bg-amber-50/40 p-3">{renderSettings(block)}</div>
+                <div className="border-b border-gray-100 bg-[#FFF9E5]/40 p-3">{renderSettings(block)}</div>
               )}
               <div className="p-3">
                 <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-gray-400">Live Preview</p>

@@ -246,7 +246,7 @@ function AddBusinessPageContent() {
               
               {/* WhatsApp - Step 2 */}
               {formData.whatsapp && (
-                <div className="flex items-center gap-2 text-green-600">
+                <div className="flex items-center gap-2 text-[#062B49]">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                   </svg>
@@ -287,7 +287,7 @@ function AddBusinessPageContent() {
                     
                     return (
                       <>
-                        <span className="text-green-600 font-medium">Open</span>
+                        <span className="text-[#062B49] font-medium">Open</span>
                         <span>· Closes at {displayHour}:{minutes} {ampm}</span>
                       </>
                     );
@@ -404,9 +404,9 @@ function AddBusinessPageContent() {
           </div>
         </div>
 
-        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <div className="mt-4 bg-[#FFF9E5] border border-[#FFF4CC] rounded-lg p-3">
           <div className="flex items-start gap-2">
-            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-[#B58200] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
             <div>
@@ -700,8 +700,21 @@ function AddBusinessPageContent() {
       router.push('/dashboard/businesses');
     } catch (error: any) {
       console.error('Submit error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to save business';
-      toast.error(errorMessage, { id: toastId });
+
+      // Surface the REAL validation errors from the backend (422) instead of
+      // the generic "Validation error" message so users know what to fix.
+      let errorMessage = error.response?.data?.message || 'Failed to save business';
+      const fieldErrors = error.response?.data?.errors;
+      if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+        const messages = Object.values(fieldErrors)
+          .flat()
+          .filter((m): m is string => typeof m === 'string')
+          .slice(0, 3);
+        if (messages.length > 0) {
+          errorMessage = messages.join(' ');
+        }
+      }
+      toast.error(errorMessage, { id: toastId, duration: 8000 });
     } finally {
       setLoading(false);
     }
@@ -726,8 +739,20 @@ function AddBusinessPageContent() {
       toast.success('Draft saved successfully!', { id: toastId });
     } catch (error: any) {
       console.error('Save draft error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to save draft';
-      toast.error(errorMessage, { id: toastId });
+
+      // Surface the REAL validation errors from the backend (422)
+      let errorMessage = error.response?.data?.message || 'Failed to save draft';
+      const fieldErrors = error.response?.data?.errors;
+      if (fieldErrors && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+        const messages = Object.values(fieldErrors)
+          .flat()
+          .filter((m): m is string => typeof m === 'string')
+          .slice(0, 3);
+        if (messages.length > 0) {
+          errorMessage = messages.join(' ');
+        }
+      }
+      toast.error(errorMessage, { id: toastId, duration: 8000 });
     }
   };
 
@@ -1011,7 +1036,7 @@ function AddBusinessPageContent() {
                 <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all mb-1 sm:mb-2 ${currentStep === step.id
                     ? 'bg-orange-500 text-white shadow-lg scale-110'
                     : currentStep > step.id
-                      ? 'bg-green-500 text-white'
+                      ? 'bg-[#0B3A63] text-white'
                       : 'bg-gray-100 text-gray-400 border-2 border-gray-300'
                   }`}>
                   {step.id === 1 && <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"></path></svg>}
@@ -1358,7 +1383,7 @@ function AddBusinessPageContent() {
                       <div className="flex gap-2">
                         <div className="relative w-24">
                           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                            <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#0B3A63]" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                             </svg>
                           </div>
@@ -1479,8 +1504,8 @@ function AddBusinessPageContent() {
                             </div>
                           </div>
                           <div className="flex flex-col items-center text-center">
-                            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                              <svg className="w-7 h-7 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                            <div className="w-14 h-14 bg-[#FFF4CC] rounded-full flex items-center justify-center mb-3">
+                              <svg className="w-7 h-7 text-[#062B49]" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                               </svg>
                             </div>
@@ -1756,14 +1781,14 @@ function AddBusinessPageContent() {
 
                       {/* Current Location Summary */}
                       {(formData.address || formData.city) && (
-                        <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="mt-3 bg-[#FFF9E5] border border-green-200 rounded-lg p-3">
                           <div className="flex items-start gap-2">
-                            <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-5 h-5 text-[#062B49] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                             </svg>
                             <div className="flex-1">
                               <h4 className="font-bold text-sm text-green-900 mb-1">Current Address</h4>
-                              <p className="text-xs text-green-700">
+                              <p className="text-xs text-[#062B49]">
                                 {formData.address && <span>{formData.address}</span>}
                                 {formData.address_line2 && <span>, {formData.address_line2}</span>}
                                 {formData.landmark && <span>, {formData.landmark}</span>}
@@ -1874,7 +1899,7 @@ function AddBusinessPageContent() {
                     onChange={(e) => updateOpeningHours(day, 'is_open', e.target.checked)}
                     className="w-4 h-4 text-orange-500 rounded focus:ring-2 focus:ring-orange-500"
                   />
-                  <span className={`text-sm font-medium ${openingHours[day].is_open ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-sm font-medium ${openingHours[day].is_open ? 'text-[#062B49]' : 'text-red-600'}`}>
                     {openingHours[day].is_open ? 'Open' : 'Closed'}
                   </span>
                 </label>
@@ -2054,7 +2079,7 @@ function AddBusinessPageContent() {
                             onChange={(e) => updateService(service.id, 'active', e.target.checked)}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0B3A63]"></div>
                         </label>
                         <span className="text-xs font-medium text-gray-600">{service.active ? 'Active' : 'Inactive'}</span>
                       </div>
@@ -2082,7 +2107,7 @@ function AddBusinessPageContent() {
 
               {/* Maximum Limit Warning */}
               {services.length >= 10 && (
-                <div className="mt-4 flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                <div className="mt-4 flex items-center gap-2 text-sm text-[#8A6400] bg-[#FFF9E5] border border-[#FFF4CC] p-3 rounded-lg">
                   <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -2100,9 +2125,9 @@ function AddBusinessPageContent() {
 
               {/* Info Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="bg-[#FFF9E5] border border-green-200 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[#062B49]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <h4 className="text-sm font-bold text-gray-900">Showcase Your Services</h4>
@@ -2218,7 +2243,7 @@ function AddBusinessPageContent() {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-3 left-3">
-                    <span className="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded">Current Cover</span>
+                    <span className="px-3 py-1 bg-[#062B49] text-white text-xs font-semibold rounded">Current Cover</span>
                   </div>
                 </div>
               </div>
@@ -2317,7 +2342,7 @@ function AddBusinessPageContent() {
               </div>
               
               {galleryPhotos.length > 0 ? (
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                   {galleryPhotos.map((photo, index) => {
                     // Construct proper image URL
                     const imageUrl = photo.startsWith('http') 
@@ -2383,34 +2408,34 @@ function AddBusinessPageContent() {
             </div>
 
             {/* Photo Guidelines */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="bg-[#FFF9E5] border border-[#FFF4CC] rounded-lg p-4">
               <h4 className="font-bold text-sm text-gray-900 mb-3 flex items-center gap-2">
-                <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 text-[#B58200]" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 Photo Tips for Better Results
               </h4>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="flex items-start gap-2">
-                  <svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-[#062B49] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <p className="text-gray-700">Use clear, high-resolution photos</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-[#062B49] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <p className="text-gray-700">Show your storefront & interior</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-[#062B49] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <p className="text-gray-700">Include products & services</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-[#062B49] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <p className="text-gray-700">Showcase your team at work</p>
@@ -2477,7 +2502,7 @@ function AddBusinessPageContent() {
               { key: 'twitter', label: 'Twitter / X', placeholder: 'https://twitter.com/ABCDigitals', color: 'bg-black' },
               { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://www.linkedin.com/company/abcdigitalsolutions', color: 'bg-blue-700' },
               { key: 'youtube', label: 'YouTube', placeholder: 'https://www.youtube.com/@abcdigitalsolutions', color: 'bg-red-600' },
-              { key: 'whatsapp_business', label: 'WhatsApp', placeholder: 'https://wa.me/919876543210', color: 'bg-green-600' },
+              { key: 'whatsapp_business', label: 'WhatsApp', placeholder: 'https://wa.me/919876543210', color: 'bg-[#062B49]' },
               { key: 'pinterest', label: 'Pinterest (Optional)', placeholder: 'https://in.pinterest.com/yourprofile', color: 'bg-red-500' },
               { key: 'other', label: 'Other Website (Optional)', placeholder: 'https://abcdigitalsolutions.com/blog', color: 'bg-purple-600' },
             ].map((platform) => (
@@ -2553,7 +2578,7 @@ function AddBusinessPageContent() {
                         onChange={(e) => updateSocialLink(platform.key, 'enabled', e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#FFDF80] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0B3A63]"></div>
                     </label>
                     <span className="text-xs text-gray-600 w-20">Show on listing</span>
                   </div>
@@ -2582,9 +2607,9 @@ function AddBusinessPageContent() {
           </button>
 
           {/* Bottom Green Tip Box */}
-          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="mt-6 bg-[#FFF9E5] border border-green-200 rounded-lg p-3">
             <div className="flex items-start gap-2">
-              <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-[#062B49] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <div>

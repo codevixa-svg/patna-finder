@@ -121,7 +121,7 @@ function PostCard({ post }: { post: any }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       <Link href={`/blog/${post.slug}`} className="block">
-        <div className="relative h-36 overflow-hidden bg-amber-50">
+        <div className="relative h-36 overflow-hidden bg-[#FFF9E5]">
           {post.featured_image ? (
             <img
               src={post.featured_image}
@@ -130,18 +130,18 @@ function PostCard({ post }: { post: any }) {
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 text-amber-300">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFF9E5] to-[#FFF4CC] text-[#FFDF80]">
               <Newspaper size={36} />
             </div>
           )}
           {post.category && (
-            <span className="absolute left-3 top-3 rounded-md bg-amber-400 px-2.5 py-1 text-[11px] font-semibold text-gray-900 shadow-sm">
+            <span className="absolute left-3 top-3 rounded-md bg-[#F4B400] px-2.5 py-1 text-[11px] font-semibold text-gray-900 shadow-sm">
               {post.category}
             </span>
           )}
         </div>
         <div className="p-4">
-          <h3 className="mb-1.5 line-clamp-2 text-base font-bold leading-snug text-gray-900 transition group-hover:text-amber-600">
+          <h3 className="mb-1.5 line-clamp-2 text-base font-bold leading-snug text-gray-900 transition group-hover:text-[#B58200]">
             {post.title}
           </h3>
           <p className="flex items-center gap-1.5 text-xs text-gray-400">
@@ -225,7 +225,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
         <ol className="flex items-center gap-1.5 text-sm text-gray-500">
           <li>
-            <Link href="/" className="inline-flex items-center gap-1.5 transition hover:text-amber-600">
+            <Link href="/" className="inline-flex items-center gap-1.5 transition hover:text-[#B58200]">
               <Home size={14} /> Home
             </Link>
           </li>
@@ -233,7 +233,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <ChevronRight size={14} className="text-gray-300" />
           </li>
           <li>
-            <Link href="/blog" className="transition hover:text-amber-600">
+            <Link href="/blog" className="transition hover:text-[#B58200]">
               Blogs
             </Link>
           </li>
@@ -249,7 +249,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="min-w-0">
             {/* Hero image with category badge + save button */}
-            <div className="relative h-64 overflow-hidden rounded-2xl bg-amber-50 sm:h-80 lg:h-[420px]">
+            <div className="relative h-64 overflow-hidden rounded-2xl bg-[#FFF9E5] sm:h-80 lg:h-[420px]">
               {post.featured_image ? (
                 <img
                   src={post.featured_image}
@@ -259,14 +259,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 text-amber-300">
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFF9E5] to-[#FFF4CC] text-[#FFDF80]">
                   <Newspaper size={64} />
                 </div>
               )}
               {post.category && (
                 <Link
                   href={`/blog?category=${encodeURIComponent(post.category)}`}
-                  className="absolute left-4 top-4 rounded-full bg-amber-400 px-3.5 py-1.5 text-xs font-semibold text-gray-900 shadow-md transition hover:bg-amber-500"
+                  className="absolute left-4 top-4 rounded-full bg-[#F4B400] px-3.5 py-1.5 text-xs font-semibold text-gray-900 shadow-md transition hover:bg-[#D89E00]"
                 >
                   {post.category}
                 </Link>
@@ -288,7 +288,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-b border-gray-100 pb-6">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-500 text-sm font-bold text-gray-900">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-sm font-bold text-gray-900">
                     {authorName.charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -298,21 +298,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 </div>
                 <span aria-hidden="true" className="hidden h-8 w-px bg-gray-100 sm:block" />
                 <p className="flex items-center gap-1.5 text-sm text-gray-600">
-                  <Calendar size={15} className="text-amber-500" />
+                  <Calendar size={15} className="text-[#D89E00]" />
                   <time dateTime={publishedIso}>{formatDate(post.published_at)}</time>
                   {showUpdated && (
                     <span className="text-xs text-gray-400"> (updated {formatDate(post.updated_at)})</span>
                   )}
                 </p>
                 <p className="flex items-center gap-1.5 text-sm text-gray-600">
-                  <Clock size={15} className="text-amber-500" /> {readingTime}
+                  <Clock size={15} className="text-[#D89E00]" /> {readingTime}
                 </p>
                 {post.category && (
                   <Link
                     href={`/blog?category=${encodeURIComponent(post.category)}`}
-                    className="flex items-center gap-1.5 text-sm text-gray-600 transition hover:text-amber-600"
+                    className="flex items-center gap-1.5 text-sm text-gray-600 transition hover:text-[#B58200]"
                   >
-                    <Tag size={15} className="text-amber-500" /> {post.category}
+                    <Tag size={15} className="text-[#D89E00]" /> {post.category}
                   </Link>
                 )}
               </div>
@@ -364,7 +364,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
             {/* Author box — E-E-A-T trust signal */}
             <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-6 sm:flex-row sm:items-center">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-500 text-lg font-bold text-gray-900">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-lg font-bold text-gray-900">
                 {authorName.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
@@ -376,7 +376,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </div>
               <Link
                 href="/blog"
-                className="inline-flex shrink-0 items-center justify-center rounded-lg bg-amber-400 px-5 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-amber-500"
+                className="inline-flex shrink-0 items-center justify-center rounded-lg bg-[#F4B400] px-5 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-[#D89E00]"
               >
                 View all posts
               </Link>
@@ -390,12 +390,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {/* Related Blogs */}
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-                <Flame size={18} className="text-amber-500" /> Related Blogs
+                <Flame size={18} className="text-[#D89E00]" /> Related Blogs
               </h3>
               <div className="space-y-4">
                 {sidebarRelated.map((p: any) => (
                   <Link key={p.id} href={`/blog/${p.slug}`} className="group flex gap-3">
-                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-amber-50">
+                    <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-[#FFF9E5]">
                       {p.featured_image ? (
                         <img
                           src={p.featured_image}
@@ -404,13 +404,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-amber-300">
+                        <div className="flex h-full w-full items-center justify-center text-[#FFDF80]">
                           <Newspaper size={18} />
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 transition group-hover:text-amber-600">
+                      <h4 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 transition group-hover:text-[#B58200]">
                         {p.title}
                       </h4>
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-400">
@@ -430,8 +430,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </div>
 
             {/* Newsletter — light amber card */}
-            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-6">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-white text-amber-500 shadow-sm">
+            <div className="rounded-2xl border border-[#FFF4CC] bg-[#FFF9E5] p-6">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-white text-[#D89E00] shadow-sm">
                 <Send size={18} />
               </div>
               <h3 className="text-lg font-extrabold text-gray-900">Get Latest Blogs &amp; Updates</h3>
@@ -439,7 +439,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 Stay informed with the latest stories, local insights and exclusive updates from Patna.
               </p>
               <NewsletterForm />
-              <p className="mt-4 text-right text-sm font-semibold italic text-amber-700">
+              <p className="mt-4 text-right text-sm font-semibold italic text-[#8A6400]">
                 Explore Patna →
               </p>
             </div>
@@ -448,14 +448,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             {tags.length > 0 && (
               <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                 <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-                  <Tag size={18} className="text-amber-500" /> Tags
+                  <Tag size={18} className="text-[#D89E00]" /> Tags
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((t) => (
                     <Link
                       key={t}
                       href={`/blog?tag=${encodeURIComponent(t)}`}
-                      className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 transition hover:border-amber-400 hover:text-amber-600"
+                      className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 transition hover:border-[#F4B400] hover:text-[#B58200]"
                     >
                       {t}
                     </Link>
@@ -473,7 +473,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <h2 className="text-2xl font-extrabold tracking-tight text-gray-900">You May Also Like</h2>
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-amber-700 transition hover:text-amber-800"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[#8A6400] transition hover:text-amber-800"
           >
             View All <ChevronRight size={16} />
           </Link>

@@ -41,9 +41,9 @@ export default function ClaimBusinessPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-amber-400/20 text-amber-300 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 bg-[#F4B400]/20 text-[#FFDF80] px-4 py-2 rounded-full text-sm font-semibold mb-6">
             Free for business owners
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Claim Your Business</h1>
@@ -64,7 +64,7 @@ export default function ClaimBusinessPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {STEPS.map((s) => (
             <div key={s.step} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 relative">
-              <div className="w-12 h-12 bg-amber-400 text-gray-900 rounded-xl flex items-center justify-center text-xl font-extrabold mb-5">
+              <div className="w-12 h-12 bg-[#F4B400] text-gray-900 rounded-xl flex items-center justify-center text-xl font-extrabold mb-5">
                 {s.step}
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">{s.title}</h3>
@@ -86,12 +86,12 @@ export default function ClaimBusinessPage() {
           </div>
 
           <aside className="space-y-6">
-            <div className="bg-[#081C3A] text-white rounded-2xl p-8">
+            <div className="bg-[#062B49] text-white rounded-2xl p-8">
               <h3 className="text-xl font-bold mb-5">What You Get</h3>
               <ul className="space-y-3">
                 {BENEFITS.map((b) => (
                   <li key={b} className="flex items-start gap-2.5 text-sm text-gray-300">
-                    <svg className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
+                    <svg className="w-4 h-4 text-[#F4B400] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 4 4L19 6" />
                     </svg>
                     {b}
@@ -99,14 +99,14 @@ export default function ClaimBusinessPage() {
                 ))}
               </ul>
             </div>
-            <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl p-8 text-gray-900">
+            <div className="bg-gradient-to-br from-[#F4B400] to-[#D89E00] rounded-2xl p-8 text-gray-900">
               <h3 className="text-xl font-bold mb-2">Not Listed Yet?</h3>
               <p className="text-sm text-gray-800 mb-5">
                 Add your business for free and appear in front of thousands of local customers.
               </p>
               <Link
                 href="/add-business"
-                className="inline-block bg-[#081C3A] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0d2a55] transition"
+                className="inline-block bg-[#062B49] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0d2a55] transition"
               >
                 Add Business Free
               </Link>

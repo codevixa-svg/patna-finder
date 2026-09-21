@@ -69,7 +69,7 @@ export default function AddBusinessPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-amber-400 to-amber-500 py-16">
+      <section className="bg-gradient-to-br from-[#F4B400] to-[#D89E00] py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-6xl mb-4">🏢</div>
           <h1 className="text-5xl font-extrabold text-gray-900 mb-4">Add Your Business</h1>
@@ -116,7 +116,7 @@ export default function AddBusinessPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                   placeholder="e.g., Dr. Sharma's Dental Clinic"
                 />
               </div>
@@ -130,7 +130,7 @@ export default function AddBusinessPage() {
                   value={formData.category_id}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat: any) => (
@@ -150,7 +150,7 @@ export default function AddBusinessPage() {
                   value={formData.area_id}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                 >
                   <option value="">Select Area</option>
                   {areas.map((area: any) => (
@@ -171,7 +171,7 @@ export default function AddBusinessPage() {
                   value={formData.owner_name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                   placeholder="Your full name"
                 />
               </div>
@@ -186,7 +186,7 @@ export default function AddBusinessPage() {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                   placeholder="9876543210"
                 />
               </div>
@@ -201,7 +201,7 @@ export default function AddBusinessPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                   placeholder="your@email.com"
                 />
               </div>
@@ -215,7 +215,7 @@ export default function AddBusinessPage() {
                   name="website"
                   value={formData.website}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                   placeholder="https://yourwebsite.com"
                 />
               </div>
@@ -229,7 +229,7 @@ export default function AddBusinessPage() {
                   name="whatsapp"
                   value={formData.whatsapp}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                   placeholder="9876543210"
                 />
               </div>
@@ -245,7 +245,7 @@ export default function AddBusinessPage() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                 placeholder="Full business address"
               />
             </div>
@@ -259,7 +259,7 @@ export default function AddBusinessPage() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
                 placeholder="Tell us about your business..."
               ></textarea>
             </div>

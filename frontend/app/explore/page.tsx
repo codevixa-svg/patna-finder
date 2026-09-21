@@ -1,26 +1,36 @@
+import type { Metadata } from 'next';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ExploreBrowser from '@/components/ExploreBrowser';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Explore Patna',
-  description: 'Discover the best businesses, trending places, and hidden gems in Patna.',
+  description:
+    "Discover the best businesses, trending places, top-rated services and hidden gems across Patna — filter by category, area and rating.",
+  alternates: { canonical: '/explore' },
 };
 
+/**
+ * Explore landing page — server component so the SEO metadata stays static.
+ * The hero (navy, left-aligned, bridge line-art + search bar) now renders
+ * inside ExploreBrowser, because the search box shares state with the
+ * filtering logic; this page only supplies the hero copy and the breadcrumb.
+ */
 export default function ExplorePage() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Explore Patna</h1>
-          <p className="text-xl text-gray-300">Discover the best businesses, trending places, and hidden gems</p>
-        </div>
-      </section>
-
-      {/* Breadcrumb — same UI as the business details page */}
-      <Breadcrumbs items={[{ label: 'Explore' }]} />
-
-      <ExploreBrowser initialFilter="trending" />
+    <main className="min-h-screen bg-[#F7F9FC]">
+      <ExploreBrowser
+        initialFilter="trending"
+        hero={{
+          breadcrumb: <Breadcrumbs variant="hero" items={[{ label: 'Explore' }]} />,
+          title: (
+            <>
+              Explore Businesses in <span className="text-[#F4B400]">Patna</span>
+            </>
+          ),
+          subtitle:
+            'Discover top restaurants, hospitals, coaching institutes, shops and more — all in one place.',
+        }}
+      />
     </main>
   );
 }

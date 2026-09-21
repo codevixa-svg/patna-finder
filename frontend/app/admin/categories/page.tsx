@@ -18,9 +18,21 @@ interface Category {
   description: string;
   display_order: number;
   is_active: boolean;
+  required_docs?: string[];
   businesses_count?: number;
   created_at: string;
 }
+
+const DOC_TYPE_OPTIONS = [
+  { value: 'gst', label: 'GST Certificate' },
+  { value: 'fssai', label: 'FSSAI License' },
+  { value: 'trade_license', label: 'Trade License' },
+  { value: 'id_proof', label: 'Owner ID Proof' },
+  { value: 'signboard_photo', label: 'Signboard Photo' },
+  { value: 'address_proof', label: 'Address Proof' },
+  { value: 'medical_registration', label: 'Medical Registration' },
+  { value: 'other', label: 'Other' },
+];
 
 const defaultFormData = {
   name: '',
@@ -28,7 +40,34 @@ const defaultFormData = {
   description: '',
   display_order: 0,
   is_active: true,
+  required_docs: [] as string[],
 };
+
+function RequiredDocsPicker({ value, onChange }: { value: string[]; onChange: (docs: string[]) => void }) {
+  const toggle = (docType: string) => {
+    onChange(value.includes(docType) ? value.filter(d => d !== docType) : [...value, docType]);
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Required Verification Docs</label>
+      <p className="text-xs text-gray-500 mb-2">Is category ke businesses ko verify karte waqt ye documents maange jayenge.</p>
+      <div className="grid grid-cols-2 gap-2">
+        {DOC_TYPE_OPTIONS.map((opt) => (
+          <label key={opt.value} className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-xs transition ${value.includes(opt.value) ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+            <input
+              type="checkbox"
+              checked={value.includes(opt.value)}
+              onChange={() => toggle(opt.value)}
+              className="h-3.5 w-3.5 text-blue-600 rounded"
+            />
+            {opt.label}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function CategoriesPage() {
   const router = useRouter();
@@ -37,6 +76,13 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(50);
+  const [total, setTotal] = useState(0);
+  const [lastPage, setLastPage] = useState(1);
+  const [from, setFrom] = useState(0);
+  const [to, setTo] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState<Category | null>(null);
@@ -53,18 +99,51 @@ export default function CategoriesPage() {
       return;
     }
     fetchCategories();
-  }, [isAuthenticated, router, mounted]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, router, mounted, page, perPage, search]);
+
+  // Debounced server-side search — resets to first page on new query
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const data = await adminCategoriesApi.getAll();
-      setCategories(data.data || []);
+      const data = await adminCategoriesApi.getAll({
+        page,
+        per_page: perPage,
+        ...(search.trim() ? { search: search.trim() } : {}),
+      });
+      const list = Array.isArray(data) ? data : data.data || [];
+      setCategories(list);
+      setTotal(Array.isArray(data) ? list.length : data.total || 0);
+      setLastPage(Array.isArray(data) ? 1 : data.last_page || 1);
+      setPage(Array.isArray(data) ? 1 : data.current_page || page);
+      setFrom(Array.isArray(data) ? (list.length ? 1 : 0) : data.from || 0);
+      setTo(Array.isArray(data) ? list.length : data.to || 0);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Compact page numbers with ellipsis: 1 … 4 5 6 … 76
+  const getPageNumbers = (): (number | '...')[] => {
+    if (lastPage <= 7) return Array.from({ length: lastPage }, (_, i) => i + 1);
+    const pages: (number | '...')[] = [1];
+    const start = Math.max(2, page - 1);
+    const end = Math.min(lastPage - 1, page + 1);
+    if (start > 2) pages.push('...');
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < lastPage - 1) pages.push('...');
+    pages.push(lastPage);
+    return pages;
   };
 
   const handleCreate = async () => {
@@ -92,6 +171,7 @@ export default function CategoriesPage() {
       description: category.description || '',
       display_order: category.display_order || 0,
       is_active: category.is_active,
+      required_docs: category.required_docs || [],
     });
     setShowEditModal(true);
   };
@@ -137,10 +217,6 @@ export default function CategoriesPage() {
     }
   };
 
-  const filteredCategories = categories.filter(c =>
-    c.name?.toLowerCase().includes(search.toLowerCase())
-  );
-
   if (!mounted || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -152,9 +228,9 @@ export default function CategoriesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
@@ -180,16 +256,25 @@ export default function CategoriesPage() {
                 <input
                   type="search"
                   placeholder="Search categories..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+              <select
+                value={perPage}
+                onChange={(e) => { setPerPage(parseInt(e.target.value) || 50); setPage(1); }}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value={25}>25 / page</option>
+                <option value={50}>50 / page</option>
+                <option value={100}>100 / page</option>
+              </select>
               <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                 </svg>
-                <span className="font-semibold text-blue-800">{categories.length} Total</span>
+                <span className="font-semibold text-blue-800 whitespace-nowrap">{total.toLocaleString()} Total</span>
               </div>
             </div>
           </div>
@@ -199,7 +284,7 @@ export default function CategoriesPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
-            ) : filteredCategories.length === 0 ? (
+            ) : categories.length === 0 ? (
               <div className="text-center py-12">
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -208,7 +293,7 @@ export default function CategoriesPage() {
                 <p className="mt-1 text-sm text-gray-500">Get started by creating a new category.</p>
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
@@ -221,7 +306,7 @@ export default function CategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredCategories.map((category) => (
+                  {categories.map((category) => (
                     <tr key={category.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -246,7 +331,7 @@ export default function CategoriesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          category.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          category.is_active ? 'bg-[#FFF4CC] text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
                           {category.is_active ? 'Active' : 'Inactive'}
                         </span>
@@ -262,7 +347,7 @@ export default function CategoriesPage() {
                           <button
                             onClick={() => handleToggleActive(category.id)}
                             className={`p-1 rounded transition ${
-                              category.is_active ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'
+                              category.is_active ? 'text-[#062B49] hover:text-green-900' : 'text-red-600 hover:text-red-900'
                             }`}
                             title={category.is_active ? 'Deactivate' : 'Activate'}
                           >
@@ -297,7 +382,52 @@ export default function CategoriesPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
+            )}
+
+            {/* Pagination */}
+            {!loading && total > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-gray-200">
+                <p className="text-sm text-gray-600">
+                  Showing <span className="font-medium text-gray-900">{from}</span>–<span className="font-medium text-gray-900">{to}</span> of{' '}
+                  <span className="font-medium text-gray-900">{total.toLocaleString()}</span> categories
+                </p>
+                {lastPage > 1 && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setPage(Math.max(1, page - 1))}
+                      disabled={page === 1}
+                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    {getPageNumbers().map((p, i) =>
+                      p === '...' ? (
+                        <span key={`ellipsis-${i}`} className="px-2 text-gray-400">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className={`px-3 py-1.5 text-sm rounded-lg transition ${
+                            p === page
+                              ? 'bg-blue-600 text-white font-medium'
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                    <button
+                      onClick={() => setPage(Math.min(lastPage, page + 1))}
+                      disabled={page === lastPage}
+                      className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </main>
@@ -368,6 +498,7 @@ export default function CategoriesPage() {
                   }`} />
                 </button>
               </div>
+              <RequiredDocsPicker value={formData.required_docs} onChange={(docs) => setFormData({ ...formData, required_docs: docs })} />
             </div>
             <div className="flex items-center justify-end gap-3 p-6 border-t">
               <button
@@ -452,6 +583,7 @@ export default function CategoriesPage() {
                   }`} />
                 </button>
               </div>
+              <RequiredDocsPicker value={formData.required_docs} onChange={(docs) => setFormData({ ...formData, required_docs: docs })} />
             </div>
             <div className="flex items-center justify-end gap-3 p-6 border-t">
               <button

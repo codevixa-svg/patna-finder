@@ -35,6 +35,8 @@ class CategoryController extends Controller
             'meta_description' => 'nullable|string|max:500',
             'display_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
+            'required_docs' => 'nullable|array',
+            'required_docs.*' => 'string|in:gst,fssai,trade_license,id_proof,signboard_photo,address_proof,medical_registration,other',
         ]);
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
@@ -65,6 +67,8 @@ class CategoryController extends Controller
             'meta_description' => 'nullable|string|max:500',
             'display_order' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
+            'required_docs' => 'nullable|array',
+            'required_docs.*' => 'string|in:gst,fssai,trade_license,id_proof,signboard_photo,address_proof,medical_registration,other',
         ]);
 
         if (isset($validated['name'])) {

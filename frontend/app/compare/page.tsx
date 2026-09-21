@@ -55,7 +55,7 @@ export default function ComparePage() {
   }
 
   const ratingLabel = (r: number) => {
-    if (r >= 4.5) return { text: 'Excellent', color: 'text-green-600 bg-green-50' };
+    if (r >= 4.5) return { text: 'Excellent', color: 'text-[#062B49] bg-[#FFF9E5]' };
     if (r >= 4) return { text: 'Very Good', color: 'text-blue-600 bg-blue-50' };
     if (r >= 3) return { text: 'Good', color: 'text-yellow-600 bg-yellow-50' };
     return { text: 'Average', color: 'text-gray-600 bg-gray-50' };
@@ -64,7 +64,7 @@ export default function ComparePage() {
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-16">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Compare Businesses</h1>
           <p className="text-xl text-gray-300">Select up to 3 businesses to compare side by side</p>
@@ -78,7 +78,7 @@ export default function ComparePage() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => { setSelectedCategory(''); fetchData(); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${!selectedCategory ? 'bg-amber-400 text-gray-900' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${!selectedCategory ? 'bg-[#F4B400] text-gray-900' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               All
             </button>
@@ -86,7 +86,7 @@ export default function ComparePage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(String(cat.id))}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedCategory === String(cat.id) ? 'bg-amber-400 text-gray-900' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedCategory === String(cat.id) ? 'bg-[#F4B400] text-gray-900' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
               >
                 {cat.name}
               </button>
@@ -102,7 +102,7 @@ export default function ComparePage() {
               {selected.map((b, idx) => (
                 <div key={b.id} className="text-center relative">
                   <button onClick={() => toggleSelect(b)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 z-10">✕</button>
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#FFF4CC] to-[#FFF4CC] flex items-center justify-center mx-auto mb-3 overflow-hidden">
                     {b.logo ? <img src={b.logo} alt={b.name} className="w-full h-full object-cover" /> : <span className="text-4xl">🏢</span>}
                   </div>
                   <h3 className="font-bold text-gray-900">{b.name}</h3>
@@ -113,6 +113,7 @@ export default function ComparePage() {
 
             {/* Comparison Table */}
             <div className="mt-6 border-t border-gray-100 pt-6">
+            <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr>
@@ -152,7 +153,7 @@ export default function ComparePage() {
                     <td className="py-3 text-sm text-gray-500">Verified</td>
                     {selected.map((b) => (
                       <td key={b.id} className="py-3 text-center">
-                        {b.is_verified ? <span className="text-green-600 text-sm font-medium">✓ Yes</span> : <span className="text-gray-400 text-sm">No</span>}
+                        {b.is_verified ? <span className="text-[#062B49] text-sm font-medium">✓ Yes</span> : <span className="text-gray-400 text-sm">No</span>}
                       </td>
                     ))}
                   </tr>
@@ -160,7 +161,7 @@ export default function ComparePage() {
                     <td className="py-3 text-sm text-gray-500">Featured</td>
                     {selected.map((b) => (
                       <td key={b.id} className="py-3 text-center">
-                        {b.is_featured ? <span className="text-amber-600 text-sm font-medium">★ Yes</span> : <span className="text-gray-400 text-sm">No</span>}
+                        {b.is_featured ? <span className="text-[#B58200] text-sm font-medium">★ Yes</span> : <span className="text-gray-400 text-sm">No</span>}
                       </td>
                     ))}
                   </tr>
@@ -172,6 +173,7 @@ export default function ComparePage() {
                   </tr>
                 </tbody>
               </table>
+              </div>
               <div className="mt-4 flex justify-center">
                 {selected.map((b) => (
                   <Link key={b.id} href={`/business/${b.slug}`} className="mx-2 text-sm text-blue-600 hover:underline font-medium">
@@ -202,7 +204,7 @@ export default function ComparePage() {
                   disabled={!isSelected && selected.length >= 3}
                   className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition ${
                     isSelected
-                      ? 'border-amber-400 bg-amber-50'
+                      ? 'border-[#F4B400] bg-[#FFF9E5]'
                       : selected.length >= 3
                         ? 'border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed'
                         : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-sm'
@@ -216,7 +218,7 @@ export default function ComparePage() {
                     <p className="text-xs text-gray-500">{b.category?.name || 'Business'} • {Number(b.rating).toFixed(1)} ★</p>
                   </div>
                   {isSelected && (
-                    <svg className="w-5 h-5 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                    <svg className="w-5 h-5 text-[#D89E00] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                   )}
                 </button>
               );

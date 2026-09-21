@@ -23,7 +23,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-amber-400 to-amber-500 py-20">
+      <section className="bg-gradient-to-br from-[#F4B400] to-[#D89E00] py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 mb-4">
             <CategoryIcon icon={data.icon} className="w-16 h-16 text-gray-900" />
@@ -45,24 +45,24 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap gap-4 items-center">
             <span className="font-semibold text-gray-700">Filter by:</span>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D89E00]">
               <option>All Areas</option>
               <option>Boring Road</option>
               <option>Kankarbagh</option>
               <option>Bailey Road</option>
             </select>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D89E00]">
               <option>Sort by: Featured</option>
               <option>Highest Rated</option>
               <option>Most Reviewed</option>
               <option>Newest</option>
             </select>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-amber-500 rounded" />
+              <input type="checkbox" className="w-4 h-4 text-[#D89E00] rounded" />
               <span className="text-gray-700">Verified Only</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-amber-500 rounded" />
+              <input type="checkbox" className="w-4 h-4 text-[#D89E00] rounded" />
               <span className="text-gray-700">Open Now</span>
             </label>
           </div>

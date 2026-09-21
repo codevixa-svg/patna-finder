@@ -23,11 +23,11 @@ const CATEGORY_BADGE_COLORS = [
   'bg-rose-600',
   'bg-red-600',
   'bg-orange-600',
-  'bg-amber-600',
+  'bg-[#B58200]',
   'bg-yellow-600',
   'bg-lime-600',
-  'bg-green-600',
-  'bg-emerald-600',
+  'bg-[#062B49]',
+  'bg-[#062B49]',
   'bg-teal-600',
   'bg-cyan-600',
   'bg-sky-600',
@@ -143,14 +143,14 @@ export default function TrendingBusinessCard({
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-              <CategoryIcon icon={business.category?.icon} className="w-12 h-12 text-amber-700" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FFF4CC] to-[#FFF4CC] flex items-center justify-center">
+              <CategoryIcon icon={business.category?.icon} className="w-12 h-12 text-[#8A6400]" />
             </div>
           )}
 
           {/* Rank Badge */}
           {typeof rank === 'number' && rank > 0 && (
-            <div className="absolute top-3 left-3 bg-gray-900/90 text-amber-400 text-xs font-extrabold px-2.5 py-1.5 rounded-lg shadow-md">
+            <div className="absolute top-3 left-3 bg-gray-900/90 text-[#F4B400] text-xs font-extrabold px-2.5 py-1.5 rounded-lg shadow-md">
               #{rank}
             </div>
           )}
@@ -168,7 +168,7 @@ export default function TrendingBusinessCard({
               className="absolute top-3 right-3 w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center hover:bg-gray-50 transition"
             >
               <svg
-                className={`w-4 h-4 ${isSaved ? 'text-amber-500' : 'text-gray-700'}`}
+                className={`w-4 h-4 ${isSaved ? 'text-[#D89E00]' : 'text-gray-700'}`}
                 fill={isSaved ? 'currentColor' : 'none'}
                 stroke="currentColor"
                 strokeWidth={2}
@@ -200,7 +200,7 @@ export default function TrendingBusinessCard({
             <h3 className="font-bold text-sm text-gray-900 line-clamp-1 group-hover:text-blue-600 transition">
               {business.name}
             </h3>
-            {business.is_verified && (
+            {business.is_verified ? (
               <svg
                 className="w-4 h-4 text-blue-500 flex-shrink-0"
                 fill="currentColor"
@@ -212,13 +212,17 @@ export default function TrendingBusinessCard({
                   clipRule="evenodd"
                 />
               </svg>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 text-gray-500 border border-gray-200 rounded-full text-[9px] font-semibold flex-shrink-0" title="Not verified by Patna Finder">
+                <span>◌</span> Not Verified
+              </span>
             )}
           </div>
 
           {/* Rating + Reviews */}
           <div className="flex items-center gap-1.5 mb-1.5">
             <svg
-              className="w-4 h-4 text-amber-400 fill-current"
+              className="w-4 h-4 text-[#F4B400] fill-current"
               viewBox="0 0 20 20"
             >
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -262,12 +266,12 @@ export default function TrendingBusinessCard({
               <div className="flex items-center gap-1.5">
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    openStatus.isOpen ? 'bg-green-500' : 'bg-red-500'
+                    openStatus.isOpen ? 'bg-[#0B3A63]' : 'bg-red-500'
                   }`}
                 ></span>
                 <span
                   className={`text-xs font-medium ${
-                    openStatus.isOpen ? 'text-green-600' : 'text-red-500'
+                    openStatus.isOpen ? 'text-[#062B49]' : 'text-red-500'
                   }`}
                 >
                   {openStatus.isOpen ? 'Open Now' : 'Closed'}

@@ -1,9 +1,18 @@
 import type { Metadata } from 'next';
-import Breadcrumbs from '@/components/Breadcrumbs';
+import Image from 'next/image';
+import Link from 'next/link';
+import {
+  Mail,
+  MessageCircle,
+  MapPin,
+  Navigation,
+  Phone,
+} from 'lucide-react';
 import ContactForm from './ContactForm';
+import FaqAccordion from './FaqAccordion';
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
+  title: 'Contact Us | Patna Finder',
   description:
     'Get in touch with the Patna Finder team — questions, feedback, partnerships or support, we would love to hear from you.',
   alternates: { canonical: '/contact' },
@@ -11,128 +20,230 @@ export const metadata: Metadata = {
 
 const CONTACT_CARDS = [
   {
+    title: 'Call Us',
+    lines: ['+91 98765 43210', 'Mon - Sat, 9:00 AM - 6:00 PM'],
+    icon: <Phone className="w-5 h-5" />,
+  },
+  {
     title: 'Email Us',
-    lines: ['hello@patnafinder.com', 'support@patnafinder.com'],
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 9.409a2.25 2.25 0 0 1-1.07-1.916V6.75"
-        />
-      </svg>
-    ),
+    lines: ['hello@patnafinder.com', 'We reply within 24 hours'],
+    icon: <Mail className="w-5 h-5" />,
   },
   {
     title: 'Visit Us',
-    lines: ['Patna Finder', 'Patna, Bihar, India'],
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z" />
-        <circle cx="12" cy="9" r="2.2" />
-      </svg>
-    ),
+    lines: ['Boring Road, Patna, Bihar', 'India - 800001'],
+    icon: <MapPin className="w-5 h-5" />,
   },
   {
-    title: 'Working Hours',
-    lines: ['Mon – Sat: 10:00 AM – 6:00 PM', 'Sunday: Closed'],
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-        <circle cx="12" cy="12" r="8.5" />
-        <path strokeLinecap="round" d="M12 7v5l3.5 2" />
-      </svg>
-    ),
+    title: 'Support',
+    lines: ['support@patnafinder.com', 'For business & technical support'],
+    icon: <MessageCircle className="w-5 h-5" />,
+  },
+];
+
+const FAQS = [
+  {
+    q: 'How can I list my business on Patna Finder?',
+    a: 'Simply click on "Add Your Business", fill in your business details, and our team will verify and publish your listing — usually within 24-48 hours. Listing is completely free.',
+  },
+  {
+    q: 'How quickly will I get a response?',
+    a: 'We reply to all emails and messages within 24 hours on working days. For urgent business or technical support, mention "URGENT" in your subject line.',
+  },
+  {
+    q: 'Is there any charge to list a business?',
+    a: 'No. Basic business listings on Patna Finder are completely free forever. We also offer optional premium features like featured placement and highlights for extra visibility.',
+  },
+  {
+    q: 'Can I collaborate for events or promotions?',
+    a: 'Absolutely! We love collaborating with local businesses, event organisers and community groups. Email us at hello@patnafinder.com with your proposal and we will get back to you.',
   },
 ];
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Questions, feedback, partnerships or support — we would love to hear from you.
-          </p>
+    <main className="bg-white">
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-[#062B49]">
+        <Image
+          src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&q=80"
+          alt="Patna city skyline at dusk"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-35"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#041F35]/95 via-[#062B49]/85 to-[#062B49]/55" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 md:pt-36 pb-14 md:pb-20">
+          <nav aria-label="Breadcrumb" className="mb-8 md:mb-10">
+            <ol className="flex items-center gap-2 text-sm">
+              <li>
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5" />
+                  </svg>
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden="true" className="text-white/40">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
+                </svg>
+              </li>
+              <li className="text-white font-medium">Contact Us</li>
+            </ol>
+          </nav>
+
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            <div className="max-w-2xl">
+              <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+                Contact <span className="text-[#F4B400]">Us</span>
+              </h1>
+              <p className="mt-5 text-base md:text-lg text-[#FFF4CC]/90 leading-relaxed max-w-xl">
+                We&rsquo;d love to hear from you! Get in touch with us for any queries,
+                suggestions, partnerships or support.
+              </p>
+            </div>
+
+            <p className="font-script text-3xl md:text-4xl text-[#F4B400] -rotate-3 self-start lg:self-end leading-tight text-center lg:text-right">
+              Let&rsquo;s Build a Better
+              <br />
+              Patna Together
+            </p>
+          </div>
         </div>
       </section>
-
-      {/* Breadcrumb — same UI as the business details page */}
-      <Breadcrumbs items={[{ label: 'Contact' }]} />
-
-      {/* Contact Info Cards */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 -mt-24 relative z-10">
+      {/* ── Contact Info Cards ───────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {CONTACT_CARDS.map((card) => (
-            <div key={card.title} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
-              <div className="w-14 h-14 bg-amber-400/15 text-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div
+              key={card.title}
+              className="bg-[#F7F9FC] rounded-2xl p-7 text-center hover:shadow-lg hover:-translate-y-1 transition"
+            >
+              <span className="w-12 h-12 rounded-full bg-[#F4B400] text-white flex items-center justify-center mx-auto">
                 {card.icon}
-              </div>
-              <h2 className="text-lg font-bold text-gray-900 mb-2">{card.title}</h2>
-              {card.lines.map((line) => (
-                <p key={line} className="text-sm text-gray-600">
-                  {line}
-                </p>
-              ))}
+              </span>
+              <h2 className="mt-4 font-bold text-[#102A43]">{card.title}</h2>
+              <p className="mt-1.5 text-sm font-semibold text-[#062B49]">{card.lines[0]}</p>
+              <p className="mt-1 text-xs text-gray-500">{card.lines[1]}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Form + Side Info */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-8 items-start">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-10">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Send Us a Message</h2>
-            <p className="text-gray-600 mb-8">
-              Fill the form below and our team will get back to you within 24–48 hours.
+      {/* ── Form + Quote/Location ────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Form card */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-9">
+            <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-[#F4B400]">
+              <span className="h-px w-8 bg-[#F4B400]" aria-hidden="true" />
+              Send Us a Message
             </p>
-            <ContactForm />
+            <h2 className="mt-3 text-3xl font-extrabold text-[#102A43]">Get in Touch</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Fill out the form below and our team will get back to you as soon as possible.
+            </p>
+            <div className="mt-8">
+              <ContactForm />
+            </div>
           </div>
 
-          <aside className="space-y-6">
-            {/* FAQ quick links */}
-            <div className="bg-[#081C3A] text-white rounded-2xl p-8">
-              <h3 className="text-xl font-bold mb-4">Quick Answers</h3>
-              <ul className="space-y-3 text-sm text-gray-300">
-                <li>
-                  <a href="mailto:hello@patnafinder.com" className="hover:text-amber-400 transition">
-                    How do I list my business on Patna Finder?
-                  </a>
-                </li>
-                <li>
-                  <a href="mailto:hello@patnafinder.com" className="hover:text-amber-400 transition">
-                    How long does the verification process take?
-                  </a>
-                </li>
-                <li>
-                  <a href="mailto:hello@patnafinder.com" className="hover:text-amber-400 transition">
-                    How do I report incorrect business information?
-                  </a>
-                </li>
-              </ul>
-              <p className="text-xs text-gray-400 mt-6">
-                For anything urgent, email us directly and we will prioritise your request.
+          {/* Quote image + location */}
+          <div className="space-y-6">
+            <div className="relative rounded-2xl overflow-hidden h-64 md:h-72 shadow-md">
+              <Image
+                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80"
+                alt="Sunset over the river in Patna"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+              <p className="absolute bottom-6 left-6 right-6 font-script text-2xl md:text-3xl text-white leading-snug">
+                &ldquo;A stronger Patna is built through stronger connections.&rdquo;
               </p>
             </div>
 
-            {/* Business owners CTA */}
-            <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl p-8 text-gray-900">
-              <h3 className="text-xl font-bold mb-2">Own a Business?</h3>
-              <p className="text-sm text-gray-800 mb-5">
-                List your business for free and reach thousands of customers across Patna.
-              </p>
-              <a
-                href="/add-business"
-                className="inline-block bg-[#081C3A] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#0d2a55] transition"
-              >
-                Add Your Business
-              </a>
+            {/* Location card */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-full bg-[#FFF4CC] text-[#F4B400] flex items-center justify-center">
+                  <MapPin className="w-5 h-5" />
+                </span>
+                <h3 className="text-lg font-bold text-[#102A43]">Our Location</h3>
+              </div>
+
+              {/* Map */}
+              <div className="mt-4 rounded-xl overflow-hidden border border-gray-100 h-56 relative">
+                <iframe
+                  title="Patna Finder office location"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=85.05%2C25.58%2C85.20%2C25.65&layer=mapnik&marker=25.6135%2C85.1350"
+                  className="absolute inset-0 w-full h-full"
+                  loading="lazy"
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-between gap-4 bg-[#F7F9FC] rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-lg bg-white text-[#F4B400] flex items-center justify-center shadow-sm">
+                    <MapPin className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <p className="font-bold text-sm text-[#102A43]">Visit Our Office</p>
+                    <p className="text-xs text-gray-500">Boring Road, Patna, Bihar - 800001</p>
+                  </div>
+                </div>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Boring+Road+Patna+Bihar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 border border-[#062B49] text-[#062B49] px-4 py-2 rounded-lg text-xs font-semibold hover:bg-[#062B49] hover:text-white transition shrink-0"
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  Get Directions
+                </a>
+              </div>
             </div>
-          </aside>
+          </div>
+        </div>
+      </section>
+      {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14">
+        <span className="block w-10 h-1 rounded-full bg-[#F4B400]" aria-hidden="true" />
+        <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-[#102A43]">
+          Frequently Asked Questions
+        </h2>
+        <p className="mt-2 text-sm text-gray-600">Quick answers to common questions.</p>
+        <FaqAccordion faqs={FAQS} />
+      </section>
+
+      {/* ── Still have questions CTA ─────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="bg-[#FFF4CC] rounded-3xl px-6 py-10 md:px-12 flex flex-col md:flex-row items-center gap-6 justify-between">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#102A43]">
+              Still have questions?
+            </h2>
+            <p className="mt-2 text-sm md:text-base text-gray-600">
+              We&rsquo;re here to help! Reach out to us anytime and we&rsquo;ll get back to you.
+            </p>
+          </div>
+          <Link
+            href="mailto:hello@patnafinder.com"
+            className="inline-flex items-center gap-2 bg-[#062B49] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0B3A63] transition shrink-0"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Chat with Us
+          </Link>
         </div>
       </section>
     </main>
   );
 }
+

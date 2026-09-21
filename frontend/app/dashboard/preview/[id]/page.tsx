@@ -233,7 +233,7 @@ const getServiceIcon = (serviceName: string) => {
 
   if (name.includes('social')) {
     return (
-      <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+      <svg className="w-6 h-6 text-[#0B3A63]" fill="currentColor" viewBox="0 0 24 24">
         <path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
       </svg>
     );
@@ -248,7 +248,7 @@ const getServiceIcon = (serviceName: string) => {
   }
 
   return (
-    <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+    <svg className="w-6 h-6 text-[#0B3A63]" fill="currentColor" viewBox="0 0 24 24">
       <path d="M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6M5.436 13.683A4.001 4.001 0 0 1 7 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 0 1-1.564-.317z" />
     </svg>
   );
@@ -617,7 +617,7 @@ export default function BusinessPreviewPage() {
                       />
                     ) : (
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-[#153b78]">
+                        <div className="text-3xl font-bold text-[#062B49]">
                           {(business.name || 'AB').substring(0, 2).toUpperCase()}
                         </div>
                         <div className="text-[9px] font-semibold text-gray-500">
@@ -649,8 +649,8 @@ export default function BusinessPreviewPage() {
                         'Digital Marketing Agency'}
                     </p>
 
-                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-green-50 text-green-700 text-xs font-semibold">
-                      <span className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-[#FFF9E5] text-[#062B49] text-xs font-semibold">
+                      <span className="w-4 h-4 rounded-full bg-[#FFF4CC] flex items-center justify-center">
                         <Icon name="check" className="w-3 h-3" />
                       </span>
                       Verified Business
@@ -703,7 +703,7 @@ export default function BusinessPreviewPage() {
                       className={
                         data.todayHours.is_open === false
                           ? 'font-semibold text-red-600'
-                          : 'font-semibold text-green-600'
+                          : 'font-semibold text-[#062B49]'
                       }
                     >
                       {data.todayHours.is_open === false ? 'Closed' : 'Open'}
@@ -833,11 +833,11 @@ export default function BusinessPreviewPage() {
                           </div>
                         </div>
 
-                        <div className="rounded-lg border border-green-100 bg-green-50 p-4 text-center">
-                          <div className="flex justify-center text-green-600 mb-2">
+                        <div className="rounded-lg border border-[#FFF4CC] bg-[#FFF9E5] p-4 text-center">
+                          <div className="flex justify-center text-[#062B49] mb-2">
                             <Icon name="users" className="w-6 h-6" />
                           </div>
-                          <div className="text-xl font-bold text-green-700">
+                          <div className="text-xl font-bold text-[#062B49]">
                             {business.happy_clients || '0'}
                           </div>
                           <div className="text-xs text-gray-600 mt-1">

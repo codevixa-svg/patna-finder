@@ -7,7 +7,7 @@ import CategoryIcon from './CategoryIcon';
 
 const TILE_COLORS = [
   'bg-blue-100 text-blue-700',
-  'bg-green-100 text-green-700',
+  'bg-[#FFF4CC] text-[#062B49]',
   'bg-orange-100 text-orange-700',
   'bg-red-100 text-red-700',
   'bg-yellow-100 text-yellow-700',
@@ -61,7 +61,7 @@ export default function CategoriesBrowser({
             setVisibleCount(PAGE_SIZE);
           }}
           placeholder={`Search ${categories.length} categories...`}
-          className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-300 bg-white shadow-sm outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-gray-900"
+          className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-300 bg-white shadow-sm outline-none focus:ring-2 focus:ring-[#D89E00] focus:border-[#D89E00] text-gray-900"
         />
       </div>
 
@@ -77,14 +77,14 @@ export default function CategoriesBrowser({
             <Link
               key={category.id}
               href={`/categories/${category.slug}`}
-              className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center text-center gap-3 hover:border-amber-400 hover:shadow-md transition-all group"
+              className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center text-center gap-3 hover:border-[#F4B400] hover:shadow-md transition-all group"
             >
               <div
                 className={`w-12 h-12 ${TILE_COLORS[index % TILE_COLORS.length]} rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform`}
               >
                 <CategoryIcon icon={category.icon} className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-semibold text-gray-900 leading-snug group-hover:text-amber-600 transition">
+              <h3 className="text-sm font-semibold text-gray-900 leading-snug group-hover:text-[#B58200] transition">
                 {category.name}
               </h3>
             </Link>
@@ -98,7 +98,7 @@ export default function CategoriesBrowser({
           <button
             type="button"
             onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-            className="px-8 py-3 bg-[#153b78] text-white font-semibold rounded-xl hover:bg-[#0f2c5c] transition"
+            className="px-8 py-3 bg-[#062B49] text-white font-semibold rounded-xl hover:bg-[#0f2c5c] transition"
           >
             Load More ({filtered.length - visibleCount} remaining)
           </button>

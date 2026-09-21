@@ -37,9 +37,9 @@ function SearchPageContent() {
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-16">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold mb-6">Search Results</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-6">Search Results</h1>
           
           {/* Search Bar */}
           <div className="glass rounded-2xl p-2 max-w-3xl">
@@ -49,7 +49,7 @@ function SearchPageContent() {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search for businesses, doctors, restaurants..."
-                className="flex-1 px-6 py-4 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="flex-1 px-6 py-4 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#F4B400]"
               />
               <button type="submit" className="btn-primary">
                 Search
@@ -63,7 +63,7 @@ function SearchPageContent() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
           <div className="text-center py-20">
-            <div className="animate-spin w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <div className="animate-spin w-16 h-16 border-4 border-[#F4B400] border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-gray-600">Searching...</p>
           </div>
         ) : results ? (
@@ -105,7 +105,7 @@ function SearchPageContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500"></div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#D89E00]"></div></div>}>
       <SearchPageContent />
     </Suspense>
   );

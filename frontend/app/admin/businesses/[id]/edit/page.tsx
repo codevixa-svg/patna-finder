@@ -239,9 +239,9 @@ export default function EditBusinessPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar />
-        <div className="ml-64 flex flex-col min-h-screen">
+        <div className="lg:ml-64 flex flex-col min-h-screen">
           <AdminHeader />
-          <main className="flex-1 p-6 overflow-y-auto mt-16 flex items-center justify-center">
+          <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3" />
               <p className="text-gray-500 text-sm">Loading business data...</p>
@@ -255,7 +255,7 @@ export default function EditBusinessPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
         <main className="flex-1 overflow-y-auto mt-16">
           {/* Top Header */}
@@ -534,7 +534,7 @@ export default function EditBusinessPage() {
                             {services.map((s: any, i: number) => (
                               <div key={i} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                                 <p className="text-sm font-medium text-gray-900">{typeof s === 'string' ? s : s.name || 'Service'}</p>
-                                {typeof s === 'object' && s?.price && <p className="text-xs text-green-600 font-semibold mt-0.5">&#8377;{s.price}</p>}
+                                {typeof s === 'object' && s?.price && <p className="text-xs text-[#062B49] font-semibold mt-0.5">&#8377;{s.price}</p>}
                               </div>
                             ))}
                           </div>

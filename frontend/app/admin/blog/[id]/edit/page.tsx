@@ -200,9 +200,9 @@ export default function EditBlogPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <button
             onClick={() => router.push('/admin/blog')}
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-4 font-medium"

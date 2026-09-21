@@ -195,9 +195,9 @@ export default function EditHiddenGemPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar />
-        <div className="ml-64 flex flex-col min-h-screen">
+        <div className="lg:ml-64 flex flex-col min-h-screen">
           <AdminHeader />
-          <main className="flex-1 p-6 overflow-y-auto mt-16 flex items-center justify-center">
+          <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16 flex items-center justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </main>
         </div>
@@ -208,9 +208,9 @@ export default function EditHiddenGemPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="mb-6">
             <button
               onClick={() => router.push('/admin/hidden-gems')}
@@ -227,7 +227,7 @@ export default function EditHiddenGemPage() {
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                     gem?.is_active
-                      ? 'bg-green-100 text-green-700'
+                      ? 'bg-[#FFF4CC] text-[#062B49]'
                       : 'bg-red-100 text-red-700'
                   }`}
                 >

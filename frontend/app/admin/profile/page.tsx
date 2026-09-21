@@ -8,6 +8,7 @@ import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { adminAuthApi } from '@/lib/adminApi';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import SecurityCenter from '@/components/auth/SecurityCenter';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -69,9 +70,9 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
             <p className="text-gray-600 text-sm mt-1">Manage your account settings</p>
@@ -138,6 +139,13 @@ export default function ProfilePage() {
                   {loading ? 'Updating...' : 'Update Password'}
                 </button>
               </form>
+            </div>
+
+            {/* Security Center — 2FA, sessions, audit activity (AWS-style) */}
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Security</h2>
+              <p className="text-gray-500 text-sm mb-4">Two-factor authentication, active sessions & account activity</p>
+              <SecurityCenter api={adminAuthApi} supportsTotp />
             </div>
           </div>
         </main>

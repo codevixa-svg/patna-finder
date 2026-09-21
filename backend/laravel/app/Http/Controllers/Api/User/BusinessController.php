@@ -28,6 +28,23 @@ class BusinessController extends Controller
         return $slug;
     }
 
+    /**
+     * Add a scheme to a URL that is missing one (e.g. "www.example.com"
+     * becomes "https://www.example.com") so Laravel's `url` rule accepts
+     * the common way users type website addresses.
+     */
+    protected function normalizeUrl(?string $url): ?string
+    {
+        if ($url === null) {
+            return null;
+        }
+        $url = trim($url);
+        if ($url !== '' && !preg_match('#^[a-z][a-z0-9+.\-]*://#i', $url)) {
+            $url = 'https://' . $url;
+        }
+        return $url;
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -60,6 +77,11 @@ class BusinessController extends Controller
 
     public function store(Request $request)
     {
+        // Normalize user input before validation
+        if ($request->filled('website')) {
+            $request->merge(['website' => $this->normalizeUrl($request->website)]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
@@ -136,6 +158,11 @@ class BusinessController extends Controller
         $business = Business::where('user_id', $user->id)
             ->where('id', $id)
             ->firstOrFail();
+
+        // Normalize user input before validation
+        if ($request->filled('website')) {
+            $request->merge(['website' => $this->normalizeUrl($request->website)]);
+        }
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
@@ -218,6 +245,11 @@ class BusinessController extends Controller
 
     public function saveDraft(Request $request)
     {
+        // Normalize user input before validation
+        if ($request->filled('website')) {
+            $request->merge(['website' => $this->normalizeUrl($request->website)]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
@@ -243,9 +275,14 @@ class BusinessController extends Controller
         $data['user_id'] = $request->user()->id;
         $data['status'] = 'draft';
 
-        if (!empty($data['name'])) {
-            $data['slug'] = Str::slug($data['name']) . '-' . Str::random(6);
-        }
+        // The businesses table has NOT NULL columns without defaults — fill
+        // placeholders so a partial draft can always be saved (prevents SQL 500s).
+        $data['name'] = $data['name'] ?? 'Untitled Business';
+        $data['address'] = $data['address'] ?? 'Address not provided';
+        $data['category_id'] = $data['category_id'] ?? 1;
+        $data['area_id'] = $data['area_id'] ?? 1;
+
+        $data['slug'] = Str::slug($data['name']) . '-' . Str::random(6);
 
         $business = Business::create($data);
 

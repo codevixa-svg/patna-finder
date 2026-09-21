@@ -72,7 +72,7 @@ export default function AdminSubscriptionsPage() {
 
   function statusBadge(status: string) {
     const styles: Record<string, string> = {
-      active: 'bg-green-100 text-green-800 border-green-200',
+      active: 'bg-[#FFF4CC] text-green-800 border-green-200',
       pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       expired: 'bg-gray-100 text-gray-600 border-gray-200',
       cancelled: 'bg-red-100 text-red-800 border-red-200',
@@ -90,9 +90,9 @@ export default function AdminSubscriptionsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Subscriptions</h1>
 

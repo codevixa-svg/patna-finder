@@ -27,6 +27,8 @@ export default function EditEventPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [event, setEvent] = useState<any | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -40,6 +42,7 @@ export default function EditEventPage() {
     city: 'Patna',
     organizer: '',
     department: '',
+    featured_image: '',
     registration_url: '',
     contact_phone: '',
     contact_email: '',
@@ -66,6 +69,15 @@ useEffect(() => {
       try {
         const data = await adminEventsApi.getOne(Number(id));
         setEvent(data);
+        
+        // Set image preview if exists
+        if (data.featured_image) {
+          const imageUrl = data.featured_image.startsWith('http') 
+            ? data.featured_image 
+            : `${process.env.NEXT_PUBLIC_API_URL}${data.featured_image}`;
+          setImagePreview(imageUrl);
+        }
+        
         setFormData({
           title: data.title || '',
           event_type: data.event_type || 'other',
@@ -78,6 +90,7 @@ useEffect(() => {
           city: data.city || 'Patna',
           organizer: data.organizer || '',
           department: data.department || '',
+          featured_image: data.featured_image || '',
           registration_url: data.registration_url || '',
           contact_phone: data.contact_phone || '',
           contact_email: data.contact_email || '',
@@ -128,6 +141,62 @@ useEffect(() => {
     });
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+        setImagePreview(base64String);
+
+        // Upload to server
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/media/upload`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          },
+          body: JSON.stringify({
+            image: base64String,
+            folder: 'events',
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          setFormData({ ...formData, featured_image: data.path });
+          toast.success('Image uploaded successfully!');
+        } else {
+          throw new Error(data.message || 'Upload failed');
+        }
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      console.error('Failed to upload image:', error);
+      toast.error(error.message || 'Failed to upload image');
+      setImagePreview(event?.featured_image ? `${process.env.NEXT_PUBLIC_API_URL}${event.featured_image}` : null);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   if (!mounted || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -139,9 +208,9 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Edit Government Event</h1>
             <p className="text-gray-600 text-sm mt-1">Update the government event details</p>
@@ -194,6 +263,62 @@ useEffect(() => {
                   />
                 </div>
               </div>
+
+              {/* Image Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                <div className="flex items-start gap-4">
+                  {imagePreview ? (
+                    <div className="relative w-48 h-32">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover rounded-lg border border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImagePreview(null);
+                          setFormData({ ...formData, featured_image: '' });
+                        }}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="w-48 h-32 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition bg-gray-50">
+                      {uploadingImage ? (
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                          <span className="text-xs text-gray-600">Uploading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-xs text-gray-600">Click to upload image</span>
+                          <span className="text-[10px] text-gray-400 mt-1">PNG, JPG up to 5MB</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        disabled={uploadingImage}
+                      />
+                    </label>
+                  )}
+                  <div className="flex-1 text-xs text-gray-600">
+                    <p className="mb-1">• Recommended size: 1200x600px</p>
+                    <p className="mb-1">• Formats: JPG, PNG</p>
+                    <p>• Maximum size: 5MB</p>
+                  </div>
+                </div>
+              </div>
+
 <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea

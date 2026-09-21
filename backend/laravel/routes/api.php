@@ -30,6 +30,8 @@ use App\Http\Controllers\Api\User\SubscriptionController as UserSubscriptionCont
 use App\Http\Controllers\Api\User\UpdateController as UserUpdateController;
 use App\Http\Controllers\Api\User\AnalyticsController as UserAnalyticsController;
 use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
+use App\Http\Controllers\Api\Admin\VerificationDocumentController as AdminVerificationDocumentController;
+use App\Http\Controllers\Api\User\VerificationDocumentController as UserVerificationDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,8 +78,16 @@ Route::prefix('v1')->group(function () {
     // Blog Categories (public — for filters & forms)
     Route::get('/blog-categories', [BlogCategoryController::class, 'index']);
     Route::get('/events', [EventController::class, 'index']);
+    Route::get('/events/trending', [EventController::class, 'trending']);
+    Route::get('/events/featured', [EventController::class, 'featured']);
+    Route::get('/events/popular', [EventController::class, 'popular']);
     Route::get('/events/latest', [EventController::class, 'latest']);
-    Route::get('/events/{slug}', [EventController::class, 'show']);
+    Route::get('/events/categories', [EventController::class, 'categories']);
+    Route::get('/events/areas', [EventController::class, 'areas']);
+    Route::get('/events/stats', [EventController::class, 'stats']);
+    Route::get('/events/{slugOrId}', [EventController::class, 'show']);
+    Route::post('/events/{id}/interested', [EventController::class, 'markInterested']);
+    Route::delete('/events/{id}/interested', [EventController::class, 'removeInterested']);
 
     // Reviews
     Route::get('/reviews/latest', [ReviewController::class, 'latest']);
@@ -98,16 +108,29 @@ Route::prefix('v1')->group(function () {
 // User Dashboard API Routes
 Route::prefix('v1/user')->group(function () {
     // Public user routes (no auth)
-    Route::post('/register', [UserAuthController::class, 'register'])->middleware('throttle:10,1');
-    Route::post('/login', [UserAuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/register', [UserAuthController::class, 'register'])->middleware('throttle:5,1');
+    // AWS Cognito-style: strict brute-force protection on login
+    Route::post('/login', [UserAuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/verify-mfa', [UserAuthController::class, 'verifyMfa'])->middleware('throttle:10,1');
+    Route::post('/resend-mfa', [UserAuthController::class, 'resendMfa'])->middleware('throttle:2,1');
+
+    // OTP-ONLY LOGIN (no password required)
+    Route::post('/login-with-otp', [UserAuthController::class, 'loginWithOtp'])->middleware('throttle:3,1');
+    Route::post('/verify-otp', [UserAuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
+    Route::post('/resend-otp', [UserAuthController::class, 'resendOtp'])->middleware('throttle:2,1');
 
     // Protected user routes (requires auth)
     Route::middleware(['auth:sanctum'])->group(function () {
         // Auth
         Route::get('/me', [UserAuthController::class, 'me']);
         Route::post('/logout', [UserAuthController::class, 'logout']);
+        Route::post('/logout-all', [UserAuthController::class, 'logoutAll']);
         Route::post('/change-password', [UserAuthController::class, 'changePassword']);
         Route::put('/profile', [UserAuthController::class, 'updateProfile']);
+
+        // Security (2FA toggle, audit activity)
+        Route::get('/security', [UserAuthController::class, 'securityOverview']);
+        Route::post('/security/mfa', [UserAuthController::class, 'toggleMfa']);
 
         // Dashboard
         Route::get('/dashboard', [UserDashboardController::class, 'index']);
@@ -120,6 +143,15 @@ Route::prefix('v1/user')->group(function () {
         Route::put('/businesses/{id}', [UserBusinessController::class, 'update']);
         Route::delete('/businesses/{id}', [UserBusinessController::class, 'destroy']);
         Route::post('/businesses/draft', [UserBusinessController::class, 'saveDraft']);
+
+        // My Events
+        Route::get('/events', [\App\Http\Controllers\Api\User\UserEventController::class, 'index']);
+        Route::get('/events/stats', [\App\Http\Controllers\Api\User\UserEventController::class, 'stats']);
+        Route::get('/events/{id}', [\App\Http\Controllers\Api\User\UserEventController::class, 'show']);
+        Route::post('/events', [\App\Http\Controllers\Api\User\UserEventController::class, 'store']);
+        Route::put('/events/{id}', [\App\Http\Controllers\Api\User\UserEventController::class, 'update']);
+        Route::delete('/events/{id}', [\App\Http\Controllers\Api\User\UserEventController::class, 'destroy']);
+        Route::post('/events/upload-image', [\App\Http\Controllers\Api\User\UserEventController::class, 'uploadImage']);
 
         // Image Uploads
         Route::post('/upload-image', [\App\Http\Controllers\Api\User\ImageUploadController::class, 'upload']);
@@ -143,20 +175,43 @@ Route::prefix('v1/user')->group(function () {
 
         // Performance analytics (GMB-style)
         Route::get('/analytics', [UserAnalyticsController::class, 'index']);
+
+        // Verification (owner self-service)
+        Route::get('/businesses/{id}/verification', [UserVerificationDocumentController::class, 'index']);
+        Route::post('/businesses/{id}/verification/documents', [UserVerificationDocumentController::class, 'store']);
+        Route::delete('/businesses/{id}/verification/documents/{docId}', [UserVerificationDocumentController::class, 'destroy']);
+        Route::post('/businesses/{id}/verification/request', [UserVerificationDocumentController::class, 'requestVerification']);
+        Route::post('/businesses/{id}/verification/cancel-request', [UserVerificationDocumentController::class, 'cancelRequest']);
     });
 });
 
 // Admin API Routes
 Route::prefix('v1/admin')->group(function () {
     // Public admin routes (no auth)
-    Route::post('/login', [AdminAuthController::class, 'login']);
+    // AWS Cognito-style: strict brute-force protection on login
+    Route::post('/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/verify-mfa', [AdminAuthController::class, 'verifyMfa'])->middleware('throttle:10,1');
+    Route::post('/resend-mfa', [AdminAuthController::class, 'resendMfa'])->middleware('throttle:2,1');
+
+    // OTP-ONLY LOGIN (no password required) - FOR ADMINS
+    Route::post('/login-with-otp', [AdminAuthController::class, 'loginWithOtp'])->middleware('throttle:3,1');
+    Route::post('/verify-otp', [AdminAuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
+    Route::post('/resend-otp', [AdminAuthController::class, 'resendOtp'])->middleware('throttle:2,1');
 
     // Protected admin routes (requires auth + admin role)
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         // Auth
         Route::get('/me', [AdminAuthController::class, 'me']);
         Route::post('/logout', [AdminAuthController::class, 'logout']);
+        Route::post('/logout-all', [AdminAuthController::class, 'logoutAll']);
         Route::post('/change-password', [AdminAuthController::class, 'changePassword']);
+
+        // Security (MFA, TOTP authenticator, audit activity)
+        Route::get('/security', [AdminAuthController::class, 'securityOverview']);
+        Route::post('/security/mfa', [AdminAuthController::class, 'toggleMfa']);
+        Route::post('/security/totp/setup', [AdminAuthController::class, 'totpSetup']);
+        Route::post('/security/totp/confirm', [AdminAuthController::class, 'totpConfirm']);
+        Route::post('/security/totp/disable', [AdminAuthController::class, 'totpDisable']);
 
         // Dashboard & Analytics
         Route::get('/dashboard', [AdminDashboardController::class, 'index']);
@@ -174,6 +229,16 @@ Route::prefix('v1/admin')->group(function () {
         Route::post('/businesses/{id}/reject', [AdminBusinessController::class, 'reject']);
         Route::post('/businesses/{id}/feature', [AdminBusinessController::class, 'feature']);
         Route::post('/businesses/{id}/verify', [AdminBusinessController::class, 'verify']);
+        Route::post('/businesses/{id}/unverify', [AdminBusinessController::class, 'unverify']);
+        Route::get('/businesses/{id}/verification-logs', [AdminBusinessController::class, 'verificationLogs']);
+
+        // Verification Documents (admin review)
+        Route::get('/businesses/{id}/documents', [AdminVerificationDocumentController::class, 'index']);
+        Route::post('/businesses/{id}/documents', [AdminVerificationDocumentController::class, 'store']);
+        Route::post('/businesses/{id}/documents/{docId}/review', [AdminVerificationDocumentController::class, 'review']);
+        Route::get('/businesses/{id}/documents/{docId}/download', [AdminVerificationDocumentController::class, 'download']);
+        Route::delete('/businesses/{id}/documents/{docId}', [AdminVerificationDocumentController::class, 'destroy']);
+        Route::get('/verification-documents/expiring', [AdminVerificationDocumentController::class, 'expiring']);
         Route::post('/businesses/{id}/toggle-trending', [AdminBusinessController::class, 'toggleTrending']);
         Route::post('/businesses/{id}/toggle-sponsored', [AdminBusinessController::class, 'toggleSponsored']);
         Route::delete('/businesses/{id}', [AdminBusinessController::class, 'destroy']);

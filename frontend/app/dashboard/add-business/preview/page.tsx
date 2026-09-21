@@ -548,7 +548,7 @@ function PreviewListingPageContent() {
                       />
                     ) : (
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-[#153b78]">
+                        <div className="text-3xl font-bold text-[#062B49]">
                           {(business.name || 'AB').slice(0, 2).toUpperCase()}
                         </div>
                         <div className="text-[9px] font-semibold text-gray-500 uppercase">
@@ -580,8 +580,8 @@ function PreviewListingPageContent() {
                     </p>
 
                     {data.verified && (
-                      <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-green-50 text-green-700 text-xs font-semibold">
-                        <span className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                      <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-[#FFF9E5] text-[#062B49] text-xs font-semibold">
+                        <span className="w-4 h-4 rounded-full bg-[#FFF4CC] flex items-center justify-center">
                           <Icon name="check" className="w-3 h-3" />
                         </span>
                         Verified Business
@@ -633,7 +633,7 @@ function PreviewListingPageContent() {
                     <span
                       className={`font-semibold ${
                         data.todayParts.isOpen
-                          ? 'text-green-600'
+                          ? 'text-[#062B49]'
                           : 'text-red-600'
                       }`}
                     >
@@ -768,7 +768,7 @@ function PreviewListingPageContent() {
                         </div>
 
                         <div className="border border-gray-200 rounded-lg p-3 sm:p-4 text-center">
-                          <Icon name="users" className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 mx-auto mb-1.5 sm:mb-2" />
+                          <Icon name="users" className="w-5 h-5 sm:w-6 sm:h-6 text-[#0B3A63] mx-auto mb-1.5 sm:mb-2" />
                           <div className="text-lg sm:text-xl font-bold text-gray-900">
                             {business.happy_clients || '—'}
                           </div>

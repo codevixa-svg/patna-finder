@@ -93,9 +93,9 @@ export default function BusinessesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -137,7 +137,7 @@ export default function BusinessesPage() {
                 <button
                   onClick={() => setFilter('approved')}
                   className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filter === 'approved' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    filter === 'approved' ? 'bg-[#062B49] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   Approved
@@ -169,7 +169,7 @@ export default function BusinessesPage() {
                 <p className="mt-1 text-sm text-gray-500">Get started by creating a new business.</p>
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business</th>
@@ -219,7 +219,7 @@ export default function BusinessesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          business.status === 'approved' ? 'bg-green-100 text-green-800' :
+                          business.status === 'approved' ? 'bg-[#FFF4CC] text-green-800' :
                           business.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-red-100 text-red-800'
                         }`}>
@@ -232,7 +232,7 @@ export default function BusinessesPage() {
                             <>
                               <button
                                 onClick={() => handleApprove(business.id)}
-                                className="text-green-600 hover:text-green-900"
+                                className="text-[#062B49] hover:text-green-900"
                                 title="Approve"
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,7 +283,7 @@ export default function BusinessesPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </main>

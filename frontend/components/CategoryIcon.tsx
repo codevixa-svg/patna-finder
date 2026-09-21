@@ -63,6 +63,10 @@ import {
   Footprints,
   Sun,
   Camera,
+  Calendar,
+  Briefcase,
+  Handshake,
+  Users,
 } from 'lucide-react';
 
 type IconComponent = React.ComponentType<{
@@ -139,6 +143,10 @@ const ICON_MAP: Record<string, IconComponent> = {
   footprints: Footprints,
   sun: Sun,
   camera: Camera,
+  calendar: Calendar,
+  briefcase: Briefcase,
+  handshake: Handshake,
+  users: Users,
 };
 
 interface CategoryIconProps {

@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useUserAuthStore } from '@/store/userAuthStore';
 import { userAuthApi } from '@/lib/userApi';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import SecurityCenter from '@/components/auth/SecurityCenter';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { isAuthenticated, user, updateUser } = useUserAuthStore();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'security'>('profile');
   const [errors, setErrors] = useState<any>({});
 
   const [profileData, setProfileData] = useState({
@@ -132,6 +133,16 @@ export default function ProfilePage() {
             >
               Change Password
             </button>
+            <button
+              onClick={() => setActiveTab('security')}
+              className={`px-3 sm:px-4 py-2 font-medium transition text-sm sm:text-base ${
+                activeTab === 'security'
+                  ? 'text-orange-600 border-b-2 border-orange-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Security
+            </button>
           </div>
 
           {/* Profile Tab */}
@@ -242,6 +253,19 @@ export default function ProfilePage() {
                   {loading ? 'Changing...' : 'Change Password'}
                 </button>
               </form>
+            </div>
+          )}
+
+          {/* Security Tab — 2FA, sessions, audit activity (AWS-style) */}
+          {activeTab === 'security' && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Security</h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  Two-factor authentication, active sessions & account activity
+                </p>
+              </div>
+              <SecurityCenter api={userAuthApi} />
             </div>
           )}
         </div>

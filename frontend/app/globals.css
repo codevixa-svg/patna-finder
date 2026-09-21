@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@800&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Handwritten script accent font used on the About page */
+.font-script {
+  font-family: 'Caveat', cursive;
+}
 
 @tailwind base;
 @tailwind components;
@@ -20,8 +25,8 @@ body {
   overflow-x: hidden;
   overflow-x: clip;
   font-family: 'Inter', sans-serif;
-  background-color: #F8FAFC;
-  color: #081C3A;
+  background-color: #F7F9FC;
+  color: #102A43;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -63,8 +68,8 @@ html {
 
 /* Button styles */
 .btn-primary {
-  background: #FFC107;
-  color: #081C3A;
+  background: #F4B400;
+  color: #062B49;
   padding: 12px 32px;
   border-radius: 12px;
   font-weight: 600;
@@ -75,7 +80,7 @@ html {
 }
 
 .btn-primary:hover {
-  background: #FFD54F;
+  background: #FFDF80;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
 }
@@ -94,6 +99,12 @@ html {
 .badge-verified {
   background: #E3F2FD;
   color: #1976D2;
+}
+
+.badge-not-verified {
+  background: #F3F4F6;
+  color: #6B7280;
+  border: 1px solid #E5E7EB;
 }
 
 .badge-featured {
@@ -129,16 +140,16 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F8FAFC;
+  background: #F7F9FC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #E9EDF3;
+  background: #E2E8F0;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FFC107;
+  background: #F4B400;
 }
 
 /* Hide scrollbar but keep functionality */
@@ -156,7 +167,7 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: #FFC107;
+  border-color: #F4B400;
   box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
 }
 

@@ -91,7 +91,7 @@ export default function AdvertisePage() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Advertise With Us</h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -100,7 +100,7 @@ export default function AdvertisePage() {
           <div className="flex flex-wrap justify-center gap-8 mt-10">
             {STATS.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl md:text-4xl font-extrabold text-amber-400">{s.value}</div>
+                <div className="text-3xl md:text-4xl font-extrabold text-[#F4B400]">{s.value}</div>
                 <div className="text-sm text-gray-300 mt-1">{s.label}</div>
               </div>
             ))}
@@ -125,8 +125,8 @@ export default function AdvertisePage() {
               key={plan.name}
               className={`rounded-2xl p-8 flex flex-col relative ${
                 plan.featured
-                  ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-xl md:scale-105 md:z-10'
-                  : 'bg-white border-2 border-gray-200 hover:border-amber-400 transition'
+                  ? 'bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-white shadow-xl md:scale-105 md:z-10'
+                  : 'bg-white border-2 border-gray-200 hover:border-[#F4B400] transition'
               }`}
             >
               {plan.featured && (
@@ -139,12 +139,12 @@ export default function AdvertisePage() {
               <h3 className={`text-xl font-bold mb-2 ${plan.featured ? '' : 'text-gray-900'}`}>
                 {plan.name}
               </h3>
-              <p className={`text-sm mb-6 ${plan.featured ? 'text-amber-100' : 'text-gray-500'}`}>
+              <p className={`text-sm mb-6 ${plan.featured ? 'text-[#FFF4CC]' : 'text-gray-500'}`}>
                 {plan.tagline}
               </p>
               <div className="mb-6">
                 <span className="text-4xl font-extrabold">{plan.price}</span>
-                <span className={plan.featured ? 'text-amber-200' : 'text-gray-500'}>{plan.period}</span>
+                <span className={plan.featured ? 'text-[#FFF4CC]' : 'text-gray-500'}>{plan.period}</span>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
                 {plan.features.map((f) => (
@@ -160,7 +160,7 @@ export default function AdvertisePage() {
                 href="/contact"
                 className={`block w-full py-3 text-center font-semibold rounded-xl transition ${
                   plan.featured
-                    ? 'bg-white text-amber-600 hover:bg-amber-50'
+                    ? 'bg-white text-[#B58200] hover:bg-[#FFF9E5]'
                     : 'bg-gray-900 text-white hover:bg-gray-800'
                 }`}
               >
@@ -180,7 +180,7 @@ export default function AdvertisePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {FORMATS.map((f) => (
               <div key={f.title} className="bg-gray-50 rounded-2xl p-7 hover:shadow-lg transition">
-                <div className="w-12 h-12 bg-amber-400/15 text-amber-500 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-[#F4B400]/15 text-[#D89E00] rounded-xl flex items-center justify-center mb-4">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={f.icon} />
                   </svg>
@@ -195,7 +195,7 @@ export default function AdvertisePage() {
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-[#081C3A] rounded-3xl p-10 md:p-14 text-center text-white">
+        <div className="bg-[#062B49] rounded-3xl p-10 md:p-14 text-center text-white">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Ready to Grow Your Business?</h2>
           <p className="text-gray-300 max-w-2xl mx-auto mb-8">
             Tell us about your goals and we will build a custom package that fits your budget.
@@ -203,7 +203,7 @@ export default function AdvertisePage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               href="/contact"
-              className="bg-amber-400 text-gray-900 px-8 py-3.5 rounded-xl font-bold hover:bg-amber-500 transition shadow-lg"
+              className="bg-[#F4B400] text-gray-900 px-8 py-3.5 rounded-xl font-bold hover:bg-[#D89E00] transition shadow-lg"
             >
               Talk to Our Team
             </Link>

@@ -40,6 +40,13 @@ interface Business {
   review_count: number;
   view_count: number;
   is_verified: boolean;
+  verified_at: string | null;
+  verified_by: number | null;
+  verification_method: string | null;
+  verification_note: string | null;
+  verification_level: string | null;
+  verification_requested_at: string | null;
+  reverify_due_at: string | null;
   is_featured: boolean;
   is_sponsored: boolean;
   is_trending: boolean;
@@ -61,6 +68,81 @@ function parseJSON(value: any): any {
   return value;
 }
 
+const VERIFICATION_METHODS = [
+  { value: 'onsite_visit', label: 'On-site Visit', desc: 'Aapne khud business ke address par jaake check kiya' },
+  { value: 'google_details', label: 'As per Google Details', desc: 'Business details Google Maps/Business Profile se match hui' },
+  { value: 'phone_call', label: 'Phone Call', desc: 'Phone par owner se baat karke confirm kiya' },
+  { value: 'documents', label: 'Documents Check', desc: 'GST certificate / trade license etc. check kiya' },
+];
+
+function verificationMethodLabel(method: string | null | undefined): string {
+  if (!method) return 'Verified';
+  const found = VERIFICATION_METHODS.find(m => m.value === method);
+  return found ? `Verified • ${found.label}` : 'Verified';
+}
+
+interface VerificationLog {
+  id: number;
+  action: string;
+  method: string | null;
+  method_label: string;
+  note: string | null;
+  admin_name: string;
+  created_at: string;
+}
+
+const LEVEL_LABELS: Record<string, string> = {
+  basic: 'Basic',
+  standard: 'Standard',
+  premium: 'Premium',
+};
+
+const LEVEL_STYLES: Record<string, string> = {
+  basic: 'bg-sky-100 text-sky-700 border-sky-200',
+  standard: 'bg-blue-100 text-blue-700 border-blue-200',
+  premium: 'bg-yellow-100 text-yellow-800 border-yellow-400',
+};
+
+function DocRow({ doc, onDownload, onApprove, onReject, onDelete }: {
+  doc: any;
+  onDownload: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 p-3 border border-gray-100 rounded-lg">
+      <div className="flex-1 min-w-[200px]">
+        <p className="text-sm font-semibold text-gray-900">
+          {doc.doc_type_label}
+          <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${doc.status === 'approved' ? 'bg-[#FFF4CC] text-[#062B49]' : doc.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+            {doc.status.toUpperCase()}
+          </span>
+        </p>
+        <p className="text-xs text-gray-500 mt-0.5 break-all">
+          {doc.original_name}
+          {doc.expires_at && (
+            <> • Valid till: <span className={doc.days_until_expiry < 0 ? 'text-red-600 font-semibold' : doc.days_until_expiry <= 30 ? 'text-orange-600 font-semibold' : ''}>{doc.expires_at}{doc.days_until_expiry < 0 ? ' (EXPIRED)' : doc.days_until_expiry <= 30 ? ` (${doc.days_until_expiry}d left)` : ''}</span></>
+          )}
+          {doc.review_note && <> • Note: {doc.review_note}</>}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={onDownload} className="px-3 py-1.5 border border-gray-200 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-50 transition">Download</button>
+        {doc.status !== 'approved' && (
+          <button onClick={onApprove} className="px-3 py-1.5 bg-[#062B49] text-white rounded-lg text-xs font-semibold hover:bg-[#062B49] transition">Approve</button>
+        )}
+        {doc.status !== 'rejected' && (
+          <button onClick={onReject} className="px-3 py-1.5 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-100 transition">Reject</button>
+        )}
+        <button onClick={onDelete} className="px-2 py-1.5 text-gray-400 hover:text-red-600 transition" title="Delete">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminBusinessDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -70,11 +152,104 @@ export default function AdminBusinessDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [logs, setLogs] = useState<VerificationLog[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [requiredDocs, setRequiredDocs] = useState<string[]>([]);
+  const [docType, setDocType] = useState('');
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docExpiry, setDocExpiry] = useState('');
+  const [docUploading, setDocUploading] = useState(false);
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [unverifyModalOpen, setUnverifyModalOpen] = useState(false);
+  const [verifyMethod, setVerifyMethod] = useState('');
+  const [verifyNote, setVerifyNote] = useState('');
+  const [unverifyNote, setUnverifyNote] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) { window.location.href = '/admin/login'; return; }
     fetchBusiness();
+    fetchLogs();
+    fetchDocuments();
   }, [isAuthenticated, id]);
+
+  async function fetchDocuments() {
+    try {
+      const data = await adminBusinessesApi.verificationDocuments(Number(id));
+      setDocuments(data.documents || []);
+      setRequiredDocs(data.required_docs || []);
+    } catch {
+      setDocuments([]);
+      setRequiredDocs([]);
+    }
+  }
+
+  async function handleDocUpload() {
+    if (!docType) { toast.error('Document type select karein'); return; }
+    if (!docFile) { toast.error('File select karein'); return; }
+    const fd = new FormData();
+    fd.append('doc_type', docType);
+    fd.append('file', docFile);
+    if (docExpiry) fd.append('expires_at', docExpiry);
+    try {
+      setDocUploading(true);
+      await adminBusinessesApi.uploadVerificationDocument(Number(id), fd);
+      toast.success('Document uploaded');
+      setDocType(''); setDocFile(null); setDocExpiry('');
+      fetchDocuments();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || 'Upload failed');
+    } finally {
+      setDocUploading(false);
+    }
+  }
+
+  async function handleDocReview(docId: number, status: 'approved' | 'rejected') {
+    const note = prompt(status === 'approved'
+      ? 'Review note (optional) — e.g. GST verified online'
+      : 'Reject reason (required)');
+    if (status === 'rejected' && (!note || note.trim().length < 3)) return;
+    const expiry = status === 'approved' ? prompt('Valid till (YYYY-MM-DD) — cancel = skip') : null;
+    try {
+      await adminBusinessesApi.reviewVerificationDocument(Number(id), docId, {
+        status,
+        review_note: note || undefined,
+        expires_at: expiry || undefined,
+      });
+      toast.success(`Document ${status}`);
+      fetchDocuments();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || 'Review failed');
+    }
+  }
+
+  async function handleDocDelete(docId: number) {
+    if (!confirm('Delete this document?')) return;
+    try {
+      await adminBusinessesApi.deleteVerificationDocument(Number(id), docId);
+      toast.success('Document deleted');
+      fetchDocuments();
+    } catch (err: any) {
+      toast.error(err.message || 'Delete failed');
+    }
+  }
+
+  async function handleDocDownload(doc: any) {
+    try {
+      await adminBusinessesApi.downloadVerificationDocument(Number(id), doc.id, doc.original_name);
+    } catch (err: any) {
+      toast.error(err.message || 'Download failed');
+    }
+  }
+
+  async function fetchLogs() {
+    try {
+      const data = await adminBusinessesApi.verificationLogs(Number(id));
+      setLogs(data.logs || []);
+    } catch {
+      setLogs([]);
+    }
+  }
 
   async function fetchBusiness() {
     try {
@@ -106,7 +281,13 @@ export default function AdminBusinessDetailPage() {
       if (action === 'approve') { await adminBusinessesApi.approve(numId); }
       else if (action === 'reject') { await adminBusinessesApi.reject(numId); }
       else if (action === 'feature') { await adminBusinessesApi.feature(numId); }
-      else if (action === 'verify') { await adminBusinessesApi.verify(numId); }
+      else if (action === 'verify') {
+        // Opens the verification modal (method + note required)
+        setVerifyMethod('');
+        setVerifyNote('');
+        setVerifyModalOpen(true);
+        return;
+      }
       else if (action === 'toggle-trending') { await adminBusinessesApi.toggleTrending(numId); }
       else if (action === 'toggle-sponsored') { await adminBusinessesApi.toggleSponsored(numId); }
       else if (action === 'delete') {
@@ -116,15 +297,55 @@ export default function AdminBusinessDetailPage() {
         return;
       }
       fetchBusiness();
+      fetchLogs();
     } catch (err: any) {
       toast.error(err.message || 'Action failed');
+    }
+  }
+
+  async function submitVerify() {
+    if (!verifyMethod) { toast.error('Please select how you verified this business'); return; }
+    if (!verifyNote.trim() || verifyNote.trim().length < 5) {
+      toast.error('Please write what you checked (min 5 characters)');
+      return;
+    }
+    try {
+      setActionLoading(true);
+      const res = await adminBusinessesApi.verify(Number(id), { method: verifyMethod, note: verifyNote.trim() });
+      toast.success(res.message || 'Business verified');
+      setVerifyModalOpen(false);
+      fetchBusiness();
+      fetchLogs();
+    } catch (err: any) {
+      toast.error(err.message || 'Verification failed');
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function submitUnverify() {
+    if (!unverifyNote.trim() || unverifyNote.trim().length < 5) {
+      toast.error('Please write the reason (min 5 characters)');
+      return;
+    }
+    try {
+      setActionLoading(true);
+      const res = await adminBusinessesApi.unverify(Number(id), { note: unverifyNote.trim() });
+      toast.success(res.message || 'Verification removed');
+      setUnverifyModalOpen(false);
+      fetchBusiness();
+      fetchLogs();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to remove verification');
+    } finally {
+      setActionLoading(false);
     }
   }
 
   function statusBadge(status: string) {
     const styles: Record<string, string> = {
       pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      approved: 'bg-green-100 text-green-800 border-green-200',
+      approved: 'bg-[#FFF4CC] text-green-800 border-green-200',
       rejected: 'bg-red-100 text-red-800 border-red-200',
       suspended: 'bg-gray-100 text-gray-800 border-gray-200',
       draft: 'bg-slate-100 text-slate-600 border-slate-200',
@@ -152,9 +373,9 @@ export default function AdminBusinessDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar />
-        <div className="ml-64 flex flex-col min-h-screen">
+        <div className="lg:ml-64 flex flex-col min-h-screen">
           <AdminHeader />
-          <main className="flex-1 p-6 overflow-y-auto mt-16 flex items-center justify-center">
+          <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16 flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
               <p className="text-gray-500 text-sm">Loading business details...</p>
@@ -169,9 +390,9 @@ export default function AdminBusinessDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <AdminSidebar />
-        <div className="ml-64 flex flex-col min-h-screen">
+        <div className="lg:ml-64 flex flex-col min-h-screen">
           <AdminHeader />
-          <main className="flex-1 p-6 overflow-y-auto mt-16">
+          <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
             <Link href="/admin/businesses" className="text-blue-600 hover:text-blue-700 text-sm font-medium mb-4 inline-flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               Back to Businesses
@@ -197,7 +418,7 @@ export default function AdminBusinessDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
         <main className="flex-1 overflow-y-auto mt-16">
 
@@ -231,7 +452,7 @@ export default function AdminBusinessDetailPage() {
                 <div className="flex-1 min-w-0 pb-1">
                   <div className="flex items-center gap-2 mb-1">
                     {statusBadge(business.status)}
-                    {business.is_verified && <span className="px-2 py-0.5 bg-blue-500 text-white rounded text-xs font-semibold">Verified</span>}
+                    {business.is_verified && <span className="px-2 py-0.5 bg-blue-500 text-white rounded text-xs font-semibold">{verificationMethodLabel(business.verification_method)}</span>}
                     {business.is_featured && <span className="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs font-semibold">Featured</span>}
                   </div>
                   <h1 className="text-2xl font-bold text-white truncate">{business.name}</h1>
@@ -273,7 +494,7 @@ export default function AdminBusinessDetailPage() {
               <div className="flex flex-wrap items-center gap-2">
                 {business.status === 'pending' && (
                   <>
-                    <button onClick={() => handleAction('approve')} className="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition">
+                    <button onClick={() => handleAction('approve')} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#062B49] text-white rounded-lg hover:bg-[#062B49] text-sm font-medium transition">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                       Approve
                     </button>
@@ -290,8 +511,9 @@ export default function AdminBusinessDetailPage() {
                   {business.is_featured ? '★' : '☆'} Featured
                 </button>
                 <button
-                  onClick={() => handleAction('verify')}
+                  onClick={() => { if (business.is_verified) { setUnverifyNote(''); setUnverifyModalOpen(true); } else { handleAction('verify'); } }}
                   className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition ${business.is_verified ? 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  title={business.is_verified ? 'Click to remove verification' : 'Verify this business'}
                 >
                   {business.is_verified ? '✓' : '○'} Verified
                 </button>
@@ -375,8 +597,8 @@ export default function AdminBusinessDetailPage() {
                     )}
                     {business.whatsapp && (
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
+                        <div className="w-9 h-9 bg-[#FFF9E5] rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-[#062B49]" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" /></svg>
                         </div>
                         <div>
                           <p className="text-xs text-gray-400">WhatsApp</p>
@@ -427,10 +649,10 @@ export default function AdminBusinessDetailPage() {
                         const openT = hours.open_time || hours.open;
                         const closeT = hours.close_time || hours.close;
                         return (
-                          <div key={day} className={`flex items-center justify-between p-3 rounded-lg ${isOpen ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-100'}`}>
-                            <span className={`text-sm font-medium ${isOpen ? 'text-green-700' : 'text-gray-700'}`}>
+                          <div key={day} className={`flex items-center justify-between p-3 rounded-lg ${isOpen ? 'bg-[#FFF9E5] border border-green-200' : 'bg-gray-50 border border-gray-100'}`}>
+                            <span className={`text-sm font-medium ${isOpen ? 'text-[#062B49]' : 'text-gray-700'}`}>
                               {day.charAt(0).toUpperCase() + day.slice(1)}
-                              {isOpen && <span className="ml-2 text-xs text-green-600">Today</span>}
+                              {isOpen && <span className="ml-2 text-xs text-[#062B49]">Today</span>}
                             </span>
                             <span className={`text-sm ${isClosed ? 'text-red-500 font-medium' : 'text-gray-600'}`}>
                               {isClosed ? 'Closed' : (openT && closeT ? `${openT} - ${closeT}` : '—')}
@@ -518,7 +740,7 @@ export default function AdminBusinessDetailPage() {
                         <p className="text-xs text-gray-500 mt-1">{service.description}</p>
                       )}
                       {typeof service === 'object' && service?.price && (
-                        <p className="text-xs text-green-600 font-semibold mt-1">&#8377;{service.price}</p>
+                        <p className="text-xs text-[#062B49] font-semibold mt-1">&#8377;{service.price}</p>
                       )}
                     </div>
                   ))}
@@ -560,6 +782,147 @@ export default function AdminBusinessDetailPage() {
               </div>
             )}
 
+            {/* Verification Documents */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-900 mb-1">Verification Documents</h2>
+              <p className="text-xs text-gray-500 mb-4">Private storage — sirf admin download kar sakta hai. Owner ke uploads bhi yahi dikhte hain.</p>
+
+              {requiredDocs.length > 0 && (
+                <div className="mb-4 p-3 bg-[#FFF9E5] border border-[#FFF4CC] rounded-lg">
+                  <p className="text-xs font-semibold text-amber-800 mb-2">Required for this category:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {requiredDocs.map((type) => {
+                      const approved = documents.find(d => d.doc_type === type && d.status === 'approved');
+                      const uploaded = documents.find(d => d.doc_type === type);
+                      return (
+                        <span key={type} className={`px-2 py-1 rounded-full text-xs font-medium border ${approved ? 'bg-[#FFF9E5] text-[#062B49] border-green-200' : uploaded ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 'bg-white text-gray-500 border-gray-200'}`}>
+                          {approved ? '✓' : uploaded ? '⏳' : '○'} {type.replace(/_/g, ' ')}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-end gap-3 mb-5 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
+                  <select value={docType} onChange={(e) => setDocType(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select...</option>
+                    <option value="gst">GST Certificate</option>
+                    <option value="fssai">FSSAI License</option>
+                    <option value="trade_license">Trade License</option>
+                    <option value="id_proof">Owner ID Proof</option>
+                    <option value="signboard_photo">Signboard Photo</option>
+                    <option value="address_proof">Address Proof</option>
+                    <option value="medical_registration">Medical Registration</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">File (PDF/Image, max 5MB)</label>
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" onChange={(e) => setDocFile(e.target.files?.[0] || null)} className="text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Valid Till</label>
+                  <input type="date" value={docExpiry} onChange={(e) => setDocExpiry(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+                </div>
+                <button
+                  onClick={handleDocUpload}
+                  disabled={docUploading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+                >
+                  {docUploading ? 'Uploading...' : 'Upload'}
+                </button>
+              </div>
+
+              {documents.length === 0 ? (
+                <p className="text-sm text-gray-400">No documents uploaded yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {documents.map((doc) => (
+                    <DocRow
+                      key={doc.id}
+                      doc={doc}
+                      onDownload={() => handleDocDownload(doc)}
+                      onApprove={() => handleDocReview(doc.id, 'approved')}
+                      onReject={() => handleDocReview(doc.id, 'rejected')}
+                      onDelete={() => handleDocDelete(doc.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Verification Details & History */}
+            <div className="bg-white rounded-xl border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">Verification Details</h2>
+              {business.is_verified ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                    <span className="text-sm font-semibold text-blue-800">{verificationMethodLabel(business.verification_method)}</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-gray-500">Verified On:</span>{' '}
+                      <span className="font-medium text-gray-900">
+                        {business.verified_at ? new Date(business.verified_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Level:</span>{' '}
+                      <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${business.verification_level ? (LEVEL_STYLES[business.verification_level] || '') : ''}`}>
+                        {business.verification_level ? LEVEL_LABELS[business.verification_level] : '—'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Re-verify Due:</span>{' '}
+                      <span className={`font-medium ${business.reverify_due_at && new Date(business.reverify_due_at) < new Date() ? 'text-red-600' : 'text-gray-900'}`}>
+                        {business.reverify_due_at ? new Date(business.reverify_due_at).toLocaleDateString('en-IN') : '—'}
+                        {business.reverify_due_at && new Date(business.reverify_due_at) < new Date() && ' (OVERDUE)'}
+                      </span>
+                    </div>
+                    {business.verification_note && (
+                      <div className="sm:col-span-2">
+                        <span className="text-gray-500">Remarks:</span>{' '}
+                        <span className="font-medium text-gray-900">{business.verification_note}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  This business is not verified yet. Visit the business address yourself or match its Google details, then click <span className="font-semibold text-gray-700">Verified</span> above to add the badge.
+                </p>
+              )}
+
+              {logs.length > 0 && (
+                <div className="mt-5">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Audit Log</h3>
+                  <ol className="space-y-3">
+                    {logs.map((log) => (
+                      <li key={log.id} className="flex gap-3">
+                        <span className={`mt-1 h-2.5 w-2.5 rounded-full flex-shrink-0 ${log.action === 'verified' ? 'bg-blue-500' : 'bg-red-500'}`} />
+                        <div className="min-w-0">
+                          <p className="text-sm">
+                            <span className={`font-semibold ${log.action === 'verified' ? 'text-blue-700' : 'text-red-700'}`}>
+                              {log.action === 'verified' ? 'Verified' : 'Un-verified'}
+                            </span>
+                            {log.action === 'verified' && <span className="text-gray-500"> • {log.method_label}</span>}
+                          </p>
+                          {log.note && <p className="text-xs text-gray-600 mt-0.5 break-words">{log.note}</p>}
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            by {log.admin_name} • {new Date(log.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+
             {/* Gallery */}
             {galleryImages.length > 0 && (
               <div className="bg-white rounded-xl border border-gray-100 p-6">
@@ -577,6 +940,123 @@ export default function AdminBusinessDetailPage() {
           </div>
         </main>
       </div>
+
+      {/* Verify Modal */}
+      {verifyModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => !actionLoading && setVerifyModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Verify Business</h3>
+                  <p className="text-xs text-gray-500 mt-1">Verify only after personally checking the business (address visit / Google details match).</p>
+                </div>
+                <button onClick={() => setVerifyModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+
+              <label className="block text-sm font-semibold text-gray-700 mb-2">How did you verify it?</label>
+              <div className="space-y-2 mb-4">
+                {VERIFICATION_METHODS.map((m) => (
+                  <label key={m.value} className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition ${verifyMethod === m.value ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input
+                      type="radio"
+                      name="verify_method"
+                      value={m.value}
+                      checked={verifyMethod === m.value}
+                      onChange={() => setVerifyMethod(m.value)}
+                      className="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span>
+                      <span className="block text-sm font-medium text-gray-900">{m.label}</span>
+                      <span className="block text-xs text-gray-500 mt-0.5">{m.desc}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                What did you check? <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={verifyNote}
+                onChange={(e) => setVerifyNote(e.target.value)}
+                rows={3}
+                maxLength={1000}
+                placeholder="e.g. Shop visited at given address, signboard & owner details matched with Google listing"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">Owner ko email notification jayega (min 5 characters).</p>
+
+              <div className="flex gap-3 mt-5">
+                <button
+                  onClick={submitVerify}
+                  disabled={actionLoading}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+                >
+                  {actionLoading ? 'Verifying...' : '✓ Mark as Verified'}
+                </button>
+                <button
+                  onClick={() => setVerifyModalOpen(false)}
+                  disabled={actionLoading}
+                  className="px-4 py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Un-verify Modal */}
+      {unverifyModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => !actionLoading && setUnverifyModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Remove Verification</h3>
+                  <p className="text-xs text-gray-500 mt-1">Verified badge hata diya jayega aur owner ko email jayega.</p>
+                </div>
+                <button onClick={() => setUnverifyModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Reason <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={unverifyNote}
+                onChange={(e) => setUnverifyNote(e.target.value)}
+                rows={3}
+                maxLength={1000}
+                placeholder="e.g. Business address par shop nahi mili / details Google listing se match nahi hui"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+
+              <div className="flex gap-3 mt-5">
+                <button
+                  onClick={submitUnverify}
+                  disabled={actionLoading}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-50 transition"
+                >
+                  {actionLoading ? 'Removing...' : 'Remove Verification'}
+                </button>
+                <button
+                  onClick={() => setUnverifyModalOpen(false)}
+                  disabled={actionLoading}
+                  className="px-4 py-2.5 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightbox && (

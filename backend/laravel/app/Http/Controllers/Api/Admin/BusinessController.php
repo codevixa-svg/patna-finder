@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BusinessVerificationMail;
 use App\Models\Business;
+use App\Models\BusinessVerificationLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -41,6 +44,18 @@ class BusinessController extends Controller
 
         if ($request->has('is_verified')) {
             $query->where('is_verified', $request->boolean('is_verified'));
+        }
+
+        // Owner ne "Get Verified" request bheji hai
+        if ($request->boolean('requested')) {
+            $query->whereNotNull('verification_requested_at')->orderBy('verification_requested_at');
+        }
+
+        // Re-verification due (1 saal purane verified businesses)
+        if ($request->boolean('reverify_due')) {
+            $query->where('is_verified', true)
+                ->whereNotNull('reverify_due_at')
+                ->whereDate('reverify_due_at', '<=', now());
         }
 
         $businesses = $query->latest()->paginate($request->get('per_page', 20));
@@ -184,15 +199,128 @@ class BusinessController extends Controller
         ]);
     }
 
-    public function verify($id)
+    /**
+     * Verify a business — only after admin has personally checked it
+     * (e.g. visited the business address or matched it with Google details).
+     * Requires a verification method and a note describing what was checked.
+     */
+    public function verify(Request $request, $id)
     {
         $business = Business::findOrFail($id);
-        $business->update(['is_verified' => !$business->is_verified]);
+
+        $request->validate([
+            'method' => 'required|in:onsite_visit,google_details,phone_call,documents',
+            'note' => 'required|string|min:5|max:1000',
+        ]);
+
+        $business->update([
+            'is_verified' => true,
+            'verified_at' => now(),
+            'verified_by' => $request->user()->id,
+            'verification_method' => $request->method,
+            'verification_note' => $request->note,
+            'verification_level' => Business::levelForMethod($request->method),
+            'reverify_due_at' => now()->addYear()->toDateString(),
+            'reverify_notified_at' => null,
+            'verification_requested_at' => null, // queue se clear
+        ]);
+
+        BusinessVerificationLog::create([
+            'business_id' => $business->id,
+            'admin_id' => $request->user()->id,
+            'action' => 'verified',
+            'method' => $request->method,
+            'note' => $request->note,
+        ]);
+
+        $methodLabel = BusinessVerificationLog::methodLabels()[$request->method];
+
+        $this->notifyOwner($business, 'verified', $methodLabel, $request->note);
 
         return response()->json([
-            'message' => $business->is_verified ? 'Business verified' : 'Business verification removed',
-            'business' => $business,
+            'message' => "Business verified ({$methodLabel})",
+            'business' => $business->fresh(['verifiedByUser']),
         ]);
+    }
+
+    /**
+     * Remove verification from a business. A reason is mandatory so the
+     * owner knows why the badge was taken away.
+     */
+    public function unverify(Request $request, $id)
+    {
+        $business = Business::findOrFail($id);
+
+        $request->validate([
+            'note' => 'required|string|min:5|max:1000',
+        ]);
+
+        $business->update([
+            'is_verified' => false,
+            'verified_at' => null,
+            'verified_by' => null,
+            'verification_method' => null,
+            'verification_note' => null,
+            'verification_level' => null,
+            'reverify_due_at' => null,
+            'reverify_notified_at' => null,
+        ]);
+
+        BusinessVerificationLog::create([
+            'business_id' => $business->id,
+            'admin_id' => $request->user()->id,
+            'action' => 'unverified',
+            'method' => null,
+            'note' => $request->note,
+        ]);
+
+        $this->notifyOwner($business, 'unverified', '', $request->note);
+
+        return response()->json([
+            'message' => 'Business verification removed',
+            'business' => $business->fresh(),
+        ]);
+    }
+
+    /**
+     * Full audit trail of verify / unverify actions for this business.
+     */
+    public function verificationLogs($id)
+    {
+        $business = Business::findOrFail($id);
+
+        $logs = $business->verificationLogs()->with('admin:id,name,email')->get();
+
+        return response()->json([
+            'logs' => $logs->map(fn ($log) => [
+                'id' => $log->id,
+                'action' => $log->action,
+                'method' => $log->method,
+                'method_label' => $log->method_label,
+                'note' => $log->note,
+                'admin_name' => $log->admin?->name ?? 'System',
+                'created_at' => $log->created_at?->toIso8601String(),
+            ]),
+        ]);
+    }
+
+    /**
+     * Send the owner an email about the verification change.
+     * Failures are swallowed so the API response never breaks because of mail.
+     */
+    private function notifyOwner(Business $business, string $action, string $methodLabel = '', ?string $note = null): void
+    {
+        $email = $business->email ?: $business->user?->email;
+
+        if (!$email) {
+            return;
+        }
+
+        try {
+            Mail::to($email)->send(new BusinessVerificationMail($business->fresh(), $action, $methodLabel, $note));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function toggleTrending($id)

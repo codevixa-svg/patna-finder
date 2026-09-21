@@ -58,8 +58,54 @@ export const userAuthApi = {
     return response.data;
   },
 
+  /** AWS Cognito MFA step 2: verify OTP/TOTP with the challenge token */
+  verifyMfa: async (challengeToken: string, code: string) => {
+    const response = await userApi.post('/user/verify-mfa', {
+      challenge_token: challengeToken,
+      code,
+    });
+    return response.data;
+  },
+
+  /** Resend the email OTP for an active MFA challenge */
+  resendMfa: async (challengeToken: string) => {
+    const response = await userApi.post('/user/resend-mfa', {
+      challenge_token: challengeToken,
+    });
+    return response.data;
+  },
+
+  /** OTP-ONLY LOGIN: Request OTP to email (no password required) */
+  loginWithOtp: async (email: string) => {
+    const response = await userApi.post('/user/login-with-otp', { email });
+    return response.data;
+  },
+
+  /** Verify OTP and login */
+  verifyOtp: async (challengeToken: string, code: string) => {
+    const response = await userApi.post('/user/verify-otp', {
+      challenge_token: challengeToken,
+      code,
+    });
+    return response.data;
+  },
+
+  /** Resend OTP for OTP-only login */
+  resendOtp: async (challengeToken: string) => {
+    const response = await userApi.post('/user/resend-otp', {
+      challenge_token: challengeToken,
+    });
+    return response.data;
+  },
+
   logout: async () => {
     const response = await userApi.post('/user/logout');
+    return response.data;
+  },
+
+  /** Global sign-out — revoke tokens on ALL devices */
+  logoutAll: async () => {
+    const response = await userApi.post('/user/logout-all');
     return response.data;
   },
 
@@ -74,6 +120,19 @@ export const userAuthApi = {
       new_password: newPassword,
       new_password_confirmation: newPasswordConfirmation,
     });
+    return response.data;
+  },
+
+  // ── Security Center ──
+  /** MFA status + recent login activity (audit log) */
+  securityOverview: async () => {
+    const response = await userApi.get('/user/security');
+    return response.data;
+  },
+
+  /** Toggle Email OTP 2FA */
+  toggleMfa: async (enabled: boolean) => {
+    const response = await userApi.post('/user/security/mfa', { enabled });
     return response.data;
   },
 
@@ -151,6 +210,48 @@ export const userBusinessApi = {
   },
 };
 
+// Event API
+export const userEventApi = {
+  getAll: async (params?: any) => {
+    const queryParams = params ? '?' + new URLSearchParams(params).toString() : '';
+    const response = await userApi.get(`/user/events${queryParams}`);
+    return response.data;
+  },
+
+  getOne: async (id: number) => {
+    const response = await userApi.get(`/user/events/${id}`);
+    return response.data;
+  },
+
+  getStats: async () => {
+    const response = await userApi.get('/user/events/stats');
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await userApi.post('/user/events', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: any) => {
+    const response = await userApi.put(`/user/events/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number) => {
+    const response = await userApi.delete(`/user/events/${id}`);
+    return response.data;
+  },
+
+  uploadImage: async (imageData: string, type: 'featured' | 'banner' | 'gallery') => {
+    const response = await userApi.post('/user/events/upload-image', {
+      image: imageData,
+      type: type
+    });
+    return response.data;
+  },
+};
+
 // Subscription API
 export const userSubscriptionApi = {
   createOrder: async (plan: string) => {
@@ -220,6 +321,36 @@ export const userUpdateApi = {
       image: imageData,
       type: 'update'
     });
+    return response.data;
+  },
+};
+
+// Verification API (owner self-service — Get Verified)
+export const userVerificationApi = {
+  getStatus: async (businessId: number) => {
+    const response = await userApi.get(`/user/businesses/${businessId}/verification`);
+    return response.data;
+  },
+
+  uploadDocument: async (businessId: number, formData: FormData) => {
+    const response = await userApi.post(`/user/businesses/${businessId}/verification/documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  deleteDocument: async (businessId: number, docId: number) => {
+    const response = await userApi.delete(`/user/businesses/${businessId}/verification/documents/${docId}`);
+    return response.data;
+  },
+
+  requestVerification: async (businessId: number) => {
+    const response = await userApi.post(`/user/businesses/${businessId}/verification/request`);
+    return response.data;
+  },
+
+  cancelRequest: async (businessId: number) => {
+    const response = await userApi.post(`/user/businesses/${businessId}/verification/cancel-request`);
     return response.data;
   },
 };

@@ -59,12 +59,12 @@ export default function AdminDashboard() {
       <AdminSidebar />
 
       {/* Main Content Area - with left margin for sidebar */}
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         {/* Header - Fixed */}
         <AdminHeader />
 
         {/* Scrollable Content - with top padding for header */}
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -94,7 +94,7 @@ export default function AdminDashboard() {
               <h3 className="text-gray-500 text-sm font-medium mb-1">Total Businesses</h3>
               <p className="text-3xl font-bold text-gray-900 mb-2">{stats?.businesses?.total || 0}</p>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-600 font-semibold">+{stats?.businesses?.today || 0}</span>
+                <span className="text-[#062B49] font-semibold">+{stats?.businesses?.today || 0}</span>
                 <span className="text-gray-500">today</span>
               </div>
             </div>
@@ -102,8 +102,8 @@ export default function AdminDashboard() {
             {/* Reviews Card */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-12 h-12 bg-[#FFF4CC] rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-[#B58200]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 </div>
@@ -116,7 +116,7 @@ export default function AdminDashboard() {
               <h3 className="text-gray-500 text-sm font-medium mb-1">Total Reviews</h3>
               <p className="text-3xl font-bold text-gray-900 mb-2">{stats?.reviews?.total || 0}</p>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-amber-600 font-semibold">{stats?.reviews?.average_rating || 0}★</span>
+                <span className="text-[#B58200] font-semibold">{stats?.reviews?.average_rating || 0}★</span>
                 <span className="text-gray-500">avg rating</span>
               </div>
             </div>
@@ -144,8 +144,8 @@ export default function AdminDashboard() {
             {/* Blog Posts Card */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 bg-[#FFF4CC] rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-[#062B49]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
                 </div>
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
               <h3 className="text-gray-500 text-sm font-medium mb-1">Blog Posts</h3>
               <p className="text-3xl font-bold text-gray-900 mb-2">{stats?.blog?.published || 0}</p>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-600 font-semibold">{(stats?.blog?.total_views || 0).toLocaleString()}</span>
+                <span className="text-[#062B49] font-semibold">{(stats?.blog?.total_views || 0).toLocaleString()}</span>
                 <span className="text-gray-500">total views</span>
               </div>
             </div>
@@ -195,9 +195,9 @@ export default function AdminDashboard() {
                   </div>
                 </a>
 
-                <a href="/admin/reviews/pending" className="flex items-center justify-between p-4 bg-amber-50 rounded-lg hover:bg-amber-100 transition group">
+                <a href="/admin/reviews/pending" className="flex items-center justify-between p-4 bg-[#FFF9E5] rounded-lg hover:bg-[#FFF4CC] transition group">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-[#D89E00] rounded-lg flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-amber-600">{stats?.reviews?.pending || 0}</span>
+                    <span className="text-2xl font-bold text-[#B58200]">{stats?.reviews?.pending || 0}</span>
                     <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
@@ -244,8 +244,8 @@ export default function AdminDashboard() {
                   <p className="text-sm font-semibold text-gray-900">Add Hidden Gem</p>
                 </a>
 
-                <a href="/admin/blog/create" className="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition text-center group">
-                  <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition">
+                <a href="/admin/blog/create" className="p-4 bg-[#FFF9E5] rounded-lg hover:bg-[#FFF4CC] transition text-center group">
+                  <div className="w-10 h-10 bg-[#0B3A63] rounded-lg flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition">
                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>

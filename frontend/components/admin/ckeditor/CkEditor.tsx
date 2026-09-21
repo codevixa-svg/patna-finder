@@ -88,8 +88,8 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
           onClick={() => setMenu(menu === 'blocks' ? null : 'blocks')}
           className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
             menu === 'blocks'
-              ? 'bg-amber-400 text-gray-900'
-              : 'border border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:text-amber-600'
+              ? 'bg-[#F4B400] text-gray-900'
+              : 'border border-gray-300 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
           }`}
         >
           <SquarePlus size={15} /> Blocks
@@ -100,8 +100,8 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
           onClick={() => setMenu(menu === 'templates' ? null : 'templates')}
           className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
             menu === 'templates'
-              ? 'bg-amber-400 text-gray-900'
-              : 'border border-gray-300 bg-white text-gray-700 hover:border-amber-400 hover:text-amber-600'
+              ? 'bg-[#F4B400] text-gray-900'
+              : 'border border-gray-300 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
           }`}
         >
           <LayoutTemplate size={15} /> Templates
@@ -132,9 +132,9 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
                     key={b.id}
                     type="button"
                     onClick={() => insertHtml(b.html)}
-                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-amber-50"
+                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#FFF9E5]"
                   >
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-sm font-bold text-amber-700">
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF4CC] text-sm font-bold text-[#8A6400]">
                       {b.icon}
                     </span>
                     <span className="min-w-0">
@@ -148,9 +148,9 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
                     key={t.id}
                     type="button"
                     onClick={() => insertHtml(t.html)}
-                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-amber-50"
+                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#FFF9E5]"
                   >
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-sm">
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF4CC] text-sm">
                       {t.icon}
                     </span>
                     <span className="min-w-0">

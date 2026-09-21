@@ -149,7 +149,7 @@ export default function MyBusinessesPage() {
                     {/* Status Badge */}
                     <div className="absolute top-3 right-3 sm:top-4 sm:right-4">
                       <span className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded text-xs font-bold uppercase ${
-                        business.status === 'approved' ? 'bg-green-500 text-white' :
+                        business.status === 'approved' ? 'bg-[#0B3A63] text-white' :
                         business.status === 'pending' ? 'bg-yellow-400 text-gray-900' :
                         'bg-red-500 text-white'
                       }`}>
@@ -204,14 +204,21 @@ export default function MyBusinessesPage() {
                           </p>
                         )}
 
-                        {business.is_verified && (
-                          <div className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-50 text-green-700 rounded text-xs font-semibold">
+                        {business.is_verified ? (
+                          <div className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-[#FFF9E5] text-[#062B49] rounded text-xs font-semibold" title={business.verification_label || 'Verified'}>
                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
-                            Verified
+                            {business.verification_label || 'Verified'}
                           </div>
-                        )}
+                        ) : business.status === 'approved' ? (
+                          <div className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-600 rounded text-xs font-semibold border border-gray-200" title="Patna Finder team ne is business ki verification nahi ki hai">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                              <path fillRule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 13h-2v-6h2v6zm0 8h-2V5h2v4z" clipRule="evenodd" />
+                            </svg>
+                            Not Verified by Patna Finder
+                          </div>
+                        ) : null}
                       </div>
                     </div>
 
@@ -296,6 +303,19 @@ export default function MyBusinessesPage() {
                         </svg>
                         View
                       </button>
+
+                      {!business.is_verified && business.status === 'approved' && (
+                        <button
+                          onClick={() => router.push(`/dashboard/businesses/${business.id}/verification`)}
+                          className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 bg-[#FFF9E5] border border-[#FFF4CC] text-[#8A6400] text-xs sm:text-sm font-semibold rounded-lg hover:bg-[#FFF4CC] transition"
+                          title="Get Verified by Patna Finder"
+                        >
+                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Get Verified
+                        </button>
+                      )}
 
                       <button
                         onClick={() => handleDelete(business.id)}

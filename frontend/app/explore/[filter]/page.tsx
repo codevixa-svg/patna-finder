@@ -8,6 +8,7 @@ import {
 } from '@/lib/explore-filters';
 
 const DESCRIPTIONS: Record<string, string> = {
+  all: 'Every business listed on Patna Finder — browse them all in one place',
   trending: 'The most popular businesses in Patna right now',
   'highest-rated': 'Top-rated businesses loved by people across Patna',
   'recently-added': 'The newest businesses on Patna Finder',
@@ -48,21 +49,26 @@ export default async function ExploreFilterPage({
   const label = FILTER_LABELS[key];
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4">{label} in Patna</h1>
-          <p className="text-xl text-gray-300">{DESCRIPTIONS[key]}</p>
-        </div>
-      </section>
-
-      {/* Breadcrumb — same UI as the business details page */}
-      <Breadcrumbs
-        items={[{ label: 'Explore', href: '/explore' }, { label: `${label} in Patna` }]}
+    <main className="min-h-screen bg-[#F7F9FC]">
+      {/* The hero renders inside ExploreBrowser (it owns the search state);
+          this page only supplies the copy and the hero breadcrumb. */}
+      <ExploreBrowser
+        initialFilter={key}
+        hero={{
+          breadcrumb: (
+            <Breadcrumbs
+              variant="hero"
+              items={[{ label: 'Explore', href: '/explore' }, { label: `${label} in Patna` }]}
+            />
+          ),
+          title: (
+            <>
+              {label} in <span className="text-[#F4B400]">Patna</span>
+            </>
+          ),
+          subtitle: DESCRIPTIONS[key],
+        }}
       />
-
-      <ExploreBrowser initialFilter={key} />
     </main>
   );
 }

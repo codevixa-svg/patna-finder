@@ -511,7 +511,7 @@ export default function PublicBusinessPage() {
               <li>
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-1.5 text-gray-500 hover:text-[#153b78] font-medium transition"
+                  className="inline-flex items-center gap-1.5 text-gray-500 hover:text-[#062B49] font-medium transition"
                 >
                   <Icon name="home" className="w-4 h-4" />
                   Home
@@ -523,7 +523,7 @@ export default function PublicBusinessPage() {
               <li>
                 <Link
                   href="/businesses"
-                  className="text-gray-500 hover:text-[#153b78] font-medium transition"
+                  className="text-gray-500 hover:text-[#062B49] font-medium transition"
                 >
                   Businesses
                 </Link>
@@ -536,7 +536,7 @@ export default function PublicBusinessPage() {
                   <li>
                     <Link
                       href={`/categories/${business.category.slug || ''}`}
-                      className="text-gray-500 hover:text-[#153b78] font-medium transition"
+                      className="text-gray-500 hover:text-[#062B49] font-medium transition"
                     >
                       {business.category.name}
                     </Link>
@@ -546,7 +546,7 @@ export default function PublicBusinessPage() {
               <li aria-hidden="true" className="text-gray-300 flex items-center">
                 <Icon name="chevron-right" className="w-4 h-4" />
               </li>
-              <li className="text-[#153b78] font-semibold truncate max-w-[260px]">
+              <li className="text-[#062B49] font-semibold truncate max-w-[260px]">
                 {business.name}
               </li>
             </ol>
@@ -659,7 +659,7 @@ export default function PublicBusinessPage() {
                     />
                   ) : (
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-[#153b78]">
+                      <div className="text-3xl font-bold text-[#062B49]">
                         {(business.name || 'AB').substring(0, 2).toUpperCase()}
                       </div>
                       <div className="text-[9px] font-semibold text-gray-500">
@@ -691,12 +691,19 @@ export default function PublicBusinessPage() {
                     {business.tagline || business.category?.name || 'Business'}
                   </p>
 
-                  {business.is_verified && (
-                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-green-50 text-green-700 text-xs font-semibold">
-                      <span className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                  {business.is_verified ? (
+                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-[#FFF9E5] text-[#062B49] text-xs font-semibold">
+                      <span className="w-4 h-4 rounded-full bg-[#FFF4CC] flex items-center justify-center">
                         <Icon name="check" className="w-3 h-3" />
                       </span>
-                      Verified Business
+                      {business.verification_label || 'Verified Business'}
+                    </div>
+                  ) : (
+                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 text-xs font-semibold border border-gray-200">
+                      <span className="w-4 h-4 rounded-full bg-white border border-gray-300 flex items-center justify-center">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 13h-2v-6h2v6zm0 8h-2V5h2v4z" clipRule="evenodd" /></svg>
+                      </span>
+                      Not Verified by Patna Finder
                     </div>
                   )}
                 </div>
@@ -747,7 +754,7 @@ export default function PublicBusinessPage() {
                     className={
                       data.todayHours.is_open === false
                         ? 'font-semibold text-red-600'
-                        : 'font-semibold text-green-600'
+                        : 'font-semibold text-[#062B49]'
                     }
                   >
                     {data.todayHours.is_open === false ? 'Closed' : 'Open'}
@@ -873,9 +880,9 @@ export default function PublicBusinessPage() {
                         return (
                           <div
                             key={index}
-                            className="group flex items-start gap-3.5 p-4 bg-white border border-gray-200 rounded-xl hover:border-[#153b78]/40 hover:shadow-md transition-all duration-200"
+                            className="group flex items-start gap-3.5 p-4 bg-white border border-gray-200 rounded-xl hover:border-[#062B49]/40 hover:shadow-md transition-all duration-200"
                           >
-                            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#eef4fd] to-[#e0ebfa] text-[#153b78] flex items-center justify-center shrink-0 group-hover:from-[#153b78] group-hover:to-[#0f2c5c] group-hover:text-white group-hover:scale-105 transition-all duration-300">
+                            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#eef4fd] to-[#e0ebfa] text-[#062B49] flex items-center justify-center shrink-0 group-hover:from-[#062B49] group-hover:to-[#0f2c5c] group-hover:text-white group-hover:scale-105 transition-all duration-300">
                               <ServiceIcon name={name} className="w-5 h-5" />
                             </div>
 
@@ -885,7 +892,7 @@ export default function PublicBusinessPage() {
                                   {name || 'Service'}
                                 </h4>
                                 {price && (
-                                  <span className="text-xs font-bold text-[#153b78] bg-[#eef4fd] border border-[#dfeafa] rounded-md px-2 py-0.5 whitespace-nowrap">
+                                  <span className="text-xs font-bold text-[#062B49] bg-[#eef4fd] border border-[#dfeafa] rounded-md px-2 py-0.5 whitespace-nowrap">
                                     {/^[0-9]/.test(price) ? `₹${price}` : price}
                                   </span>
                                 )}
@@ -951,7 +958,7 @@ export default function PublicBusinessPage() {
               <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold text-gray-900 inline-flex items-center gap-2">
-                    <Icon name="location" className="w-4 h-4 text-[#153b78]" />
+                    <Icon name="location" className="w-4 h-4 text-[#062B49]" />
                     Location
                   </h3>
                   <a
@@ -959,7 +966,7 @@ export default function PublicBusinessPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => trackEvent(businessId, 'directions')}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#153b78] hover:text-amber-600 transition"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#062B49] hover:text-[#B58200] transition"
                   >
                     <Icon name="navigation" className="w-3.5 h-3.5" />
                     Directions
@@ -987,10 +994,10 @@ export default function PublicBusinessPage() {
               <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-100">
                   <h3 className="text-sm font-semibold text-gray-900 inline-flex items-center gap-2">
-                    <Icon name="megaphone" className="w-4 h-4 text-amber-500" />
+                    <Icon name="megaphone" className="w-4 h-4 text-[#D89E00]" />
                     Updates
                     {updates.length > 0 && (
-                      <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                      <span className="text-[11px] font-bold text-[#8A6400] bg-[#FFF9E5] border border-[#FFF4CC] rounded-full px-2 py-0.5">
                         {updates.length}
                       </span>
                     )}
@@ -1034,7 +1041,7 @@ export default function PublicBusinessPage() {
                               type="button"
                               onClick={prevSlide}
                               aria-label="Previous update"
-                              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:text-[#153b78] transition"
+                              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:text-[#062B49] transition"
                             >
                               <Icon name="chevron-right" className="w-4 h-4 rotate-180" />
                             </button>
@@ -1042,7 +1049,7 @@ export default function PublicBusinessPage() {
                               type="button"
                               onClick={nextSlide}
                               aria-label="Next update"
-                              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:text-[#153b78] transition"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:bg-white hover:text-[#062B49] transition"
                             >
                               <Icon name="chevron-right" className="w-4 h-4" />
                             </button>
@@ -1056,7 +1063,7 @@ export default function PublicBusinessPage() {
                       {/* Slide body: short description + CTA */}
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-[#8A6400] bg-[#FFF9E5] border border-[#FFF4CC] rounded-full px-2 py-0.5">
                             {currentUpdate.type || 'Update'}
                           </span>
                           <span className="text-[11px] text-gray-400">
@@ -1066,7 +1073,7 @@ export default function PublicBusinessPage() {
 
                         <p
                           onClick={() => setActiveUpdate(currentUpdate)}
-                          className="text-xs text-gray-600 leading-5 line-clamp-3 mb-3 cursor-pointer hover:text-[#153b78] transition"
+                          className="text-xs text-gray-600 leading-5 line-clamp-3 mb-3 cursor-pointer hover:text-[#062B49] transition"
                         >
                           {currentUpdate.content}
                         </p>
@@ -1076,7 +1083,7 @@ export default function PublicBusinessPage() {
                             href={getCtaHref(currentUpdate)}
                             target={currentUpdate.cta_type === 'call' ? undefined : '_blank'}
                             rel="noopener noreferrer"
-                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#153b78] text-white text-xs font-semibold hover:bg-[#0f2c5c] transition"
+                            className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#062B49] text-white text-xs font-semibold hover:bg-[#0f2c5c] transition"
                           >
                             {currentUpdate.cta_text}
                           </a>
@@ -1101,7 +1108,7 @@ export default function PublicBusinessPage() {
                                 aria-label={`Go to update ${idx + 1}`}
                                 className={`h-1.5 rounded-full transition-all ${
                                   idx === activeSlide
-                                    ? 'w-4 bg-[#153b78]'
+                                    ? 'w-4 bg-[#062B49]'
                                     : 'w-1.5 bg-gray-300 hover:bg-gray-400'
                                 }`}
                               />
@@ -1154,7 +1161,7 @@ export default function PublicBusinessPage() {
 
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-[#8A6400] bg-[#FFF9E5] border border-[#FFF4CC] rounded-full px-2 py-0.5">
                       {activeUpdate.type || 'Update'}
                     </span>
                     <span className="text-xs text-gray-400">
@@ -1171,7 +1178,7 @@ export default function PublicBusinessPage() {
                       href={getCtaHref(activeUpdate)}
                       target={activeUpdate.cta_type === 'call' ? undefined : '_blank'}
                       rel="noopener noreferrer"
-                      className="mt-5 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#153b78] text-white text-sm font-semibold hover:bg-[#0f2c5c] transition"
+                      className="mt-5 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#062B49] text-white text-sm font-semibold hover:bg-[#0f2c5c] transition"
                     >
                       {activeUpdate.cta_text}
                     </a>

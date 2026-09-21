@@ -81,9 +81,9 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
             <p className="text-gray-600 text-sm mt-1">Manage your account and preferences</p>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                     <ul className="space-y-1">
                       {user.permissions.map((perm) => (
                         <li key={perm} className="flex items-center text-sm text-gray-700">
-                          <svg className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="h-4 w-4 text-[#0B3A63] mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                           {perm}

@@ -71,9 +71,9 @@ export default function PendingBusinessesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Pending Businesses</h1>
@@ -163,7 +163,7 @@ export default function PendingBusinessesPage() {
                       <div className="flex gap-3 mt-4">
                         <button
                           onClick={() => handleApprove(business.id)}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+                          className="flex items-center gap-2 px-4 py-2 bg-[#062B49] text-white rounded-lg hover:bg-[#062B49] transition font-medium"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

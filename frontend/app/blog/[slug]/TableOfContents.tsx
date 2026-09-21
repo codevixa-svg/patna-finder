@@ -47,7 +47,7 @@ export default function TableOfContents() {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-        <ListOrdered size={18} className="text-amber-500" /> Table of Contents
+        <ListOrdered size={18} className="text-[#D89E00]" /> Table of Contents
       </h3>
       <ol className="space-y-0.5">
         {headings.map((h, i) => {
@@ -62,11 +62,11 @@ export default function TableOfContents() {
                 }}
                 className={`flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-sm leading-snug transition ${
                   active
-                    ? 'bg-amber-50 font-semibold text-amber-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-amber-600'
+                    ? 'bg-[#FFF9E5] font-semibold text-[#8A6400]'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-[#B58200]'
                 }`}
               >
-                <span className={active ? 'text-amber-500' : 'text-gray-400'}>{i + 1}.</span>
+                <span className={active ? 'text-[#D89E00]' : 'text-gray-400'}>{i + 1}.</span>
                 <span className="line-clamp-2">{h.text}</span>
               </a>
             </li>

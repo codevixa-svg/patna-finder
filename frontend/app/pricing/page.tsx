@@ -7,7 +7,7 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Simple Pricing</h1>
           <p className="text-xl text-gray-300">Choose a plan that works for your business</p>
@@ -21,7 +21,7 @@ export default function PricingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {/* Free */}
-          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 hover:border-amber-400 transition">
+          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 hover:border-[#F4B400] transition">
             <h3 className="text-xl font-bold text-gray-900 mb-2">Free</h3>
             <p className="text-gray-500 text-sm mb-6">Perfect to get started</p>
             <div className="mb-6">
@@ -31,7 +31,7 @@ export default function PricingPage() {
             <ul className="space-y-3 mb-8">
               {['1 business listing', 'Basic analytics', 'Community support', 'Standard listing placement'].map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  <svg className="w-4 h-4 text-[#0B3A63] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                   {f}
                 </li>
               ))}
@@ -42,7 +42,7 @@ export default function PricingPage() {
           </div>
 
           {/* Basic */}
-          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 hover:border-amber-400 transition">
+          <div className="bg-white rounded-2xl border-2 border-gray-200 p-8 hover:border-[#F4B400] transition">
             <h3 className="text-xl font-bold text-gray-900 mb-2">Basic</h3>
             <p className="text-gray-500 text-sm mb-6">For small businesses</p>
             <div className="mb-6">
@@ -52,7 +52,7 @@ export default function PricingPage() {
             <ul className="space-y-3 mb-8">
               {['Up to 3 business listings', 'Basic analytics', 'Email support', 'Standard listing placement', 'Business hours display'].map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  <svg className="w-4 h-4 text-[#0B3A63] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                   {f}
                 </li>
               ))}
@@ -63,15 +63,15 @@ export default function PricingPage() {
           </div>
 
           {/* Premium */}
-          <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl p-8 text-white relative shadow-xl md:scale-105 md:z-10">
+          <div className="bg-gradient-to-br from-[#F4B400] to-[#D89E00] rounded-2xl p-8 text-white relative shadow-xl md:scale-105 md:z-10">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-white text-gray-900 px-4 py-1 rounded-full text-xs font-bold">MOST POPULAR</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Premium</h3>
-            <p className="text-amber-100 text-sm mb-6">Best for growing businesses</p>
+            <p className="text-[#FFF4CC] text-sm mb-6">Best for growing businesses</p>
             <div className="mb-6">
               <span className="text-4xl font-extrabold">₹999</span>
-              <span className="text-amber-200">/month</span>
+              <span className="text-[#FFF4CC]">/month</span>
             </div>
             <ul className="space-y-3 mb-8">
               {['Unlimited business listings', 'Advanced analytics', 'Featured on homepage', 'Priority support', 'Business hours display', 'Photo gallery support'].map((f) => (
@@ -81,7 +81,7 @@ export default function PricingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/dashboard/billing" className="block w-full py-3 text-center bg-white text-amber-600 font-semibold rounded-xl hover:bg-amber-50 transition">
+            <Link href="/dashboard/billing" className="block w-full py-3 text-center bg-white text-[#B58200] font-semibold rounded-xl hover:bg-[#FFF9E5] transition">
               Choose Premium
             </Link>
           </div>

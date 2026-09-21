@@ -122,14 +122,9 @@ export const api = {
   },
 
   // Government Events
-  getEvents: async (params?: any) => {
-    const queryString = params ? `?${new URLSearchParams(params)}` : '';
-    return fetchJson(`${API_URL}/events${queryString}`);
-  },
-
-  getLatestEvents: async () => {
-    return fetchJson(`${API_URL}/events/latest`);
-  },
+  // NOTE: the canonical getEvents / getLatestEvents / getEvent definitions
+  // live in the "Events" section below (the earlier duplicates were removed —
+  // duplicate object keys made `tsc --noEmit` fail).
 
   // Blog Categories (public)
   getBlogCategories: async () => {
@@ -151,5 +146,51 @@ export const api = {
 
   getPopularSearches: async () => {
     return fetchJson(`${API_URL}/popular-searches`);
+  },
+
+  // Events
+  getEvents: async (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params)}` : '';
+    return fetchJson(`${API_URL}/events${queryString}`);
+  },
+
+  getEvent: async (slugOrId: string | number) => {
+    return fetchJson(`${API_URL}/events/${slugOrId}`);
+  },
+
+  getTrendingEvents: async () => {
+    return fetchJson(`${API_URL}/events/trending`);
+  },
+
+  getFeaturedEvents: async () => {
+    return fetchJson(`${API_URL}/events/featured`);
+  },
+
+  getPopularEvents: async () => {
+    return fetchJson(`${API_URL}/events/popular`);
+  },
+
+  getLatestEvents: async () => {
+    return fetchJson(`${API_URL}/events/latest`);
+  },
+
+  getEventCategories: async () => {
+    return fetchJson(`${API_URL}/events/categories`);
+  },
+
+  getEventAreas: async () => {
+    return fetchJson(`${API_URL}/events/areas`);
+  },
+
+  getEventStats: async () => {
+    return fetchJson(`${API_URL}/events/stats`);
+  },
+
+  markEventInterested: async (id: number) => {
+    return fetchJson(`${API_URL}/events/${id}/interested`, { method: 'POST' });
+  },
+
+  removeEventInterested: async (id: number) => {
+    return fetchJson(`${API_URL}/events/${id}/interested`, { method: 'DELETE' });
   },
 };

@@ -15,13 +15,12 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            InitialDataSeeder::class,
-            AdminUserSeeder::class,
-            BusinessSeeder::class,
-            HiddenGemsSeeder::class,
-            EventsSeeder::class,
-            BlogCategoriesSeeder::class,
-            GmbCategorySeeder::class,
+            AdminSeeder::class,           // Super Admin user
+            GmbCategorySeeder::class,     // GMB Categories with Lucide icons (3794)
+            AreaSeeder::class,            // Areas with banner images
+            EventSeeder::class,           // Events with images
+            BlogCategoriesSeeder::class,  // Blog categories (News, Events, Guides...)
+            BlogPostSeeder::class,        // Blog posts with images
         ]);
     }
 }

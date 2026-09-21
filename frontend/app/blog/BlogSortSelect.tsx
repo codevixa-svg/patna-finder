@@ -22,7 +22,7 @@ export default function BlogSortSelect({ value, category }: { value: string; cat
       value={value}
       onChange={(e) => handleChange(e.target.value)}
       aria-label="Sort blogs"
-      className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition focus:outline-none focus:ring-2 focus:ring-amber-500"
+      className="cursor-pointer rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition focus:outline-none focus:ring-2 focus:ring-[#D89E00]"
     >
       <option value="latest">Latest</option>
       <option value="oldest">Oldest</option>

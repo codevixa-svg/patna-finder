@@ -18,11 +18,13 @@ class Category extends Model
         'meta_title',
         'meta_description',
         'display_order',
-        'is_active'
+        'is_active',
+        'required_docs'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'required_docs' => 'array',
     ];
 
     protected static function boot()

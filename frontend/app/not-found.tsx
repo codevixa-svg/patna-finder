@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-24">
       <div className="text-center max-w-lg">
-        <div className="text-8xl font-extrabold text-amber-400 mb-4">404</div>
+        <div className="text-8xl font-extrabold text-[#F4B400] mb-4">404</div>
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
           Page Not Found
         </h1>
@@ -15,7 +15,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
             href="/"
-            className="bg-amber-400 text-gray-900 px-8 py-3.5 rounded-xl font-bold hover:bg-amber-500 transition shadow-md"
+            className="bg-[#F4B400] text-gray-900 px-8 py-3.5 rounded-xl font-bold hover:bg-[#D89E00] transition shadow-md"
           >
             Go Home
           </Link>
@@ -28,19 +28,19 @@ export default function NotFound() {
         </div>
         <div className="mt-10 text-sm text-gray-500">
           Popular links:{' '}
-          <Link href="/explore" className="text-amber-600 hover:underline">
+          <Link href="/explore" className="text-[#B58200] hover:underline">
             Explore
           </Link>
           {' · '}
-          <Link href="/categories" className="text-amber-600 hover:underline">
+          <Link href="/categories" className="text-[#B58200] hover:underline">
             Categories
           </Link>
           {' · '}
-          <Link href="/best-of-patna" className="text-amber-600 hover:underline">
+          <Link href="/best-of-patna" className="text-[#B58200] hover:underline">
             Best Of Patna
           </Link>
           {' · '}
-          <Link href="/blog" className="text-amber-600 hover:underline">
+          <Link href="/blog" className="text-[#B58200] hover:underline">
             Blog
           </Link>
         </div>

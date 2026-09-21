@@ -28,7 +28,7 @@ export default function ReviewsPage() {
   return (
     <main className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#081C3A] to-[#144272] text-white py-20">
+      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">What Patna Says</h1>
           <p className="text-xl text-gray-300">Real reviews from real people across Patna</p>
@@ -63,7 +63,7 @@ export default function ReviewsPage() {
               >
                 <div className="flex items-start gap-4">
                   {/* Business Icon */}
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#FFF4CC] to-[#FFF4CC] flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {b.logo ? (
                       <img src={b.logo} alt={b.name} className="w-full h-full object-cover" />
                     ) : (
@@ -73,16 +73,20 @@ export default function ReviewsPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-gray-900 group-hover:text-amber-500 transition">{b.name}</h3>
-                      {b.is_verified && (
+                      <h3 className="font-bold text-gray-900 group-hover:text-[#D89E00] transition">{b.name}</h3>
+                      {b.is_verified ? (
                         <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 text-gray-500 border border-gray-200 rounded-full text-[9px] font-semibold flex-shrink-0" title="Not verified by Patna Finder">
+                          <span>◌</span> Not Verified
+                        </span>
                       )}
                     </div>
                     <p className="text-sm text-gray-500 mb-2">
                       {b.category?.name || 'Business'} • {b.area?.name || 'Patna'}
                     </p>
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="flex text-amber-400 text-sm">
+                      <div className="flex text-[#F4B400] text-sm">
                         {[...Array(5)].map((_, i) => (
                           <span key={i} className={i < Math.round(Number(b.rating)) ? '' : 'text-gray-300'}>★</span>
                         ))}
@@ -95,7 +99,7 @@ export default function ReviewsPage() {
                     )}
                   </div>
 
-                  <svg className="w-5 h-5 text-gray-300 group-hover:text-amber-500 transition flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-300 group-hover:text-[#D89E00] transition flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>

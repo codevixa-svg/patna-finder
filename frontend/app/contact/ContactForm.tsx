@@ -71,8 +71,8 @@ export default function ContactForm() {
   if (submitted) {
     return (
       <div className="text-center py-10">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <div className="w-16 h-16 bg-[#FFF4CC] rounded-full flex items-center justify-center mx-auto mb-5">
+          <svg className="w-8 h-8 text-[#062B49]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 4 4L19 6" />
           </svg>
         </div>
@@ -85,7 +85,7 @@ export default function ContactForm() {
             setSubmitted(false);
             setForm({ name: '', email: '', phone: '', subject: SUBJECTS[0], message: '' });
           }}
-          className="text-amber-600 font-semibold hover:text-amber-700 transition"
+          className="text-[#F4B400] font-semibold hover:text-[#0B3A63] transition"
         >
           Send another message
         </button>
@@ -151,7 +151,7 @@ function ContactFormFields({
       <button
         type="submit"
         disabled={submitting}
-        className="w-full sm:w-auto bg-amber-400 text-gray-900 px-8 py-3.5 rounded-xl font-bold hover:bg-amber-500 transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full bg-[#062B49] text-white px-8 py-3.5 rounded-xl font-bold hover:bg-[#0B3A63] transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {submitting ? 'Sending…' : 'Send Message'}
       </button>

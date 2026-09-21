@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\AuthEvent;
 
 class User extends Authenticatable
 {
@@ -27,6 +28,12 @@ class User extends Authenticatable
         'is_active',
         'last_login_at',
         'avatar',
+        'failed_login_attempts',
+        'locked_until',
+        'mfa_enabled',
+        'mfa_secret',
+        'last_login_ip',
+        'last_login_user_agent',
     ];
 
     /**
@@ -37,6 +44,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'mfa_secret',
+        'locked_until',
+        'failed_login_attempts',
     ];
 
     /**
@@ -47,8 +57,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
+        'locked_until' => 'datetime',
         'permissions' => 'array',
         'is_active' => 'boolean',
+        'mfa_enabled' => 'boolean',
     ];
 
     // Role Constants
@@ -110,6 +122,57 @@ class User extends Authenticatable
     public function updateLastLogin(): void
     {
         $this->update(['last_login_at' => now()]);
+    }
+
+    // ── Account Lockout (AWS Cognito-style brute-force protection) ──
+    public const MAX_FAILED_ATTEMPTS = 5;
+    public const LOCKOUT_MINUTES = 15;
+
+    public function isLockedOut(): bool
+    {
+        return $this->locked_until !== null && $this->locked_until->isFuture();
+    }
+
+    public function secondsUntilUnlock(): int
+    {
+        if (!$this->isLockedOut()) {
+            return 0;
+        }
+        return max(0, (int) now()->diffInSeconds($this->locked_until));
+    }
+
+    public function recordFailedLogin(): void
+    {
+        $attempts = $this->failed_login_attempts + 1;
+        $this->update([
+            'failed_login_attempts' => $attempts,
+            'locked_until' => $attempts >= self::MAX_FAILED_ATTEMPTS ? now()->addMinutes(self::LOCKOUT_MINUTES) : $this->locked_until,
+        ]);
+    }
+
+    public function clearFailedLogins(): void
+    {
+        $this->forceFill([
+            'failed_login_attempts' => 0,
+            'locked_until' => null,
+        ])->save();
+    }
+
+    // ── Auth Events (audit trail) ──
+    public function logAuthEvent(string $event, ?string $email = null): void
+    {
+        AuthEvent::create([
+            'user_id' => $this->id,
+            'email' => $email ?? $this->email,
+            'event' => $event,
+            'ip_address' => request()?->ip(),
+            'user_agent' => substr((string) request()?->userAgent(), 0, 500),
+        ]);
+    }
+
+    public function authEvents()
+    {
+        return $this->hasMany(AuthEvent::class)->latest()->limit(20);
     }
 }
 

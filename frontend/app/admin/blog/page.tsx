@@ -71,9 +71,9 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Blog Posts</h1>
@@ -81,7 +81,7 @@ export default function BlogPage() {
             </div>
             <button
               onClick={() => router.push('/admin/blog/create')}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-[#062B49] text-white rounded-lg hover:bg-[#062B49] transition font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -93,7 +93,7 @@ export default function BlogPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#062B49]"></div>
               </div>
             ) : posts.length === 0 ? (
               <div className="text-center py-12">
@@ -104,7 +104,7 @@ export default function BlogPage() {
                 <p className="mt-1 text-sm text-gray-500">Get started by creating a new post.</p>
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
+              <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
@@ -134,7 +134,7 @@ export default function BlogPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          post.status === 'published' ? 'bg-green-100 text-green-800' :
+                          post.status === 'published' ? 'bg-[#FFF4CC] text-green-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
                           {post.status}
@@ -151,7 +151,7 @@ export default function BlogPage() {
                           {post.status === 'draft' && (
                             <button
                               onClick={() => handlePublish(post.id)}
-                              className="text-green-600 hover:text-green-900"
+                              className="text-[#062B49] hover:text-green-900"
                               title="Publish"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@ export default function BlogPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             )}
           </div>
         </main>

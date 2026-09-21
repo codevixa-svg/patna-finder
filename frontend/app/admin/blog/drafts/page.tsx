@@ -71,9 +71,9 @@ export default function DraftsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Draft Posts</h1>
             <p className="text-gray-600 text-sm mt-1">Manage your unpublished posts</p>
@@ -116,7 +116,7 @@ export default function DraftsPage() {
                       <div className="flex gap-3 mt-4">
                         <button
                           onClick={() => handlePublish(post.id)}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                          className="flex items-center gap-2 px-4 py-2 bg-[#062B49] text-white rounded-lg hover:bg-[#062B49] transition text-sm font-medium"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

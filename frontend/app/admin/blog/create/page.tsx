@@ -137,16 +137,16 @@ export default function CreateBlogPage() {
 
   if (!mounted || !isAuthenticated) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#062B49]"></div>
     </div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="ml-64 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto mt-16">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Create Blog Post</h1>
             <p className="text-gray-600 text-sm mt-1">Write a new blog post</p>
@@ -162,7 +162,7 @@ export default function CreateBlogPage() {
                   value={formData.title}
                   onChange={handleTitleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                   placeholder="Enter post title"
                 />
               </div>
@@ -173,13 +173,13 @@ export default function CreateBlogPage() {
                   <button
                     type="button"
                     onClick={handleRegenerateSlug}
-                    className="text-xs font-medium text-green-600 hover:text-green-700"
+                    className="text-xs font-medium text-[#062B49] hover:text-[#062B49]"
                     title="Regenerate the slug from the current title"
                   >
                     ↻ Auto-generate from title
                   </button>
                 </div>
-                <div className="flex items-stretch rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-transparent overflow-hidden">
+                <div className="flex items-stretch rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-[#0B3A63] focus-within:border-transparent overflow-hidden">
                   <span className="flex items-center pl-3 pr-1 text-sm text-gray-400 whitespace-nowrap select-none">
                     /blog/
                   </span>
@@ -208,7 +208,7 @@ export default function CreateBlogPage() {
                   value={formData.excerpt}
                   onChange={handleChange}
                   rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                   placeholder="Short description (optional)"
                 />
               </div>
@@ -244,7 +244,7 @@ export default function CreateBlogPage() {
                       name="image_alt"
                       value={formData.image_alt}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                       placeholder="Describe the image for accessibility & image SEO"
                     />
                   </div>
@@ -257,7 +257,7 @@ export default function CreateBlogPage() {
                         name="author_name"
                         value={formData.author_name}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                         placeholder="Author full name"
                       />
                     </div>
@@ -271,7 +271,7 @@ export default function CreateBlogPage() {
                         name="reading_time"
                         value={formData.reading_time}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                         placeholder="e.g. 5"
                       />
                     </div>
@@ -284,7 +284,7 @@ export default function CreateBlogPage() {
                       value={formData.author_bio}
                       onChange={handleChange}
                       rows={2}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                       placeholder="Short author bio — builds Experience, Expertise, Authoritativeness & Trust for Google Discover"
                     />
                   </div>
@@ -296,7 +296,7 @@ export default function CreateBlogPage() {
                         name="category"
                         value={formData.category}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                       >
                         {categories.map((c) => (
                           <option key={c} value={c}>{c}</option>
@@ -308,7 +308,7 @@ export default function CreateBlogPage() {
                           value={newCategory}
                           onChange={(e) => setNewCategory(e.target.value)}
                           placeholder="New category name…"
-                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                         />
                         <button
                           type="button"
@@ -329,7 +329,7 @@ export default function CreateBlogPage() {
                         name="tags"
                         value={formData.tags}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                         placeholder="patna, bihar, news (comma separated)"
                       />
                     </div>
@@ -347,7 +347,7 @@ export default function CreateBlogPage() {
                       name="meta_title"
                       value={formData.meta_title}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                       placeholder="SEO title"
                     />
                   </div>
@@ -359,7 +359,7 @@ export default function CreateBlogPage() {
                       value={formData.meta_description}
                       onChange={handleChange}
                       rows={2}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                       placeholder="SEO description"
                     />
                   </div>
@@ -372,7 +372,7 @@ export default function CreateBlogPage() {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
@@ -383,7 +383,7 @@ export default function CreateBlogPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50"
+                  className="px-6 py-2 bg-[#062B49] text-white rounded-lg hover:bg-[#062B49] transition font-medium disabled:opacity-50"
                 >
                   {loading ? 'Creating...' : 'Create Post'}
                 </button>

@@ -70,6 +70,14 @@ class Business extends Model
         
         // Admin Flags
         'is_verified',
+        'verified_at',
+        'verified_by',
+        'verification_method',
+        'verification_note',
+        'verification_level',
+        'verification_requested_at',
+        'reverify_due_at',
+        'reverify_notified_at',
         'is_featured',
         'is_sponsored',
         'is_trending',
@@ -91,6 +99,10 @@ class Business extends Model
         'services' => 'array',
         'rating' => 'decimal:2',
         'is_verified' => 'boolean',
+        'verified_at' => 'datetime',
+        'verification_requested_at' => 'datetime',
+        'reverify_due_at' => 'date',
+        'reverify_notified_at' => 'datetime',
         'is_featured' => 'boolean',
         'is_sponsored' => 'boolean',
         'is_trending' => 'boolean',
@@ -99,7 +111,7 @@ class Business extends Model
     ];
 
     // Computed attributes included in every JSON response
-    protected $appends = ['is_open_now'];
+    protected $appends = ['is_open_now', 'verification_label'];
 
     protected static function boot()
     {
@@ -135,6 +147,72 @@ class Business extends Model
     public function interactions()
     {
         return $this->hasMany(BusinessInteraction::class);
+    }
+
+    public function verificationLogs()
+    {
+        return $this->hasMany(BusinessVerificationLog::class)->latest();
+    }
+
+    public function verificationDocuments()
+    {
+        return $this->hasMany(BusinessVerificationDocument::class)->latest();
+    }
+
+    public function verifiedByUser()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
+     * Level derived from the verification method used:
+     * onsite_visit => premium, documents => standard, everything else => basic.
+     */
+    public static function levelForMethod(string $method): string
+    {
+        return match ($method) {
+            'onsite_visit' => 'premium',
+            'documents' => 'standard',
+            default => 'basic',
+        };
+    }
+
+    public static function levelLabels(): array
+    {
+        return [
+            'basic' => 'Basic',
+            'standard' => 'Standard',
+            'premium' => 'Premium',
+        ];
+    }
+
+    /**
+     * Whether this business needs re-verification (verified more than 1 year ago).
+     */
+    public function getNeedsReverificationAttribute(): bool
+    {
+        if (! $this->is_verified) {
+            return false;
+        }
+
+        return $this->reverify_due_at !== null && $this->reverify_due_at->isPast();
+    }
+
+    /**
+     * Public badge text, e.g. "Verified • On-site Visit" or
+     * "Verified • As per Google Details". Falls back to "Verified".
+     */
+    public function getVerificationLabelAttribute(): string
+    {
+        if (! $this->is_verified) {
+            return '';
+        }
+
+        $labels = BusinessVerificationLog::methodLabels();
+
+        return isset($this->verification_method, $labels[$this->verification_method])
+            ? 'Verified • ' . $labels[$this->verification_method]
+            : 'Verified';
     }
 
     public function awards()
