@@ -1,0 +1,18 @@
+# Root .htaccess file for Hostinger
+# Place this in: public_html/.htaccess
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect all requests to Laravel's public folder
+    RewriteRule ^(.*)$ backend/laravel/public/$1 [L]
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Prevent viewing of .htaccess file
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>

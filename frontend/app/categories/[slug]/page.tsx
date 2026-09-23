@@ -1,90 +1,78 @@
-import { api } from '@/lib/api';
-import BusinessCard from '@/components/BusinessCard';
-import CategoryIcon from '@/components/CategoryIcon';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { api } from '@/lib/api';
+import CategoryBrowser from '@/components/CategoryBrowser';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const data: any = await api.getCategory(slug);
+    const name = data?.name || 'Category';
+    return {
+      title: `Top ${name} in Patna - Patna Finder`,
+      description:
+        data?.meta_description ||
+        data?.description ||
+        `Find the best ${name.toLowerCase()} in Patna — verified listings, ratings and reviews on Patna Finder.`,
+      alternates: { canonical: `/categories/${slug}` },
+    };
+  } catch {
+    return { title: 'Category - Patna Finder' };
+  }
+}
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  let data;
-  
+
+  let category: any;
   try {
-    data = await api.getCategory(slug);
-    
-    if (!data) notFound();
-  } catch (error) {
+    category = await api.getCategory(slug);
+    if (!category) notFound();
+  } catch {
     notFound();
   }
 
-  const businesses = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/categories/${slug}/businesses`,
-    { next: { revalidate: 60 } }
-  ).then(res => res.json());
+  // The URL slug may be a plural/singular variant (e.g. /categories/doctors
+  // → DB slug "doctor"); use the resolved category's real slug everywhere.
+  const resolvedSlug: string = category?.slug || slug;
+
+  // First page of businesses + page extras (stats, area counts, top categories).
+  // Guarded so the shell still renders when the API is unreachable.
+  let heroStats = { total: 0, avgRating: 0, reviewCount: 0 };
+  let areaCounts: any[] = [];
+  let topCategories: any[] = [];
+  try {
+    const res: any = await api.getCategoryBusinesses(resolvedSlug, {
+      page: 1,
+      per_page: 12,
+      sort: 'recommended',
+    });
+    heroStats = {
+      total: res?.stats?.total ?? res?.businesses?.total ?? 0,
+      avgRating: Number(res?.stats?.avg_rating ?? 0),
+      reviewCount: Number(res?.stats?.review_count ?? 0),
+    };
+    areaCounts = Array.isArray(res?.area_counts) ? res.area_counts : [];
+    topCategories = Array.isArray(res?.top_categories) ? res.top_categories : [];
+  } catch {
+    // API down — hero shows zeros and the browser retries client-side.
+  }
 
   return (
-    <main className="min-h-screen">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#F4B400] to-[#D89E00] py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 mb-4">
-            <CategoryIcon icon={data.icon} className="w-16 h-16 text-gray-900" />
-            <div>
-              <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900">{data.name}</h1>
-              <p className="text-xl text-gray-800 mt-2">
-                {businesses.businesses?.total || 0} businesses found
-              </p>
-            </div>
-          </div>
-          {data.description && (
-            <p className="text-lg text-gray-800 max-w-3xl">{data.description}</p>
-          )}
-        </div>
-      </section>
-
-      {/* Filters */}
-      <section className="bg-white border-b border-gray-200 sticky top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <span className="font-semibold text-gray-700">Filter by:</span>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D89E00]">
-              <option>All Areas</option>
-              <option>Boring Road</option>
-              <option>Kankarbagh</option>
-              <option>Bailey Road</option>
-            </select>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D89E00]">
-              <option>Sort by: Featured</option>
-              <option>Highest Rated</option>
-              <option>Most Reviewed</option>
-              <option>Newest</option>
-            </select>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-[#D89E00] rounded" />
-              <span className="text-gray-700">Verified Only</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 text-[#D89E00] rounded" />
-              <span className="text-gray-700">Open Now</span>
-            </label>
-          </div>
-        </div>
-      </section>
-
-      {/* Businesses */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {businesses.businesses?.data && businesses.businesses.data.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {businesses.businesses.data.map((business: any) => (
-              <BusinessCard key={business.id} business={business} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">No businesses found</h3>
-            <p className="text-gray-600">Try adjusting your filters or check back later.</p>
-          </div>
-        )}
-      </section>
+    <main className="min-h-screen bg-[#F7F9FC]">
+      <CategoryBrowser
+        slug={resolvedSlug}
+        categoryName={category.name}
+        categoryIcon={category.icon}
+        heroStats={heroStats}
+        areaCounts={areaCounts}
+        topCategories={topCategories}
+      />
     </main>
   );
 }
+

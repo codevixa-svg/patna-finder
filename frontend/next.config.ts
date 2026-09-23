@@ -1,11 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Static export for Hostinger deployment
+  output: 'export',
+  
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
       // Laravel API uploads in dev (http://localhost:8000/storage/...).
-      // NOTE: no `port` key — an explicit `port: ''` only matches URLs
-      // without a port, which broke localhost:8000 images.
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -16,7 +18,19 @@ const nextConfig: NextConfig = {
         hostname: '127.0.0.1',
         pathname: '/**',
       },
-      // Admin-provided external image URLs (featured images accept any URL)
+      // Production: Backend API subdomain
+      {
+        protocol: 'https',
+        hostname: 'patnafinderapi.codevixa.com',
+        pathname: '/**',
+      },
+      // Frontend subdomain
+      {
+        protocol: 'https',
+        hostname: 'patna-finder.codevixa.com',
+        pathname: '/**',
+      },
+      // Admin-provided external image URLs
       {
         protocol: 'https',
         hostname: '**',

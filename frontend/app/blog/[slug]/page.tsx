@@ -91,8 +91,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: image ? [image] : undefined,
     },
     // Discover requirement: allow Google to show large image previews
+    // Page is noindexed site-wide for now
     robots: {
-      googleBot: { 'max-image-preview': 'large' },
+      index: false,
+      follow: false,
+      googleBot: { index: false, follow: false, 'max-image-preview': 'large' },
     },
   };
 }

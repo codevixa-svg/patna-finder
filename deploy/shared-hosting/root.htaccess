@@ -1,0 +1,22 @@
+# ============================================================
+# Patna Finder — shared hosting fallback .htaccess
+#
+# Ye file public_html ke ANDAR daalo SIRF tab jab cPanel me
+# main domain (patna-finder.codevixa.com) ka Document Root
+# change karne ka option na ho.
+#
+# Kaam: domain ke saare requests ko Laravel ke public/ folder
+# me route kar deta hai (Laravel khud /api aur /storage serve
+# karega apne routes se).
+#
+# Agar cPanel me Document Root change ho sakta hai (preferred):
+#   Document Root = public_html/patna-finder/backend/public
+#   -> to is file ki ZAROORAT NAHI hai.
+# ============================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Poora traffic Laravel ke public folder me bhejo
+    RewriteRule ^(.*)$ patna-finder/backend/public/$1 [L]
+</IfModule>

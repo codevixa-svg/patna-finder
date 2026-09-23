@@ -21,12 +21,13 @@ export const metadata: Metadata = {
     url: siteUrl,
   },
   // Google Discover: allow large image previews in cards (Chrome / feed)
+  // Currently set to noindex/nofollow site-wide (staging/private mode).
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
     googleBot: {
-      index: true,
-      follow: true,
+      index: false,
+      follow: false,
       "max-image-preview": "large",
       "max-snippet": -1,
       "max-video-preview": -1,

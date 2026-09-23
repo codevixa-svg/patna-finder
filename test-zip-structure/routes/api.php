@@ -1,0 +1,327 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\BusinessController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\AreaController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\HiddenGemController;
+use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\BlogCategoryController;
+use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\Admin\BusinessController as AdminBusinessController;
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\AreaController as AdminAreaController;
+use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Api\Admin\BlogController as AdminBlogController;
+use App\Http\Controllers\Api\Admin\HiddenGemController as AdminHiddenGemController;
+use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Api\Admin\BlogCategoryController as AdminBlogCategoryController;
+use App\Http\Controllers\Api\Admin\MediaController as AdminMediaController;
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\User\AuthController as UserAuthController;
+use App\Http\Controllers\Api\User\BusinessController as UserBusinessController;
+use App\Http\Controllers\Api\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\Api\User\SubscriptionController as UserSubscriptionController;
+use App\Http\Controllers\Api\User\UpdateController as UserUpdateController;
+use App\Http\Controllers\Api\User\AnalyticsController as UserAnalyticsController;
+use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
+use App\Http\Controllers\Api\Admin\VerificationDocumentController as AdminVerificationDocumentController;
+use App\Http\Controllers\Api\User\VerificationDocumentController as UserVerificationDocumentController;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
+
+// Public API Routes
+Route::prefix('v1')->group(function () {
+    
+    // Search
+    Route::get('/search', [SearchController::class, 'search']);
+    Route::get('/popular-searches', [SearchController::class, 'popularSearches']);
+
+    // Categories
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/categories/{slug}', [CategoryController::class, 'show']);
+    Route::get('/categories/{slug}/businesses', [CategoryController::class, 'businesses']);
+
+    // Areas
+    Route::get('/areas', [AreaController::class, 'index']);
+    Route::get('/areas/{slug}', [AreaController::class, 'show']);
+    Route::get('/areas/{slug}/businesses', [AreaController::class, 'businesses']);
+
+    // Businesses
+    Route::get('/businesses', [BusinessController::class, 'index']);
+    Route::get('/businesses/trending', [BusinessController::class, 'trending']);
+    Route::get('/businesses/featured', [BusinessController::class, 'featured']);
+    Route::get('/businesses/hidden-gems', [BusinessController::class, 'hiddenGems']);
+    Route::post('/businesses', [BusinessController::class, 'store'])->middleware('throttle:5,1');
+    Route::get('/businesses/{slugOrId}', [BusinessController::class, 'show']);
+    Route::get('/businesses/{slugOrId}/updates', [BusinessController::class, 'updates']);
+    Route::get('/businesses/{slug}/nearby', [BusinessController::class, 'nearby']);
+
+    // Hidden Gems (Admin Managed)
+    Route::get('/hidden-gems', [HiddenGemController::class, 'index']);
+    Route::get('/hidden-gems/latest', [HiddenGemController::class, 'latest']);
+    Route::get('/hidden-gems/featured', [HiddenGemController::class, 'featured']);
+    Route::get('/hidden-gems/{slug}', [HiddenGemController::class, 'show']);
+    Route::post('/hidden-gems/{slug}/like', [HiddenGemController::class, 'like']);
+    Route::post('/hidden-gems/{slug}/share', [HiddenGemController::class, 'share']);
+
+    // Government Events
+    // Blog Categories (public — for filters & forms)
+    Route::get('/blog-categories', [BlogCategoryController::class, 'index']);
+    Route::get('/events', [EventController::class, 'index']);
+    Route::get('/events/trending', [EventController::class, 'trending']);
+    Route::get('/events/featured', [EventController::class, 'featured']);
+    Route::get('/events/popular', [EventController::class, 'popular']);
+    Route::get('/events/latest', [EventController::class, 'latest']);
+    Route::get('/events/categories', [EventController::class, 'categories']);
+    Route::get('/events/areas', [EventController::class, 'areas']);
+    Route::get('/events/stats', [EventController::class, 'stats']);
+    Route::get('/events/{slugOrId}', [EventController::class, 'show']);
+    Route::post('/events/{id}/interested', [EventController::class, 'markInterested']);
+    Route::delete('/events/{id}/interested', [EventController::class, 'removeInterested']);
+
+    // Reviews
+    Route::get('/reviews/latest', [ReviewController::class, 'latest']);
+    Route::get('/businesses/{slug}/reviews', [ReviewController::class, 'index']);
+    Route::post('/businesses/{slug}/reviews', [ReviewController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('/reviews/{id}/like', [ReviewController::class, 'like']);
+
+    // Performance tracking (GMB-style interactions)
+    Route::post('/businesses/{slugOrId}/track', [BusinessController::class, 'track'])->middleware('throttle:120,1');
+
+    // Blog (Patna Pulse)
+    Route::get('/blog', [BlogController::class, 'index']);
+    Route::get('/blog/latest', [BlogController::class, 'latest']);
+    Route::get('/blog/categories', [BlogController::class, 'categories']);
+    Route::get('/blog/{slug}', [BlogController::class, 'show']);
+});
+
+// User Dashboard API Routes
+Route::prefix('v1/user')->group(function () {
+    // Public user routes (no auth)
+    Route::post('/register', [UserAuthController::class, 'register'])->middleware('throttle:5,1');
+    // AWS Cognito-style: strict brute-force protection on login
+    Route::post('/login', [UserAuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/verify-mfa', [UserAuthController::class, 'verifyMfa'])->middleware('throttle:10,1');
+    Route::post('/resend-mfa', [UserAuthController::class, 'resendMfa'])->middleware('throttle:2,1');
+
+    // OTP-ONLY LOGIN (no password required)
+    Route::post('/login-with-otp', [UserAuthController::class, 'loginWithOtp'])->middleware('throttle:3,1');
+    Route::post('/verify-otp', [UserAuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
+    Route::post('/resend-otp', [UserAuthController::class, 'resendOtp'])->middleware('throttle:2,1');
+
+    // Protected user routes (requires auth)
+    Route::middleware(['auth:sanctum'])->group(function () {
+        // Auth
+        Route::get('/me', [UserAuthController::class, 'me']);
+        Route::post('/logout', [UserAuthController::class, 'logout']);
+        Route::post('/logout-all', [UserAuthController::class, 'logoutAll']);
+        Route::post('/change-password', [UserAuthController::class, 'changePassword']);
+        Route::put('/profile', [UserAuthController::class, 'updateProfile']);
+
+        // Security (2FA toggle, audit activity)
+        Route::get('/security', [UserAuthController::class, 'securityOverview']);
+        Route::post('/security/mfa', [UserAuthController::class, 'toggleMfa']);
+
+        // Dashboard
+        Route::get('/dashboard', [UserDashboardController::class, 'index']);
+        Route::get('/dashboard/quick-stats', [UserDashboardController::class, 'quickStats']);
+
+        // My Businesses
+        Route::get('/businesses', [UserBusinessController::class, 'index']);
+        Route::get('/businesses/{id}', [UserBusinessController::class, 'show']);
+        Route::post('/businesses', [UserBusinessController::class, 'store']);
+        Route::put('/businesses/{id}', [UserBusinessController::class, 'update']);
+        Route::delete('/businesses/{id}', [UserBusinessController::class, 'destroy']);
+        Route::post('/businesses/draft', [UserBusinessController::class, 'saveDraft']);
+
+        // My Events
+        Route::get('/events', [\App\Http\Controllers\Api\User\UserEventController::class, 'index']);
+        Route::get('/events/stats', [\App\Http\Controllers\Api\User\UserEventController::class, 'stats']);
+        Route::get('/events/{id}', [\App\Http\Controllers\Api\User\UserEventController::class, 'show']);
+        Route::post('/events', [\App\Http\Controllers\Api\User\UserEventController::class, 'store']);
+        Route::put('/events/{id}', [\App\Http\Controllers\Api\User\UserEventController::class, 'update']);
+        Route::delete('/events/{id}', [\App\Http\Controllers\Api\User\UserEventController::class, 'destroy']);
+        Route::post('/events/upload-image', [\App\Http\Controllers\Api\User\UserEventController::class, 'uploadImage']);
+
+        // Image Uploads
+        Route::post('/upload-image', [\App\Http\Controllers\Api\User\ImageUploadController::class, 'upload']);
+        Route::post('/upload-image-base64', [\App\Http\Controllers\Api\User\ImageUploadController::class, 'uploadBase64']);
+        Route::post('/delete-image', [\App\Http\Controllers\Api\User\ImageUploadController::class, 'delete']);
+
+        // Subscriptions / Billing
+        Route::post('/subscription/create-order', [UserSubscriptionController::class, 'createOrder']);
+        Route::post('/subscription/verify', [UserSubscriptionController::class, 'verifyPayment']);
+        Route::get('/subscription/current', [UserSubscriptionController::class, 'currentPlan']);
+        Route::post('/subscription/cancel', [UserSubscriptionController::class, 'cancelSubscription']);
+        Route::get('/subscription/history', [UserSubscriptionController::class, 'history']);
+
+        // Updates (GMB-style posts)
+        Route::get('/updates', [UserUpdateController::class, 'index']);
+        Route::post('/updates', [UserUpdateController::class, 'store']);
+        Route::get('/updates/{id}', [UserUpdateController::class, 'show']);
+        Route::put('/updates/{id}', [UserUpdateController::class, 'update']);
+        Route::delete('/updates/{id}', [UserUpdateController::class, 'destroy']);
+        Route::post('/updates/{id}/toggle-active', [UserUpdateController::class, 'toggleActive']);
+
+        // Performance analytics (GMB-style)
+        Route::get('/analytics', [UserAnalyticsController::class, 'index']);
+
+        // Verification (owner self-service)
+        Route::get('/businesses/{id}/verification', [UserVerificationDocumentController::class, 'index']);
+        Route::post('/businesses/{id}/verification/documents', [UserVerificationDocumentController::class, 'store']);
+        Route::delete('/businesses/{id}/verification/documents/{docId}', [UserVerificationDocumentController::class, 'destroy']);
+        Route::post('/businesses/{id}/verification/request', [UserVerificationDocumentController::class, 'requestVerification']);
+        Route::post('/businesses/{id}/verification/cancel-request', [UserVerificationDocumentController::class, 'cancelRequest']);
+    });
+});
+
+// Admin API Routes
+Route::prefix('v1/admin')->group(function () {
+    // Public admin routes (no auth)
+    // AWS Cognito-style: strict brute-force protection on login
+    Route::post('/login', [AdminAuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/verify-mfa', [AdminAuthController::class, 'verifyMfa'])->middleware('throttle:10,1');
+    Route::post('/resend-mfa', [AdminAuthController::class, 'resendMfa'])->middleware('throttle:2,1');
+
+    // OTP-ONLY LOGIN (no password required) - FOR ADMINS
+    Route::post('/login-with-otp', [AdminAuthController::class, 'loginWithOtp'])->middleware('throttle:3,1');
+    Route::post('/verify-otp', [AdminAuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
+    Route::post('/resend-otp', [AdminAuthController::class, 'resendOtp'])->middleware('throttle:2,1');
+
+    // Protected admin routes (requires auth + admin role)
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        // Auth
+        Route::get('/me', [AdminAuthController::class, 'me']);
+        Route::post('/logout', [AdminAuthController::class, 'logout']);
+        Route::post('/logout-all', [AdminAuthController::class, 'logoutAll']);
+        Route::post('/change-password', [AdminAuthController::class, 'changePassword']);
+
+        // Security (MFA, TOTP authenticator, audit activity)
+        Route::get('/security', [AdminAuthController::class, 'securityOverview']);
+        Route::post('/security/mfa', [AdminAuthController::class, 'toggleMfa']);
+        Route::post('/security/totp/setup', [AdminAuthController::class, 'totpSetup']);
+        Route::post('/security/totp/confirm', [AdminAuthController::class, 'totpConfirm']);
+        Route::post('/security/totp/disable', [AdminAuthController::class, 'totpDisable']);
+
+        // Dashboard & Analytics
+        Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+        Route::get('/dashboard/quick-stats', [AdminDashboardController::class, 'quickStats']);
+
+        // Hidden Gems GMB Sync (admin only)
+        Route::post('/hidden-gems/{slug}/sync-gmb', [HiddenGemController::class, 'syncGmb']);
+
+        // Businesses
+        Route::get('/businesses', [AdminBusinessController::class, 'index']);
+        Route::post('/businesses', [AdminBusinessController::class, 'store']);
+        Route::get('/businesses/{id}', [AdminBusinessController::class, 'show']);
+        Route::put('/businesses/{id}', [AdminBusinessController::class, 'update']);
+        Route::post('/businesses/{id}/approve', [AdminBusinessController::class, 'approve']);
+        Route::post('/businesses/{id}/reject', [AdminBusinessController::class, 'reject']);
+        Route::post('/businesses/{id}/feature', [AdminBusinessController::class, 'feature']);
+        Route::post('/businesses/{id}/verify', [AdminBusinessController::class, 'verify']);
+        Route::post('/businesses/{id}/unverify', [AdminBusinessController::class, 'unverify']);
+        Route::get('/businesses/{id}/verification-logs', [AdminBusinessController::class, 'verificationLogs']);
+
+        // Verification Documents (admin review)
+        Route::get('/businesses/{id}/documents', [AdminVerificationDocumentController::class, 'index']);
+        Route::post('/businesses/{id}/documents', [AdminVerificationDocumentController::class, 'store']);
+        Route::post('/businesses/{id}/documents/{docId}/review', [AdminVerificationDocumentController::class, 'review']);
+        Route::get('/businesses/{id}/documents/{docId}/download', [AdminVerificationDocumentController::class, 'download']);
+        Route::delete('/businesses/{id}/documents/{docId}', [AdminVerificationDocumentController::class, 'destroy']);
+        Route::get('/verification-documents/expiring', [AdminVerificationDocumentController::class, 'expiring']);
+        Route::post('/businesses/{id}/toggle-trending', [AdminBusinessController::class, 'toggleTrending']);
+        Route::post('/businesses/{id}/toggle-sponsored', [AdminBusinessController::class, 'toggleSponsored']);
+        Route::delete('/businesses/{id}', [AdminBusinessController::class, 'destroy']);
+        Route::post('/businesses/bulk-action', [AdminBusinessController::class, 'bulkAction']);
+
+        // Categories
+        Route::get('/categories', [AdminCategoryController::class, 'index']);
+        Route::post('/categories', [AdminCategoryController::class, 'store']);
+        Route::get('/categories/{id}', [AdminCategoryController::class, 'show']);
+        Route::put('/categories/{id}', [AdminCategoryController::class, 'update']);
+        Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
+        Route::post('/categories/{id}/toggle-active', [AdminCategoryController::class, 'toggleActive']);
+
+        // Areas
+        Route::get('/areas', [AdminAreaController::class, 'index']);
+        Route::post('/areas', [AdminAreaController::class, 'store']);
+        Route::get('/areas/{id}', [AdminAreaController::class, 'show']);
+        Route::put('/areas/{id}', [AdminAreaController::class, 'update']);
+        Route::delete('/areas/{id}', [AdminAreaController::class, 'destroy']);
+        Route::post('/areas/{id}/toggle-active', [AdminAreaController::class, 'toggleActive']);
+
+        // Reviews
+        Route::get('/reviews', [AdminReviewController::class, 'index']);
+        Route::get('/reviews/{id}', [AdminReviewController::class, 'show']);
+        Route::post('/reviews/{id}/approve', [AdminReviewController::class, 'approve']);
+        Route::post('/reviews/{id}/reject', [AdminReviewController::class, 'reject']);
+        Route::delete('/reviews/{id}', [AdminReviewController::class, 'destroy']);
+        Route::post('/reviews/bulk-action', [AdminReviewController::class, 'bulkAction']);
+
+        // Blog
+        Route::get('/blog', [AdminBlogController::class, 'index']);
+        Route::post('/blog', [AdminBlogController::class, 'store']);
+        Route::get('/blog/{id}', [AdminBlogController::class, 'show']);
+        Route::put('/blog/{id}', [AdminBlogController::class, 'update']);
+        Route::delete('/blog/{id}', [AdminBlogController::class, 'destroy']);
+        Route::post('/blog/{id}/toggle-publish', [AdminBlogController::class, 'togglePublish']);
+
+        // Hidden Gems
+        Route::get('/hidden-gems', [AdminHiddenGemController::class, 'index']);
+        Route::post('/hidden-gems', [AdminHiddenGemController::class, 'store']);
+        Route::get('/hidden-gems/{id}', [AdminHiddenGemController::class, 'show']);
+        Route::put('/hidden-gems/{id}', [AdminHiddenGemController::class, 'update']);
+        Route::post('/hidden-gems/{id}/feature', [AdminHiddenGemController::class, 'feature']);
+        Route::post('/hidden-gems/{id}/toggle-active', [AdminHiddenGemController::class, 'toggleActive']);
+        Route::delete('/hidden-gems/{id}', [AdminHiddenGemController::class, 'destroy']);
+        Route::post('/hidden-gems/bulk-action', [AdminHiddenGemController::class, 'bulkAction']);
+
+        // Government Events
+        Route::get('/events', [AdminEventController::class, 'index']);
+        Route::post('/events', [AdminEventController::class, 'store']);
+        Route::get('/events/{id}', [AdminEventController::class, 'show']);
+        Route::put('/events/{id}', [AdminEventController::class, 'update']);
+        Route::post('/events/{id}/toggle-active', [AdminEventController::class, 'toggleActive']);
+        Route::post('/events/{id}/toggle-feature', [AdminEventController::class, 'toggleFeature']);
+        Route::delete('/events/{id}', [AdminEventController::class, 'destroy']);
+
+        // Media Uploads (blog editor images)
+        Route::post('/upload', [AdminMediaController::class, 'store']);
+        Route::delete('/upload', [AdminMediaController::class, 'destroy']);
+
+        // Blog Categories (admin managed)
+        Route::get('/blog-categories', [AdminBlogCategoryController::class, 'index']);
+        Route::post('/blog-categories', [AdminBlogCategoryController::class, 'store']);
+        Route::put('/blog-categories/{id}', [AdminBlogCategoryController::class, 'update']);
+        Route::delete('/blog-categories/{id}', [AdminBlogCategoryController::class, 'destroy']);
+
+        // Subscriptions
+        Route::get('/subscriptions', [AdminSubscriptionController::class, 'index']);
+        Route::get('/subscriptions/{id}', [AdminSubscriptionController::class, 'show']);
+        Route::post('/subscriptions/{id}/cancel', [AdminSubscriptionController::class, 'cancel']);
+
+        // Users (super_admin only)
+        Route::middleware('super_admin')->group(function () {
+            Route::get('/users', [AdminUserController::class, 'index']);
+            Route::get('/users/{id}', [AdminUserController::class, 'show']);
+            Route::put('/users/{id}/role', [AdminUserController::class, 'updateRole']);
+            Route::post('/users/{id}/toggle-active', [AdminUserController::class, 'toggleActive']);
+            Route::put('/users/{id}/permissions', [AdminUserController::class, 'updatePermissions']);
+            Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
+        });
+    });
+});
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});

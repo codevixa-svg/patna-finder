@@ -33,6 +33,11 @@ export const api = {
     return fetchJson(`${API_URL}/categories/${slug}`);
   },
 
+  getCategoryBusinesses: async (slug: string, params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params)}` : '';
+    return fetchJson(`${API_URL}/categories/${slug}/businesses${queryString}`);
+  },
+
   // Areas
   getAreas: async () => {
     return fetchJson(`${API_URL}/areas`);
