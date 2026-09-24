@@ -31,15 +31,15 @@ class OtpService
             'token' => bin2hex(random_bytes(32)), // 256-bit token
             'user_id' => $user->id,
             'method' => $method,
-            'code_hash' => $method === 'email_otp' ? Hash::make($code) : null,
-            'otp_sent_at' => $method === 'email_otp' ? now() : null,
+            'code_hash' => in_array($method, ['email_otp', 'password_reset']) ? Hash::make($code) : null,
+            'otp_sent_at' => in_array($method, ['email_otp', 'password_reset']) ? now() : null,
             'attempts' => 0,
             'expires_at' => now()->addMinutes(self::TTL_MINUTES),
             'ip_address' => $ip,
             'user_agent' => $userAgent,
         ]);
 
-        if ($method === 'email_otp') {
+        if (in_array($method, ['email_otp', 'password_reset'])) {
             Mail::to($user->email)->send(new MfaCodeMail($user->name, $code, self::TTL_MINUTES));
         }
 
@@ -51,7 +51,7 @@ class OtpService
 
         // Local dev helper: when the mailer is "log" no real email is sent,
         // so expose the code in the API response so developers can log in.
-        if ($method === 'email_otp' && config('mail.default') === 'log') {
+        if (in_array($method, ['email_otp', 'password_reset']) && config('mail.default') === 'log') {
             $result['dev_code'] = $code;
         }
 
@@ -99,7 +99,7 @@ class OtpService
      */
     public function resend(LoginChallenge $challenge): ?string
     {
-        if ($challenge->method !== 'email_otp' || $challenge->consumed_at || $challenge->expires_at->isPast()) {
+        if (!in_array($challenge->method, ['email_otp', 'password_reset']) || $challenge->consumed_at || $challenge->expires_at->isPast()) {
             return null;
         }
         if ($challenge->otp_sent_at && $challenge->otp_sent_at->diffInSeconds(now()) < self::RESEND_COOLDOWN) {

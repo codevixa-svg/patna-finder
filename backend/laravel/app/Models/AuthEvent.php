@@ -15,6 +15,8 @@ class AuthEvent extends Model
     public const LOGOUT = 'logout';
     public const LOGOUT_ALL = 'logout_all';
     public const PASSWORD_CHANGED = 'password_changed';
+    public const PASSWORD_RESET_REQUESTED = 'password_reset_requested';
+    public const PASSWORD_RESET = 'password_reset';
     public const MFA_ENABLED = 'mfa_enabled';
     public const MFA_DISABLED = 'mfa_disabled';
     public const TOTP_SETUP = 'totp_setup';

@@ -626,13 +626,215 @@ class AuthController extends Controller
     }
 
     /**
-     * Mask email for OTP response: r***a@gmail.com
+     * Request password reset OTP
+     * POST /api/v1/user/forgot-password
      */
-    private function maskEmail(string $email): string
+    public function forgotPassword(Request $request)
     {
-        [$local, $domain] = array_pad(explode('@', $email, 2), 2, '');
-        $first = substr($local, 0, 1);
-        $last = strlen($local) > 2 ? substr($local, -1) : '';
-        return $first . str_repeat('*', max(3, strlen($local) - 2)) . $last . '@' . $domain;
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        // Security: Always return success even if user doesn't exist
+        // This prevents email enumeration attacks
+        if (!$user || in_array($user->role, ['super_admin', 'admin', 'moderator']) || !$user->is_active) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account exists with this email, you will receive a password reset code.',
+            ]);
+        }
+
+        // Create OTP challenge for password reset
+        $challenge = app(OtpService::class)->createChallenge(
+            $user,
+            'password_reset',
+            $request->ip(),
+            substr((string) $request->userAgent(), 0, 500)
+        );
+
+        $user->logAuthEvent(AuthEvent::PASSWORD_RESET_REQUESTED);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'A password reset code has been sent to your email address.',
+            'challenge_token' => $challenge['token'],
+            'email_masked' => $this->maskEmail($user->email),
+            'expires_in' => OtpService::TTL_MINUTES * 60,
+            'resend_in' => OtpService::RESEND_COOLDOWN,
+            // Only present when MAIL_MAILER=log (local dev)
+            'dev_code' => $challenge['dev_code'] ?? null,
+        ]);
+    }
+
+    /**
+     * Verify password reset OTP (without consuming challenge)
+     * POST /api/v1/user/verify-reset-otp
+     */
+    public function verifyResetOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'challenge_token' => 'required|string',
+            'code' => 'required|string|size:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $challenge = LoginChallenge::where('token', $request->challenge_token)
+            ->where('method', 'password_reset')
+            ->first();
+
+        // Check without consuming
+        if (!$challenge || $challenge->consumed_at || $challenge->expires_at->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This verification session has expired. Please request a new code.',
+            ], 410);
+        }
+
+        if ($challenge->attempts >= 5) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Too many incorrect attempts. Please request a new code.',
+            ], 410);
+        }
+
+        // Verify code without consuming challenge
+        $ok = $challenge->code_hash && Hash::check($request->code, $challenge->code_hash);
+        
+        if (!$ok) {
+            $challenge->increment('attempts');
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code.',
+            ], 422);
+        }
+
+        // Return success - frontend will now allow password reset
+        // Don't consume challenge yet - we'll do that in resetPassword()
+        return response()->json([
+            'success' => true,
+            'message' => 'Code verified. You can now reset your password.',
+        ]);
+    }
+
+    /**
+     * Reset password with verified OTP
+     * POST /api/v1/user/reset-password
+     */
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'challenge_token' => 'required|string',
+            'code' => 'required|string|size:6',
+            'password' => ['required', 'string', 'confirmed', 'min:8'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $challenge = LoginChallenge::where('token', $request->challenge_token)
+            ->where('method', 'password_reset')
+            ->first();
+
+        [$ok, $reason] = app(OtpService::class)->verifyChallenge($challenge, $request->code);
+        $user = $challenge?->user;
+
+        if (!$ok) {
+            $message = match ($reason) {
+                'challenge_expired' => 'This verification session has expired. Please request a new code.',
+                'too_many_attempts' => 'Too many incorrect attempts. Please request a new code.',
+                default => 'Invalid verification code.',
+            };
+
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+            ], $reason === 'invalid_code' ? 422 : 410);
+        }
+
+        if (!$user || !$user->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account not found or inactive.'
+            ], 403);
+        }
+
+        // Update password
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Invalidate all sessions
+        $user->tokens()->delete();
+        $user->logAuthEvent(AuthEvent::PASSWORD_RESET);
+
+        // Mark challenge as consumed
+        $challenge->update(['consumed_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset successfully. Please login with your new password.'
+        ]);
+    }
+
+    /**
+     * Resend password reset OTP
+     * POST /api/v1/user/resend-reset-otp
+     */
+    public function resendResetOtp(Request $request)
+    {
+        $request->validate(['challenge_token' => 'required|string']);
+
+        $challenge = LoginChallenge::where('token', $request->challenge_token)
+            ->where('method', 'password_reset')
+            ->first();
+
+        if (!$challenge || $challenge->consumed_at || $challenge->expires_at->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Challenge expired. Please request a new password reset.'
+            ], 410);
+        }
+
+        $code = app(OtpService::class)->resend($challenge);
+
+        if ($code === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please wait ' . OtpService::RESEND_COOLDOWN . ' seconds before requesting another code.',
+                'resend_in' => OtpService::RESEND_COOLDOWN,
+            ], 429);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'A new password reset code has been sent to your email.',
+            'expires_in' => OtpService::TTL_MINUTES * 60,
+            // Only present when MAIL_MAILER=log (local dev)
+            'dev_code' => $code ?: null,
+        ]);
     }
 }
+

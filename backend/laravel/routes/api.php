@@ -119,6 +119,12 @@ Route::prefix('v1/user')->group(function () {
     Route::post('/verify-otp', [UserAuthController::class, 'verifyOtp'])->middleware('throttle:10,1');
     Route::post('/resend-otp', [UserAuthController::class, 'resendOtp'])->middleware('throttle:2,1');
 
+    // FORGOT PASSWORD (OTP-based password reset)
+    Route::post('/forgot-password', [UserAuthController::class, 'forgotPassword'])->middleware('throttle:3,1');
+    Route::post('/verify-reset-otp', [UserAuthController::class, 'verifyResetOtp'])->middleware('throttle:10,1');
+    Route::post('/reset-password', [UserAuthController::class, 'resetPassword'])->middleware('throttle:5,1');
+    Route::post('/resend-reset-otp', [UserAuthController::class, 'resendResetOtp'])->middleware('throttle:2,1');
+
     // Protected user routes (requires auth)
     Route::middleware(['auth:sanctum'])->group(function () {
         // Auth

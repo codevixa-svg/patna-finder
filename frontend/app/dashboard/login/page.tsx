@@ -97,8 +97,8 @@ function DashboardLoginPageContent() {
 
       // If no MFA, automatically send OTP after successful credential check
       if (response.success) {
-        // Request OTP
-        const otpResponse = await userAuthApi.loginWithOtp(formData.email);
+        // Request OTP with password
+        const otpResponse = await userAuthApi.loginWithOtp(formData.email, formData.password);
         setChallengeToken(otpResponse.challenge_token);
         setEmailMasked(otpResponse.email_masked || formData.email);
         setResendIn(otpResponse.resend_in || 60);
@@ -337,7 +337,7 @@ function DashboardLoginPageContent() {
                     <input type="checkbox" className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500" />
                     <span className="ml-2 text-gray-600">Remember me</span>
                   </label>
-                  <Link href="/forgot-password" className="text-orange-500 hover:text-orange-600 font-medium">
+                  <Link href="/dashboard/forgot-password" className="text-orange-500 hover:text-orange-600 font-medium">
                     Forgot Password?
                   </Link>
                 </div>

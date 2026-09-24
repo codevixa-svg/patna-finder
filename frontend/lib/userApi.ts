@@ -76,8 +76,8 @@ export const userAuthApi = {
   },
 
   /** OTP-ONLY LOGIN: Request OTP to email (no password required) */
-  loginWithOtp: async (email: string) => {
-    const response = await userApi.post('/user/login-with-otp', { email });
+  loginWithOtp: async (email: string, password: string) => {
+    const response = await userApi.post('/user/login-with-otp', { email, password });
     return response.data;
   },
 
@@ -138,6 +138,41 @@ export const userAuthApi = {
 
   updateProfile: async (data: any) => {
     const response = await userApi.put('/user/profile', data);
+    return response.data;
+  },
+
+  // ── Password Reset (Forgot Password) ──
+  /** Request password reset OTP */
+  forgotPassword: async (email: string) => {
+    const response = await userApi.post('/user/forgot-password', { email });
+    return response.data;
+  },
+
+  /** Verify password reset OTP */
+  verifyResetOtp: async (challengeToken: string, code: string) => {
+    const response = await userApi.post('/user/verify-reset-otp', {
+      challenge_token: challengeToken,
+      code,
+    });
+    return response.data;
+  },
+
+  /** Reset password with verified OTP */
+  resetPassword: async (challengeToken: string, code: string, password: string, password_confirmation: string) => {
+    const response = await userApi.post('/user/reset-password', {
+      challenge_token: challengeToken,
+      code,
+      password,
+      password_confirmation,
+    });
+    return response.data;
+  },
+
+  /** Resend password reset OTP */
+  resendResetOtp: async (challengeToken: string) => {
+    const response = await userApi.post('/user/resend-reset-otp', {
+      challenge_token: challengeToken,
+    });
     return response.data;
   },
 };
