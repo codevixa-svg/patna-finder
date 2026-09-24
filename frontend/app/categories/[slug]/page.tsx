@@ -3,6 +3,11 @@ import { notFound } from 'next/navigation';
 import { api } from '@/lib/api';
 import CategoryBrowser from '@/components/CategoryBrowser';
 
+// For static export - return empty array, all routes will be client-side generated
+export async function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -75,4 +80,4 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     </main>
   );
 }
-
+

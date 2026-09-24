@@ -253,7 +253,7 @@ function ForgotPasswordContent() {
 
               <MfaCodeInput
                 onComplete={handleVerifyCode}
-                loading={loading}
+                disabled={loading}
                 error={errors.code}
               />
 

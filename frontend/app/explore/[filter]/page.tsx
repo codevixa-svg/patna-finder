@@ -16,10 +16,6 @@ const DESCRIPTIONS: Record<string, string> = {
   featured: "Hand-picked favourites from the Patna Finder editors",
 };
 
-export function generateStaticParams() {
-  return Object.keys(FILTER_LABELS).map((filter) => ({ filter }));
-}
-
 export async function generateMetadata({
   params,
 }: {

@@ -1,9 +1,13 @@
 ﻿import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Keep normal server rendering for local development. Use static export only
-  // for a production build deployed to shared hosting.
-  output: process.env.NODE_ENV === "production" ? "export" : undefined,
+  // Static export disabled - causes issues with dynamic client-side routes
+  // Use standard Next.js build and deploy to platform that supports it (Vercel, Netlify)
+  // OR manually copy .next/static and public folders for static hosting
+  // output: process.env.NODE_ENV === "production" ? "export" : undefined,
+  
+  // Keep trailing slash for better static hosting compatibility
+  trailingSlash: true,
 
   images: {
     unoptimized: true, // Required for static export

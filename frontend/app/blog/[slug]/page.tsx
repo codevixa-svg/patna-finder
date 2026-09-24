@@ -17,6 +17,11 @@ import TableOfContents from './TableOfContents';
 import SaveForLaterButton from './SaveForLaterButton';
 import NewsletterForm from '../NewsletterForm';
 
+// For static export - return empty array, all routes will be client-side generated
+export async function generateStaticParams() {
+  return [];
+}
+
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 const SITE_NAME = 'Patna Finder';
 
@@ -494,10 +499,4 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     </main>
   );
 }
-
-
-
-
-
-
-
+
