@@ -23,8 +23,21 @@ class ImageUploadController extends Controller
             // Generate unique filename
             $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
             
-            // Store in public/storage/businesses/{type}
+            // Store in storage/app/public/businesses/{type}
             $path = $image->storeAs("businesses/{$type}", $filename, 'public');
+            
+            // Also copy to public/storage for servers without symlink support
+            $publicPath = public_path("storage/{$path}");
+            $publicDir = dirname($publicPath);
+            
+            if (!file_exists($publicDir)) {
+                mkdir($publicDir, 0755, true);
+            }
+            
+            copy(
+                storage_path("app/public/{$path}"),
+                $publicPath
+            );
             
             // Generate URL
             $url = Storage::url($path);
@@ -64,9 +77,19 @@ class ImageUploadController extends Controller
                 // Generate unique filename
                 $filename = time() . '_' . Str::random(10) . '.' . $imageType;
                 
-                // Store in public/storage/businesses/{type}
+                // Store in storage/app/public/businesses/{type}
                 $path = "businesses/{$type}/{$filename}";
                 Storage::disk('public')->put($path, $imageData);
+                
+                // Also copy to public/storage for servers without symlink support
+                $publicPath = public_path("storage/{$path}");
+                $publicDir = dirname($publicPath);
+                
+                if (!file_exists($publicDir)) {
+                    mkdir($publicDir, 0755, true);
+                }
+                
+                file_put_contents($publicPath, $imageData);
                 
                 // Generate URL
                 $url = Storage::url($path);
@@ -117,19 +140,20 @@ class ImageUploadController extends Controller
                 ], 403);
             }
             
+            // Delete from both locations
             if (Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Image deleted successfully'
-                ]);
+            }
+            
+            $publicPath = public_path("storage/{$path}");
+            if (file_exists($publicPath)) {
+                unlink($publicPath);
             }
             
             return response()->json([
-                'success' => false,
-                'message' => 'Image not found'
-            ], 404);
+                'success' => true,
+                'message' => 'Image deleted successfully'
+            ]);
             
         } catch (\Exception $e) {
             return response()->json([

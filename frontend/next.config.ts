@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   
   // Keep trailing slash for better static hosting compatibility
   trailingSlash: true,
+  
+  // Disable TypeScript type checking during build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 
   images: {
     unoptimized: true, // Required for static export

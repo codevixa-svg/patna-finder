@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { api } from '@/lib/api';
-import BusinessCard from '@/components/BusinessCard';
+import CategoryBrowser from '@/components/CategoryBrowser';
 
 const CATEGORY_META: Record<string, { icon: string; label: string }> = {
   coaching: { icon: '📚', label: 'Coaching Institutes' },
@@ -15,92 +14,97 @@ const CATEGORY_META: Record<string, { icon: string; label: string }> = {
   doctors: { icon: '👨‍⚕️', label: 'Doctors' },
   gyms: { icon: '💪', label: 'Gyms & Fitness' },
   hotels: { icon: '🏨', label: 'Hotels' },
+  schools: { icon: '🏫', label: 'Schools' },
+  lawyers: { icon: '⚖️', label: 'Lawyers' },
 };
 
 export default function BestOfCategoryPage() {
   const params = useParams();
   const categorySlug = params.category as string;
-  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<any>(null);
+  const [heroStats, setHeroStats] = useState({ total: 0, avgRating: 0, reviewCount: 0 });
+  const [areaCounts, setAreaCounts] = useState<any[]>([]);
+  const [topCategories, setTopCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const meta = CATEGORY_META[categorySlug] || { icon: '🏆', label: categorySlug.replace(/-/g, ' ') };
 
   useEffect(() => {
-    fetchBusinesses();
+    fetchCategoryData();
   }, [categorySlug]);
 
-  async function fetchBusinesses() {
+  async function fetchCategoryData() {
     try {
-      setLoading(true);
+      // Get categories list
       const categories = await api.getCategories();
       const catList = Array.isArray(categories) ? categories : categories.data || [];
-      const cat = catList.find((c: any) => c.slug === categorySlug || c.name?.toLowerCase().includes(categorySlug));
+      const cat = catList.find((c: any) => 
+        c.slug === categorySlug || 
+        c.name?.toLowerCase().includes(categorySlug) ||
+        c.slug?.includes(categorySlug)
+      );
 
       if (cat) {
-        const data = await api.getBusinesses({ category_id: cat.id, sort_by: 'rating', per_page: 20 });
-        setBusinesses(Array.isArray(data) ? data : data.data || []);
-      } else {
-        const data = await api.getBusinesses({ sort_by: 'rating', per_page: 20 });
-        setBusinesses(Array.isArray(data) ? data : data.data || []);
+        setCategoryData(cat);
+        
+        // Fetch businesses for this category to get stats
+        try {
+          const res: any = await api.getCategoryBusinesses(cat.slug, {
+            page: 1,
+            per_page: 12,
+            sort: 'rating', // Best of Patna shows highest rated
+          });
+          
+          setHeroStats({
+            total: res?.stats?.total ?? res?.businesses?.total ?? 0,
+            avgRating: Number(res?.stats?.avg_rating ?? 0),
+            reviewCount: Number(res?.stats?.review_count ?? 0),
+          });
+          setAreaCounts(Array.isArray(res?.area_counts) ? res.area_counts : []);
+          setTopCategories(Array.isArray(res?.top_categories) ? res.top_categories : []);
+        } catch {
+          // Stats API failed, continue with empty stats
+        }
       }
-    } catch {
-      setBusinesses([]);
+    } catch (error) {
+      console.error('Failed to fetch category:', error);
     } finally {
       setLoading(false);
     }
   }
 
+  // Show CategoryBrowser even while loading - it has its own loading states
   return (
-    <main className="min-h-screen">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link href="/best-of-patna" className="text-gray-400 hover:text-white text-sm mb-4 inline-flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            All Categories
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-5xl">{meta.icon}</span>
-            <div>
-              <h1 className="text-4xl md:text-5xl font-extrabold">Best {meta.label}</h1>
-              <p className="text-gray-300 mt-2">Top rated {meta.label.toLowerCase()} in Patna</p>
-            </div>
+    <main className="min-h-screen bg-[#F7F9FC]">
+      {!loading && !categoryData ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center py-20">
+            <span className="text-6xl mb-4 block">{meta.icon}</span>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Category Not Found</h1>
+            <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+            <a 
+              href="/best-of-patna" 
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#F4B400] text-[#062B49] rounded-lg font-semibold hover:bg-[#FFD35A] transition"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Best of Patna
+            </a>
           </div>
         </div>
-      </section>
-
-      {/* Results */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-gray-100 rounded-2xl h-72 animate-pulse" />
-            ))}
-          </div>
-        ) : businesses.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <span className="text-6xl mb-4 block">{meta.icon}</span>
-            <p className="text-lg">No {meta.label.toLowerCase()} found yet</p>
-            <p className="text-sm mt-2">Check back soon for award winners!</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {businesses.map((b, idx) => (
-              <div key={b.id} className="relative">
-                {idx < 3 && (
-                  <div className="absolute -top-3 -left-3 z-10 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shadow-lg" style={{
-                    background: idx === 0 ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : idx === 1 ? 'linear-gradient(135deg, #94a3b8, #64748b)' : 'linear-gradient(135deg, #c2884e, #a16838)',
-                    color: '#fff',
-                  }}>
-                    #{idx + 1}
-                  </div>
-                )}
-                <BusinessCard business={b} />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      ) : categoryData ? (
+        <CategoryBrowser
+          slug={categoryData.slug}
+          categoryName={categoryData.name}
+          categoryIcon={categoryData.icon || meta.icon}
+          heroStats={heroStats}
+          areaCounts={areaCounts}
+          topCategories={topCategories}
+          isBestOfPatna={true}
+          defaultSort="rating"
+        />
+      ) : null}
     </main>
   );
 }

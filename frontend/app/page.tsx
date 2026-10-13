@@ -178,13 +178,12 @@ export default function Home() {
             </div> */}
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-3 mt-2 sm:mt-5 py-2 sm:py-5">
-              Discover Patna's<br />
-              Best <span className="text-[#F4B400]">Businesses</span><br />
-              & Hidden Gems
+              Apna Bihar,<br />
+              Ab <span className="text-[#F4B400]">Aapki Khoj</span> Mein!
             </h1>
 
             <p className="text-base sm:text-lg text-gray-200 mb-5 sm:mb-6">
-              Find trusted places, compare, read real reviews<br className="hidden sm:block" /> and choose the best.
+              Discover trusted businesses, popular places, and hidden gems<br className="hidden sm:block" /> across Bihar — all in one place.
             </p>
 
             {/* Stats Row with Icons */}

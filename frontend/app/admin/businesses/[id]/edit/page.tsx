@@ -609,7 +609,7 @@ export default function EditBusinessPage() {
                         <label className={labelClass}>Flags</label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                           {([
-                            { name: 'is_verified', label: 'Verified', color: 'blue' },
+                    { name: 'is_verified', label: 'Verified', color: 'green' },
                             { name: 'is_featured', label: 'Featured', color: 'yellow' },
                             { name: 'is_sponsored', label: 'Sponsored', color: 'purple' },
                             { name: 'is_trending', label: 'Trending', color: 'orange' },

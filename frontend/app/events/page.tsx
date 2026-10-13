@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import NewsletterForm from './NewsletterForm';
 import CategoryIcon from '@/components/CategoryIcon';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -704,14 +705,7 @@ export default function EventsPage() {
                 <p className="text-xs text-gray-600 mb-3">
                   Get the latest event updates, tickets, and offers right in your inbox.
                 </p>
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#0B3A63]"
-                />
-                <button className="w-full bg-[#062B49] hover:bg-[#062B49] text-white font-semibold py-2 px-4 rounded-lg transition text-xs">
-                  Subscribe
-                </button>
+                <NewsletterForm />
               </div>
             </div>
           </aside>

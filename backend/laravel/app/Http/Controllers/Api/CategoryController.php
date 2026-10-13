@@ -11,7 +11,11 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Category::where('is_active', true)
+        // withCount gives each row a real `businesses_count` so the frontend
+        // can show actual listing numbers on category cards (same pattern as
+        // the admin dashboard & AreaController).
+        $query = Category::withCount('businesses')
+            ->where('is_active', true)
             ->orderBy('display_order')
             ->orderBy('name');
 

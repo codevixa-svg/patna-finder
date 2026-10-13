@@ -19,6 +19,7 @@ class BlogPost extends Model
         'image_alt',
         'author_name',
         'author_bio',
+        'author_avatar',
         'reading_time',
         'category',
         'tags',

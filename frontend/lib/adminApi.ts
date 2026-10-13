@@ -585,4 +585,49 @@ export const adminMediaApi = {
   },
 };
 
+// Newsletter API (subscribers + campaign sending)
+type NewsletterQueryParams = {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  status?: string;
+};
+
+export const adminNewsletterApi = {
+  getSubscribers: async (params?: NewsletterQueryParams) => {
+    const response = await adminApi.get('/admin/newsletter/subscribers', { params });
+    return response.data;
+  },
+
+  addSubscriber: async (data: { email: string; name?: string }) => {
+    const response = await adminApi.post('/admin/newsletter/subscribers', data);
+    return response.data;
+  },
+
+  toggleActive: async (id: number) => {
+    const response = await adminApi.post(`/admin/newsletter/subscribers/${id}/toggle-active`);
+    return response.data;
+  },
+
+  deleteSubscriber: async (id: number) => {
+    const response = await adminApi.delete(`/admin/newsletter/subscribers/${id}`);
+    return response.data;
+  },
+
+  getStats: async () => {
+    const response = await adminApi.get('/admin/newsletter/stats');
+    return response.data;
+  },
+
+  getCampaigns: async (params?: NewsletterQueryParams) => {
+    const response = await adminApi.get('/admin/newsletter/campaigns', { params });
+    return response.data;
+  },
+
+  send: async (data: { subject: string; body: string }) => {
+    const response = await adminApi.post('/admin/newsletter/send', data);
+    return response.data;
+  },
+};
+
 export default adminApi;

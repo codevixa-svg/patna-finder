@@ -15,7 +15,7 @@ const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Amit Sinha',
     role: 'Student, Patna',
-    text: 'Patna Finder has made it so easy to find trusted businesses and stay updated about city events. Truly a helpful platform!',
+    text: 'Khojya has made it so easy to find trusted businesses and stay updated about city events. Truly a helpful platform!',
     avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
   },
   {
@@ -27,7 +27,7 @@ const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Rohit Raj',
     role: 'Working Professional',
-    text: 'I love how Patna Finder brings everything about Patna in one place — businesses, events, blogs and more!',
+    text: 'I love how Khojya brings everything about Patna in one place — businesses, events, blogs and more!',
     avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
   },
   {
@@ -39,13 +39,13 @@ const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Ankur Kumar',
     role: 'Gym Owner',
-    text: 'Listing my gym on Patna Finder brought in new members within weeks. Amazing platform for local businesses!',
+    text: 'Listing my gym on Khojya brought in new members within weeks. Amazing platform for local businesses!',
     avatar: 'https://randomuser.me/api/portraits/men/76.jpg',
   },
   {
     name: 'Ritu Singh',
     role: 'Homemaker',
-    text: 'Clean design, accurate information and genuine reviews. Patna Finder is my go-to app for the city.',
+    text: 'Clean design, accurate information and genuine reviews. Khojya is my go-to app for the city.',
     avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
   },
 ];

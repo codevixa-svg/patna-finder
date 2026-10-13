@@ -254,3 +254,25 @@ select:focus {
   margin: 2rem 0;
 }
 
+/* ── CKEditor 5 admin editor: sticky toolbar ────────────────────────────────
+   CKEditor's built-in StickyToolbar plugin takes care of pinning the toolbar
+   itself (`.ck-sticky-panel__content_sticky` becomes position: fixed) while the
+   editor is focused. The admin pages have a fixed 64px AdminHeader plus the
+   sticky "Blocks & Templates" bar above the editor, so CkEditorInner feeds the
+   offset into `config.ui.viewportOffset.top` (header + bar height).
+
+   The pinned toolbar would otherwise sit at z-index --ck-z-panel (1000) and
+   cover the Blocks/Templates dropdown, so keep it just above the editor
+   content but below the sticky bar (z-20) and the AdminHeader (z-30). */
+.ck-editor-shell .ck.ck-sticky-panel__content_sticky {
+  z-index: 15 !important;
+  border-radius: 0 !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Comfortable writing area (the shell used to collapse to a thin box). */
+.ck-editor-shell .ck-editor__editable_inline {
+  min-height: 420px;
+}
+
+

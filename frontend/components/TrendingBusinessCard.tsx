@@ -200,11 +200,13 @@ export default function TrendingBusinessCard({
             <h3 className="font-bold text-sm text-gray-900 line-clamp-1 group-hover:text-blue-600 transition">
               {business.name}
             </h3>
-            {business.is_verified ? (
+            {business.is_verified && (
               <svg
                 className="w-4 h-4 text-blue-500 flex-shrink-0"
                 fill="currentColor"
                 viewBox="0 0 20 20"
+                role="img"
+                aria-label="Verified Business"
               >
                 <path
                   fillRule="evenodd"
@@ -212,10 +214,6 @@ export default function TrendingBusinessCard({
                   clipRule="evenodd"
                 />
               </svg>
-            ) : (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 text-gray-500 border border-gray-200 rounded-full text-[9px] font-semibold flex-shrink-0" title="Not verified by Patna Finder">
-                <span>◌</span> Not Verified
-              </span>
             )}
           </div>
 

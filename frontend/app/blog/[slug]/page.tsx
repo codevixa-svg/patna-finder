@@ -296,9 +296,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 border-b border-gray-100 pb-6">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-sm font-bold text-gray-900">
-                    {authorName.charAt(0).toUpperCase()}
-                  </div>
+                  {post.author_avatar ? (
+                    <img
+                      src={post.author_avatar}
+                      alt={authorName}
+                      className="h-11 w-11 rounded-full object-cover ring-2 ring-[#F4B400]"
+                    />
+                  ) : (
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-sm font-bold text-gray-900">
+                      {authorName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div>
                     <p className="text-sm font-bold text-gray-900">By {authorName}</p>
                     <p className="text-xs text-gray-500">Contributor</p>
@@ -368,13 +376,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </div>
 
             {/* Article body — typography scoped in globals.css (.blog-content) */}
-            <div className="blog-content mt-8" dangerouslySetInnerHTML={{ __html: post.content }} />
+            <div className="blog-content mt-8 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm" dangerouslySetInnerHTML={{ __html: post.content }} />
 
             {/* Author box — E-E-A-T trust signal */}
             <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-6 sm:flex-row sm:items-center">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-lg font-bold text-gray-900">
-                {authorName.charAt(0).toUpperCase()}
-              </div>
+              {post.author_avatar ? (
+                <img
+                  src={post.author_avatar}
+                  alt={authorName}
+                  className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-[#F4B400]"
+                />
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#F4B400] to-[#D89E00] text-lg font-bold text-gray-900">
+                  {authorName.charAt(0).toUpperCase()}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-gray-900">{authorName}</p>
                 <p className="text-xs text-gray-500">Contributor · {SITE_NAME}</p>
@@ -499,4 +515,4 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     </main>
   );
 }
-
+

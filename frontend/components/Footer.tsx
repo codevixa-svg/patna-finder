@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import FooterNewsletter from './FooterNewsletter';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -22,7 +23,7 @@ export default function Footer() {
             <Link
               href="/"
               className="inline-flex items-center gap-2.5 mb-5"
-              aria-label="Patna Finder Home"
+              aria-label="Khojya Home"
             >
 
               {/* Logo */}
@@ -48,11 +49,11 @@ export default function Footer() {
 
               <span className="leading-[1.05]">
                 <span className="block text-lg font-extrabold tracking-wide text-white">
-                  PATNA
+                  KHOJYA
                 </span>
 
                 <span className="block text-base font-semibold tracking-[0.28em] text-[#CBD5E1]">
-                  FINDER
+                  
                 </span>
               </span>
 
@@ -60,7 +61,7 @@ export default function Footer() {
 
 
             <p className="text-[#A9B8C7] text-sm leading-relaxed mb-6 max-w-xs">
-              Patna Finder helps you discover the best businesses,
+              Khojya helps you discover the best businesses,
               services and hidden gems in Patna.
             </p>
 
@@ -446,51 +447,7 @@ export default function Footer() {
               Stay updated with the latest news, events and offers in Patna.
             </p>
 
-            <div className="space-y-3">
-
-              <input
-                type="email"
-                placeholder="Enter your email"
-                aria-label="Email address for newsletter"
-                className="
-                  w-full
-                  bg-white
-                  text-[#102A43]
-                  text-sm
-                  rounded-lg
-                  px-4
-                  py-3
-                  placeholder-[#94A3B8]
-                  border border-transparent
-                  outline-none
-                  focus:border-[#F4B400]
-                  focus:ring-2
-                  focus:ring-[#F4B400]/20
-                  transition
-                "
-              />
-
-              <button
-                type="button"
-                className="
-                  w-full
-                  bg-[#F4B400]
-                  text-[#062B49]
-                  py-3
-                  rounded-lg
-                  font-bold
-                  text-sm
-                  hover:bg-[#FFD35A]
-                  hover:-translate-y-0.5
-                  transition-all
-                  shadow-lg
-                  shadow-[#F4B400]/10
-                "
-              >
-                Subscribe
-              </button>
-
-            </div>
+            <FooterNewsletter />
 
           </div>
 
@@ -535,7 +492,7 @@ export default function Footer() {
         >
 
           <p>
-            © {year} Patna Finder. All Rights Reserved.
+            © {year} Khojya. All Rights Reserved.
           </p>
 
           <div className="flex items-center gap-3">
@@ -561,6 +518,23 @@ export default function Footer() {
               Privacy Policy
             </Link>
 
+            <span
+              className="text-[#31516B]"
+              aria-hidden="true"
+            >
+              |
+            </span>
+
+            <a
+              href="https://codevixa.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#F4B400] transition flex items-center gap-1.5"
+            >
+              <span>Powered by</span>
+              <span className="font-semibold">CodeVixa</span>
+            </a>
+
           </div>
 
         </div>
@@ -570,7 +544,8 @@ export default function Footer() {
 
       {/* =========================================================
           PATNA GOLDEN SKYLINE
-          PNG: 2137 × 365
+          PNG: 2167 × 726 (content bbox y:198..512 — ~29% transparent
+          bottom padding, compensated with translate-y below)
           Transparent background
       ========================================================= */}
       <div
@@ -580,9 +555,9 @@ export default function Footer() {
           h-[100px]
           sm:h-[140px]
           md:h-[180px]
-          lg:h-[200px]
+          lg:h-[15vw]
           -mt-1
-          overflow-visible
+          overflow-hidden
           pointer-events-none
           select-none
         "
@@ -592,8 +567,8 @@ export default function Footer() {
         <Image
           src="/images/footer-png.png"
           alt=""
-          width={2137}
-          height={365}
+          width={2167}
+          height={726}
           sizes="100vw"
           priority
           className="
@@ -602,8 +577,7 @@ export default function Footer() {
             bottom-0
             w-full
             h-auto
-            object-cover
-            object-bottom
+            translate-y-[29%]
             opacity-30
           "
         />

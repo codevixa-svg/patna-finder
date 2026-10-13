@@ -372,7 +372,7 @@ export default function BestOfPatnaBrowser({
                 "Patna's best, chosen by the people who know it best."
               </blockquote>
               <figcaption className="mt-2 text-xs text-gray-400">
-                — The Patna Finder Team
+                — The Khojya Team
               </figcaption>
             </figure>
           </aside>

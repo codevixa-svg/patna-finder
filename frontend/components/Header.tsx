@@ -28,9 +28,9 @@ export default function Header() {
 
   // The global header is transparent (white text) and overlays dark hero
   // sections. Pages that start with a light background (business details,
-  // area pages and all blog pages) render a solid white sticky header with
-  // dark text.
-  const solid = Boolean(pathname && (pathname.startsWith('/business/') || pathname.startsWith('/areas') || pathname.startsWith('/blog')));
+  // area pages, blog pages and the unsubscribe page) render a solid white
+  // sticky header with dark text.
+  const solid = Boolean(pathname && (pathname.startsWith('/business/') || pathname.startsWith('/areas') || pathname.startsWith('/blog') || pathname.startsWith('/unsubscribe')));
 
   useEffect(() => {
     setMounted(true);
@@ -86,7 +86,7 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 min-w-0">
+          <Link href="/" className="flex items-center space-x-2 min-w-0" aria-label="Khojya Home">
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-[#F4B400] to-[#D89E00] rounded-xl flex items-center justify-center shadow-sm shrink-0">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -94,8 +94,8 @@ export default function Header() {
               </svg>
             </div>
             <div className="min-w-0">
-              <div className={`text-lg sm:text-xl font-extrabold truncate ${solid ? 'text-[#062B49]' : 'text-white'}`}>PATNA FINDER</div>
-              <div className={`text-[10px] sm:text-xs -mt-0.5 hidden sm:block truncate ${solid ? 'text-gray-500' : 'text-gray-300'}`}>Discover Patna's Best</div>
+              <div className={`text-lg sm:text-xl font-extrabold truncate ${solid ? 'text-[#062B49]' : 'text-white'}`}>KHOJYA</div>
+              <div className={`text-[10px] sm:text-xs -mt-0.5 hidden sm:block truncate ${solid ? 'text-gray-500' : 'text-gray-300'}`}>Har Khoj, Ab Aasaan!</div>
             </div>
           </Link>
 

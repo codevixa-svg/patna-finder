@@ -49,6 +49,7 @@ export default function CreateBlogPage() {
     image_alt: '',
     author_name: '',
     author_bio: '',
+    author_avatar: '',
     reading_time: '',
     category: 'News',
     tags: '',
@@ -77,26 +78,63 @@ export default function CreateBlogPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.title.trim()) {
+      toast.error('Title is required');
+      return;
+    }
+    
+    if (!formData.content.trim()) {
+      toast.error('Content is required');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await adminBlogApi.create({
-        ...formData,
-        // Empty slug = let the backend auto-generate it from the title
-        // (with automatic -2, -3… suffixes if a duplicate exists)
-        slug: slugEdited ? formData.slug : '',
-        tags: formData.tags
-          ? formData.tags.split(',').map((t) => t.trim()).filter(Boolean)
-          : [],
-        reading_time: formData.reading_time ? Number(formData.reading_time) : null,
-      });
+      // Prepare data
+      const payload: any = {
+        title: formData.title.trim(),
+        excerpt: formData.excerpt?.trim() || null,
+        content: formData.content,
+        status: formData.status,
+        featured_image: formData.featured_image?.trim() || null,
+        image_alt: formData.image_alt?.trim() || null,
+        author_name: formData.author_name?.trim() || 'Patna Finder Team',
+        author_bio: formData.author_bio?.trim() || null,
+        author_avatar: formData.author_avatar?.trim() || null,
+        category: formData.category,
+        meta_title: formData.meta_title?.trim() || null,
+        meta_description: formData.meta_description?.trim() || null,
+      };
+
+      // Add slug only if user edited it, otherwise let backend generate
+      if (slugEdited && formData.slug) {
+        payload.slug = formData.slug;
+      }
+
+      // Add reading time if provided
+      if (formData.reading_time) {
+        payload.reading_time = Number(formData.reading_time);
+      }
+
+      // Add tags if provided
+      if (formData.tags) {
+        payload.tags = formData.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+
+      await adminBlogApi.create(payload);
       toast.success('Blog post created successfully!');
       router.push('/admin/blog');
     } catch (error: any) {
       console.error('Failed to create post:', error);
       const data = error.response?.data;
       const detail = data?.errors ? Object.values(data.errors).flat().join(' ') : '';
-      toast.error(detail ? `${data?.message || 'Validation failed'} ${detail}` : data?.message || 'Failed to create blog post');
+      toast.error(detail ? `${data?.message || 'Validation failed'}: ${detail}` : data?.message || 'Failed to create blog post');
     } finally {
       setLoading(false);
     }
@@ -146,7 +184,11 @@ export default function CreateBlogPage() {
       <AdminSidebar />
       <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
+        {/* No `overflow-y-auto` here on purpose: an overflow container that does
+            not itself scroll becomes the sticky containing block and silently
+            kills `position: sticky` inside it (the Blocks/Templates bar above
+            the editor). These pages scroll with the document instead. */}
+        <main className="flex-1 p-4 sm:p-6 mt-16">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">Create Blog Post</h1>
             <p className="text-gray-600 text-sm mt-1">Write a new blog post</p>
@@ -251,15 +293,20 @@ export default function CreateBlogPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Author Name</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Author Name *
+                      </label>
                       <input
                         type="text"
                         name="author_name"
                         value={formData.author_name}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
-                        placeholder="Author full name"
+                        placeholder="Patna Finder Team"
                       />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Default: "Patna Finder Team" if left empty
+                      </p>
                     </div>
 
                     <div>
@@ -287,6 +334,17 @@ export default function CreateBlogPage() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
                       placeholder="Short author bio — builds Experience, Expertise, Authoritativeness & Trust for Google Discover"
                     />
+                  </div>
+
+                  <div>
+                    <ImageSourceInput
+                      label="Author Avatar (Profile Picture)"
+                      value={formData.author_avatar}
+                      onChange={(url: string) => setFormData({ ...formData, author_avatar: url })}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Upload or paste URL of author's profile picture (recommended: square image, 200x200px minimum)
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

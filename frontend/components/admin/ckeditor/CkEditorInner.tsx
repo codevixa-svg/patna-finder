@@ -11,7 +11,7 @@
  */
 
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alignment,
   Autoformat,
@@ -123,10 +123,55 @@ export interface CkEditorInnerProps {
   onChange: (html: string) => void;
   onInstance?: (editor: any) => void;
   placeholder?: string;
+  /**
+   * Distance from the top of the viewport (px) where CKEditor's sticky toolbar
+   * should pin — i.e. the AdminHeader height plus the height of the pinned
+   * Blocks/Templates bar above the editor.
+   */
+  stickyToolbarOffset?: number;
 }
 
-export default function CkEditorInner({ value, onChange, onInstance, placeholder }: CkEditorInnerProps) {
+/**
+ * The slice of the CKEditor instance the sticky toolbar needs: it reads
+ * `ui.viewportOffset` (config: `ui.viewportOffset.top`) and re-measures on
+ * demand. Kept structural so the helper stays out of CKEditor internals.
+ */
+interface StickyToolbarHost {
+  ui?: {
+    viewportOffset?: Record<string, unknown> & { top?: number };
+    view?: { stickyPanel?: { checkIfShouldBeSticky?: () => void } };
+  };
+}
+
+/**
+ * Pushes the viewport offset into CKEditor's StickyToolbar plugin
+ * (`ui.viewportOffset.top` → `stickyPanel.viewportTopOffset`, CKEditor 5 v48).
+ * The sticky panel only re-measures on scroll, so ask it to re-check after the
+ * offset changes (e.g. when the Blocks bar wraps onto a second line).
+ */
+function applyStickyToolbarOffset(editor: StickyToolbarHost | null | undefined, offset: number) {
+  const ui = editor?.ui;
+  if (!ui?.viewportOffset) return;
+  if (ui.viewportOffset.top !== offset) {
+    ui.viewportOffset = { ...ui.viewportOffset, top: offset };
+  }
+  ui.view?.stickyPanel?.checkIfShouldBeSticky?.();
+}
+
+export default function CkEditorInner({
+  value,
+  onChange,
+  onInstance,
+  placeholder,
+  stickyToolbarOffset = 0,
+}: CkEditorInnerProps) {
   const [wordStats, setWordStats] = useState<{ words: number; characters: number } | null>(null);
+  const editorInstanceRef = useRef<any>(null);
+
+  // Keep the sticky toolbar in sync when the panel height changes (responsive).
+  useEffect(() => {
+    applyStickyToolbarOffset(editorInstanceRef.current, stickyToolbarOffset);
+  }, [stickyToolbarOffset]);
 
   return (
     <div className="ck-editor-shell overflow-hidden rounded-xl border border-gray-300 bg-white">
@@ -134,7 +179,10 @@ export default function CkEditorInner({ value, onChange, onInstance, placeholder
         editor={ClassicEditor}
         data={value}
         onReady={(editor: any) => {
+          editorInstanceRef.current = editor;
+          applyStickyToolbarOffset(editor, stickyToolbarOffset);
           onInstance?.(editor);
+
           const wordCount = editor.plugins.get('WordCount');
           if (wordCount) {
             setWordStats({ words: wordCount.words, characters: wordCount.characters });
@@ -150,6 +198,10 @@ export default function CkEditorInner({ value, onChange, onInstance, placeholder
         config={{
           licenseKey: 'GPL',
           placeholder: placeholder || 'Start writing your article…',
+          // Pin the sticky toolbar below the AdminHeader + Blocks/Templates bar.
+          ui: {
+            viewportOffset: { top: stickyToolbarOffset },
+          },
           plugins: [
             Essentials,
             Autoformat,

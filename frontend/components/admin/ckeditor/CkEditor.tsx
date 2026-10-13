@@ -9,6 +9,10 @@
  *    inserted at the cursor position.
  *  - Templates: full article starters in one click.
  *
+ * The panel sticks just below the fixed AdminHeader (64px) while the editor is
+ * in view, and the measured panel height is handed to CKEditor so its own
+ * sticky toolbar pins right underneath it (see CkEditorInner / globals.css).
+ *
  * Same props contract as the old BlockEditor (value / onChange), so it is a
  * drop-in replacement in the blog create & edit forms.
  */
@@ -28,6 +32,9 @@ const CkEditorInner = dynamic(() => import('./CkEditorInner'), {
   ),
 });
 
+/** Height of the fixed AdminHeader (`h-16`) — the Blocks bar pins below it. */
+const ADMIN_HEADER_HEIGHT = 64;
+
 interface CkEditorProps {
   value: string;
   onChange: (html: string) => void;
@@ -43,6 +50,25 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
   const lastEmittedRef = useRef<string>(value);
   const [menu, setMenu] = useState<MenuKey>(null);
   const shellRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  // Measured height of the Blocks & Templates bar. The CKEditor sticky toolbar
+  // pins right below the pinned bar, so its viewport offset has to follow the
+  // bar (the buttons wrap onto a second line on small screens).
+  const [barHeight, setBarHeight] = useState(0);
+
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const measure = () => setBarHeight(el.getBoundingClientRect().height);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
 
   // Sync external value changes (e.g. form reset) into the editor.
   useEffect(() => {
@@ -81,92 +107,101 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
 
   return (
     <div ref={shellRef} className="relative">
-      {/* ── Blocks & Templates panel ── */}
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setMenu(menu === 'blocks' ? null : 'blocks')}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-            menu === 'blocks'
-              ? 'bg-[#F4B400] text-gray-900'
-              : 'border border-gray-300 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
-          }`}
-        >
-          <SquarePlus size={15} /> Blocks
-          <ChevronDown size={13} className={menu === 'blocks' ? 'rotate-180 transition' : 'transition'} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setMenu(menu === 'templates' ? null : 'templates')}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-            menu === 'templates'
-              ? 'bg-[#F4B400] text-gray-900'
-              : 'border border-gray-300 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
-          }`}
-        >
-          <LayoutTemplate size={15} /> Templates
-          <ChevronDown size={13} className={menu === 'templates' ? 'rotate-180 transition' : 'transition'} />
-        </button>
-        <span className="text-xs text-gray-400">Insert ready-made theme blocks & full article starters</span>
-      </div>
-
-      {menu && (
-        <div className="absolute left-0 top-full z-30 mt-1 w-[min(560px,90vw)] rounded-xl border border-gray-200 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
-            <p className="text-sm font-bold text-gray-900">
-              {menu === 'blocks' ? 'Content Blocks' : 'Article Templates'}
-            </p>
-            <button
-              type="button"
-              onClick={() => setMenu(null)}
-              aria-label="Close panel"
-              className="rounded-md p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-            >
-              <X size={15} />
-            </button>
-          </div>
-          <div className="max-h-[320px] overflow-y-auto p-2">
-            {menu === 'blocks'
-              ? CONTENT_BLOCKS.map((b) => (
-                  <button
-                    key={b.id}
-                    type="button"
-                    onClick={() => insertHtml(b.html)}
-                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#FFF9E5]"
-                  >
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF4CC] text-sm font-bold text-[#8A6400]">
-                      {b.icon}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-gray-900">{b.label}</span>
-                      <span className="block text-xs text-gray-500">{b.description}</span>
-                    </span>
-                  </button>
-                ))
-              : ARTICLE_TEMPLATES.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => insertHtml(t.html)}
-                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#FFF9E5]"
-                  >
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF4CC] text-sm">
-                      {t.icon}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-gray-900">{t.label}</span>
-                      <span className="block text-xs text-gray-500">{t.description}</span>
-                    </span>
-                  </button>
-                ))}
-          </div>
+      {/* ── Blocks & Templates panel ── PINNED under the fixed AdminHeader ──
+          `top-16` = the 64px AdminHeader, so the bar stays in view while the
+          editor content scrolls. z-20 keeps it above CKEditor's own pinned
+          toolbar (z-15) so the dropdown opening below it stays visible. */}
+      <div
+        ref={barRef}
+        className="sticky top-16 z-20 bg-white border-b border-gray-200 shadow-sm mb-2 -mx-6 px-6 py-2.5"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setMenu(menu === 'blocks' ? null : 'blocks')}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+              menu === 'blocks'
+                ? 'bg-[#F4B400] text-gray-900'
+                : 'border border-gray-300 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
+            }`}
+          >
+            <SquarePlus size={15} /> Blocks
+            <ChevronDown size={13} className={menu === 'blocks' ? 'rotate-180 transition' : 'transition'} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenu(menu === 'templates' ? null : 'templates')}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+              menu === 'templates'
+                ? 'bg-[#F4B400] text-gray-900'
+                : 'border border-gray-300 bg-white text-gray-700 hover:border-[#F4B400] hover:text-[#B58200]'
+            }`}
+          >
+            <LayoutTemplate size={15} /> Templates
+            <ChevronDown size={13} className={menu === 'templates' ? 'rotate-180 transition' : 'transition'} />
+          </button>
+          <span className="text-xs text-gray-400">Insert ready-made theme blocks & full article starters</span>
         </div>
-      )}
+
+        {menu && (
+          <div className="absolute left-6 top-full z-30 mt-1 w-[min(560px,90vw)] rounded-xl border border-gray-200 bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
+              <p className="text-sm font-bold text-gray-900">
+                {menu === 'blocks' ? 'Content Blocks' : 'Article Templates'}
+              </p>
+              <button
+                type="button"
+                onClick={() => setMenu(null)}
+                aria-label="Close panel"
+                className="rounded-md p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <div className="max-h-[320px] overflow-y-auto p-2">
+              {menu === 'blocks'
+                ? CONTENT_BLOCKS.map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => insertHtml(b.html)}
+                      className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#FFF9E5]"
+                    >
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF4CC] text-sm font-bold text-[#8A6400]">
+                        {b.icon}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-gray-900">{b.label}</span>
+                        <span className="block text-xs text-gray-500">{b.description}</span>
+                      </span>
+                    </button>
+                  ))
+                : ARTICLE_TEMPLATES.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => insertHtml(t.html)}
+                      className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-[#FFF9E5]"
+                    >
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#FFF4CC] text-sm">
+                        {t.icon}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-gray-900">{t.label}</span>
+                        <span className="block text-xs text-gray-500">{t.description}</span>
+                      </span>
+                    </button>
+                  ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── CKEditor ── */}
       <CkEditorInner
         value={value}
         placeholder={placeholder}
+        stickyToolbarOffset={ADMIN_HEADER_HEIGHT + Math.round(barHeight)}
         onInstance={(editor) => {
           editorRef.current = editor;
         }}
@@ -178,4 +213,3 @@ export default function CkEditor({ value, onChange, placeholder }: CkEditorProps
     </div>
   );
 }
-

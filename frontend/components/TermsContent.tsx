@@ -32,7 +32,7 @@ const SECTIONS: {
     title: '1. Introduction',
     icon: FileText,
     body: [
-      'Welcome to Patna Finder. By accessing or using patnafinder.com (the "Platform"), you agree to be bound by these Terms of Use and our Privacy Policy. If you do not agree with any part of these terms, please stop using the Platform.',
+      'Welcome to Khojya. By accessing or using patnafinder.com (the "Platform"), you agree to be bound by these Terms of Use and our Privacy Policy. If you do not agree with any part of these terms, please stop using the Platform.',
     ],
   },
   {
@@ -40,7 +40,7 @@ const SECTIONS: {
     title: '2. Use of the Platform',
     icon: Globe,
     body: [
-      'Patna Finder is a local discovery platform. You may browse business listings, read and submit reviews, and discover events and areas across the city for personal, non-commercial use.',
+      'Khojya is a local discovery platform. You may browse business listings, read and submit reviews, and discover events and areas across the city for personal, non-commercial use.',
       'You agree to use the Platform only for lawful purposes and in a way that does not infringe the rights of, restrict or inhibit anyone else\'s use of the Platform.',
     ],
   },
@@ -49,7 +49,7 @@ const SECTIONS: {
     title: '3. User Accounts',
     icon: Users,
     body: [
-      'You must be at least 13 years old to use Patna Finder. Business owner accounts require accurate registration details.',
+      'You must be at least 13 years old to use Khojya. Business owner accounts require accurate registration details.',
       'You are responsible for keeping your account credentials confidential and for all activity that happens under your account.',
     ],
   },
@@ -85,7 +85,7 @@ const SECTIONS: {
     title: '7. Intellectual Property',
     icon: Copyright,
     body: [
-      'The Platform\'s design, branding, code and content are owned by Patna Finder or its licensors. Business owners retain ownership of the content they submit, but grant us a non-exclusive, worldwide licence to display it on the Platform.',
+      'The Platform\'s design, branding, code and content are owned by Khojya or its licensors. Business owners retain ownership of the content they submit, but grant us a non-exclusive, worldwide licence to display it on the Platform.',
     ],
   },
   {
@@ -110,7 +110,7 @@ const SECTIONS: {
     title: '10. Limitation of Liability',
     icon: FileX,
     body: [
-      'To the maximum extent permitted by law, Patna Finder shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of, or inability to use, the Platform.',
+      'To the maximum extent permitted by law, Khojya shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of, or inability to use, the Platform.',
     ],
   },
   {
@@ -155,7 +155,7 @@ export default function TermsContent() {
       breadcrumbLabel="Terms of Use"
       titleGold="Terms of"
       titleWhite="Use"
-      subtitle="Please read these terms carefully before using Patna Finder."
+      subtitle="Please read these terms carefully before using Khojya."
       tagline="A trusted local platform for a better Patna"
       helpText="Have questions about our Terms of Use? We're here to help."
       readMoreLabel="Read Full Terms"

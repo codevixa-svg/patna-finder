@@ -1,9 +1,8 @@
 import { api } from '@/lib/api';
 import CategoriesBrowser from '@/components/CategoriesBrowser';
-import Breadcrumbs from '@/components/Breadcrumbs';
 
 export const metadata = {
-  title: 'All Categories - Patna Finder',
+  title: 'All Categories - Khojya',
   description: 'Browse all business categories in Patna',
 };
 
@@ -28,25 +27,17 @@ export default async function CategoriesPage() {
     slug: c.slug,
     icon: c.icon,
     description: c.description,
+    // Real listing count (added by Category::withCount('businesses') on the
+    // API) — powers the "N Listings" line on the featured cards.
+    businesses_count: c.businesses_count ?? 0,
   }));
 
   return (
-    <main className="min-h-screen">
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[#062B49] to-[#144272] text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Browse Categories</h1>
-          <p className="text-xl text-gray-300">{categories.length} categories — find exactly what you're looking for</p>
-        </div>
-      </section>
-
-      {/* Breadcrumb — same UI as the business details page */}
-      <Breadcrumbs items={[{ label: 'Categories' }]} />
-
-      {/* Categories Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <CategoriesBrowser categories={categories} />
-      </section>
+    <main className="min-h-screen bg-white">
+      {/* Hero, curated category cards, full searchable list & golden
+          skyline stats band — approved categories design (cards rendered
+          without photos). */}
+      <CategoriesBrowser categories={categories} />
     </main>
   );
 }

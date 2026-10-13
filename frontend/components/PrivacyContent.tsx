@@ -21,8 +21,8 @@ const SECTIONS: LegalSection[] = [
     title: '1. Introduction',
     icon: FileText,
     body: [
-      'At Patna Finder, we value your privacy. This Privacy Policy explains how we collect, use, disclose and safeguard your information when you visit our platform.',
-      'By using Patna Finder, you agree to the practices described in this policy. If you do not agree, please do not use the platform.',
+      'At Khojya, we value your privacy. This Privacy Policy explains how we collect, use, disclose and safeguard your information when you visit our platform.',
+      'By using Khojya, you agree to the practices described in this policy. If you do not agree, please do not use the platform.',
     ],
   },
   {
@@ -93,7 +93,7 @@ const SECTIONS: LegalSection[] = [
     title: "9. Children's Privacy",
     icon: Baby,
     body: [
-      'Patna Finder is not directed at children under 13, and we do not knowingly collect personal information from them. If you believe a child has provided us personal information, please contact us so we can delete it.',
+      'Khojya is not directed at children under 13, and we do not knowingly collect personal information from them. If you believe a child has provided us personal information, please contact us so we can delete it.',
     ],
   },
   {

@@ -2,28 +2,34 @@
 
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { api } from '@/lib/api';
 
 /**
- * "Stay Updated" newsletter form for the blog sidebar. The newsletter
- * backend isn't wired yet — validate + acknowledge with a toast so the
- * interaction feels complete.
+ * "Stay Updated" newsletter form for the blog sidebar — posts to the
+ * public /api/v1/newsletter/subscribe endpoint.
  */
 export default function NewsletterForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       toast.error('Please enter a valid email address');
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const res = await api.subscribeNewsletter(email.trim(), 'blog');
       setEmail('');
-      toast.success('Subscribed! Latest blogs will land in your inbox.');
-    }, 400);
+      toast.success(res?.message || 'Subscribed! Latest blogs will land in your inbox.');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

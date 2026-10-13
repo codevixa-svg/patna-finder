@@ -327,7 +327,7 @@ function RightRail({ categoryName }: { categoryName: string }) {
         <p className="mt-1 font-heading text-sm font-semibold leading-relaxed text-[#062B49]">
           Discovering local Patna is the first step towards a stronger community.
         </p>
-        <p className="mt-3 text-xs font-semibold text-[#D89E00]">— Patna Finder</p>
+        <p className="mt-3 text-xs font-semibold text-[#D89E00]">— Khojya</p>
       </div>
     </aside>
   );
@@ -342,6 +342,8 @@ interface CategoryBrowserProps {
   heroStats: { total: number; avgRating: number; reviewCount: number };
   areaCounts: { id: number; name: string; businesses_count: number }[];
   topCategories: { id: number; name: string; slug: string; icon?: string; businesses_count: number }[];
+  isBestOfPatna?: boolean;
+  defaultSort?: string;
 }
 
 export default function CategoryBrowser({
@@ -351,12 +353,14 @@ export default function CategoryBrowser({
   heroStats,
   areaCounts,
   topCategories,
+  isBestOfPatna = false,
+  defaultSort = 'recommended',
 }: CategoryBrowserProps) {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [areaId, setAreaId] = useState('');
   const [minRating, setMinRating] = useState('');
-  const [sort, setSort] = useState('recommended');
+  const [sort, setSort] = useState(defaultSort);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showAllAreas, setShowAllAreas] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -563,7 +567,12 @@ export default function CategoryBrowser({
               </li>
               <li aria-hidden="true" className="text-white/40">›</li>
               <li>
-                <Link href="/categories" className="text-white/70 transition hover:text-[#F4B400]">Categories</Link>
+                <Link 
+                  href={isBestOfPatna ? "/best-of-patna" : "/categories"} 
+                  className="text-white/70 transition hover:text-[#F4B400]"
+                >
+                  {isBestOfPatna ? "Best of Patna" : "Categories"}
+                </Link>
               </li>
               <li aria-hidden="true" className="text-white/40">›</li>
               <li className="font-semibold text-[#F4B400]">{categoryName}</li>
@@ -571,10 +580,13 @@ export default function CategoryBrowser({
           </nav>
 
           <h1 className="mt-3 max-w-3xl font-heading text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            {categoryName} in <span className="text-[#F4B400]">Patna</span>
+            {isBestOfPatna ? "Best " : ""}{categoryName} in <span className="text-[#F4B400]">Patna</span>
           </h1>
           <p className="mt-2 max-w-xl text-sm text-gray-300 sm:text-base">
-            Find the best {categoryName.toLowerCase()} and services in Patna — verified listings, real reviews.
+            {isBestOfPatna 
+              ? `Top-rated ${categoryName.toLowerCase()} in Patna — award-winning businesses with verified reviews.`
+              : `Find the best ${categoryName.toLowerCase()} and services in Patna — verified listings, real reviews.`
+            }
           </p>
 
           {/* Stats row */}

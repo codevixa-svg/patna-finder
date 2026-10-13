@@ -7,8 +7,8 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Patna Finder - Discover Patna's Best Businesses & Hidden Gems",
-    template: "%s | Patna Finder",
+    default: "Khojya - Discover Patna's Best Businesses & Hidden Gems",
+    template: "%s | Khojya",
   },
   description:
     "Find trusted businesses, compare services, read reviews, and explore Patna like never before. Your premium local discovery platform.",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "Patna Finder",
+    siteName: "Khojya",
     url: siteUrl,
   },
   // Google Discover: allow large image previews in cards (Chrome / feed)

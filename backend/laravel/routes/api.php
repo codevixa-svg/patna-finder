@@ -18,6 +18,16 @@ use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController
 use App\Http\Controllers\Api\Admin\AreaController as AdminAreaController;
 use App\Http\Controllers\Api\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Api\Admin\BlogController as AdminBlogController;
+
+// Global OPTIONS handler for CORS preflight
+Route::options('/{any}', function () {
+    return response('', 200)
+        ->header('Access-Control-Allow-Origin', env('FRONTEND_URL', 'http://localhost:3000'))
+        ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-TOKEN')
+        ->header('Access-Control-Allow-Credentials', 'true')
+        ->header('Access-Control-Max-Age', '86400');
+})->where('any', '.*');
 use App\Http\Controllers\Api\Admin\HiddenGemController as AdminHiddenGemController;
 use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\Admin\BlogCategoryController as AdminBlogCategoryController;
@@ -32,6 +42,8 @@ use App\Http\Controllers\Api\User\AnalyticsController as UserAnalyticsController
 use App\Http\Controllers\Api\Admin\SubscriptionController as AdminSubscriptionController;
 use App\Http\Controllers\Api\Admin\VerificationDocumentController as AdminVerificationDocumentController;
 use App\Http\Controllers\Api\User\VerificationDocumentController as UserVerificationDocumentController;
+use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\Api\Admin\NewsletterController as AdminNewsletterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -103,10 +115,14 @@ Route::prefix('v1')->group(function () {
     Route::get('/blog/latest', [BlogController::class, 'latest']);
     Route::get('/blog/categories', [BlogController::class, 'categories']);
     Route::get('/blog/{slug}', [BlogController::class, 'show']);
+
+    // Newsletter (public subscribe / unsubscribe)
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->middleware('throttle:10,1');
+    Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])->middleware('throttle:30,1');
 });
 
 // User Dashboard API Routes
-Route::prefix('v1/user')->group(function () {
+Route::prefix('v1/user')->middleware('cors')->group(function () {
     // Public user routes (no auth)
     Route::post('/register', [UserAuthController::class, 'register'])->middleware('throttle:5,1');
     // AWS Cognito-style: strict brute-force protection on login
@@ -310,6 +326,15 @@ Route::prefix('v1/admin')->group(function () {
         Route::post('/blog-categories', [AdminBlogCategoryController::class, 'store']);
         Route::put('/blog-categories/{id}', [AdminBlogCategoryController::class, 'update']);
         Route::delete('/blog-categories/{id}', [AdminBlogCategoryController::class, 'destroy']);
+
+        // Newsletter (subscribers + campaign sending)
+        Route::get('/newsletter/subscribers', [AdminNewsletterController::class, 'subscribers']);
+        Route::post('/newsletter/subscribers', [AdminNewsletterController::class, 'store']);
+        Route::post('/newsletter/subscribers/{id}/toggle-active', [AdminNewsletterController::class, 'toggleActive']);
+        Route::delete('/newsletter/subscribers/{id}', [AdminNewsletterController::class, 'destroy']);
+        Route::get('/newsletter/stats', [AdminNewsletterController::class, 'stats']);
+        Route::get('/newsletter/campaigns', [AdminNewsletterController::class, 'campaigns']);
+        Route::post('/newsletter/send', [AdminNewsletterController::class, 'send'])->middleware('throttle:5,1');
 
         // Subscriptions
         Route::get('/subscriptions', [AdminSubscriptionController::class, 'index']);

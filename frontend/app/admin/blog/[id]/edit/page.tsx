@@ -29,6 +29,7 @@ export default function EditBlogPage() {
     image_alt: '',
     author_name: '',
     author_bio: '',
+    author_avatar: '',
     reading_time: '',
     category: '',
     tags: '',
@@ -100,6 +101,7 @@ export default function EditBlogPage() {
         image_alt: data.image_alt || '',
         author_name: data.author_name || '',
         author_bio: data.author_bio || '',
+        author_avatar: data.author_avatar || '',
         reading_time: data.reading_time ? String(data.reading_time) : '',
         category: data.category || '',
         tags: Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''),
@@ -202,7 +204,11 @@ export default function EditBlogPage() {
       <AdminSidebar />
       <div className="lg:ml-64 flex flex-col min-h-screen">
         <AdminHeader />
-        <main className="flex-1 p-4 sm:p-6 overflow-y-auto mt-16">
+        {/* No `overflow-y-auto` here on purpose: an overflow container that does
+            not itself scroll becomes the sticky containing block and silently
+            kills `position: sticky` inside it (the Blocks/Templates bar above
+            the editor). These pages scroll with the document instead. */}
+        <main className="flex-1 p-4 sm:p-6 mt-16">
           <button
             onClick={() => router.push('/admin/blog')}
             className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-4 font-medium"
@@ -406,6 +412,17 @@ export default function EditBlogPage() {
                       </div>
                     </div>
 
+                    <div>
+                      <ImageSourceInput
+                        label="Author Avatar (Profile Picture)"
+                        value={formData.author_avatar}
+                        onChange={(url: string) => setFormData({ ...formData, author_avatar: url })}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Upload or paste URL of author's profile picture (recommended: square image, 200x200px minimum)
+                      </p>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -482,7 +499,9 @@ export default function EditBlogPage() {
               </div>
 
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+                {/* top-20 keeps the card below the fixed 64px AdminHeader now
+                    that the page itself is the scroll container (sticky works). */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-20">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Post Info</h3>
                   <dl className="space-y-3 text-sm">
                     <div>

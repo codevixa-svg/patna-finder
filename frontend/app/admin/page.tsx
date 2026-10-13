@@ -6,6 +6,7 @@ import { useAdminAuthStore } from '@/store/adminAuthStore';
 import { adminDashboardApi } from '@/lib/adminApi';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import AdminFooter from '@/components/admin/AdminFooter';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -264,6 +265,9 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Footer */}
+          <AdminFooter />
         </main>
       </div>
     </div>

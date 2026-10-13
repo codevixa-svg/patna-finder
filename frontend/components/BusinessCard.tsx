@@ -64,16 +64,12 @@ export default function BusinessCard({ business }: BusinessCardProps) {
         
         {/* Badges */}
         <div className="absolute top-4 right-4 space-y-2">
-          {business.is_verified ? (
+          {business.is_verified && (
             <div
-              className={`badge badge-verified ${business.verification_level === 'premium' ? 'ring-2 ring-yellow-400' : ''}`}
-              title={business.verification_label || 'Verified Business'}
+              className="badge badge-verified"
+              title="Verified Business"
             >
-              <span>{business.verification_level === 'premium' ? '★' : '✓'}</span> Verified
-            </div>
-          ) : (
-            <div className="badge badge-not-verified" title="Patna Finder team ne is business ki verification nahi ki hai">
-              <span>◌</span> Not Verified
+              <span>✓</span> Verified
             </div>
           )}
           {business.is_featured && (

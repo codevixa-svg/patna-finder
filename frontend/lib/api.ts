@@ -198,4 +198,21 @@ export const api = {
   removeEventInterested: async (id: number) => {
     return fetchJson(`${API_URL}/events/${id}/interested`, { method: 'DELETE' });
   },
+
+  // Newsletter
+  subscribeNewsletter: async (email: string, source: string = 'footer') => {
+    return fetchJson(`${API_URL}/newsletter/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, source }),
+    });
+  },
+
+  unsubscribeNewsletter: async (params: { token?: string; email?: string }) => {
+    return fetchJson(`${API_URL}/newsletter/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+  },
 };

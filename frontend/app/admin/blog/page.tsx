@@ -62,6 +62,25 @@ export default function BlogPage() {
     }
   };
 
+  /**
+   * Opens the public post page in a new tab. The public API only serves
+   * published posts (`GET /blog/{slug}`), so drafts/archived posts would 404 —
+   * those get a hint instead.
+   */
+  const handleView = (post: { slug?: string; status?: string }) => {
+    if (!post.slug) {
+      toast.error('This post has no slug yet. Open it in the editor to add one.');
+      return;
+    }
+
+    if (post.status !== 'published') {
+      toast.error('Only published posts are visible on the site');
+      return;
+    }
+
+    window.open(`/blog/${post.slug}`, '_blank', 'noopener,noreferrer');
+  };
+
   if (!mounted || !isAuthenticated) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -159,6 +178,16 @@ export default function BlogPage() {
                               </svg>
                             </button>
                           )}
+                          <button
+                            onClick={() => handleView(post)}
+                            className="text-gray-500 hover:text-gray-900"
+                            title={post.status === 'published' ? 'View post' : 'Only published posts are visible on the site'}
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </button>
                           <button
                             onClick={() => router.push(`/admin/blog/${post.id}/edit`)}
                             className="text-indigo-600 hover:text-indigo-900"

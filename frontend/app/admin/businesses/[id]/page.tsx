@@ -512,7 +512,7 @@ export default function AdminBusinessDetailPage() {
                 </button>
                 <button
                   onClick={() => { if (business.is_verified) { setUnverifyNote(''); setUnverifyModalOpen(true); } else { handleAction('verify'); } }}
-                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition ${business.is_verified ? 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition ${business.is_verified ? 'bg-green-50 border-green-300 text-green-700 hover:bg-green-100' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                   title={business.is_verified ? 'Click to remove verification' : 'Verify this business'}
                 >
                   {business.is_verified ? '✓' : '○'} Verified
@@ -859,9 +859,9 @@ export default function AdminBusinessDetailPage() {
               <h2 className="text-sm font-semibold text-gray-900 mb-4">Verification Details</h2>
               {business.is_verified ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
                     <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                    <span className="text-sm font-semibold text-blue-800">{verificationMethodLabel(business.verification_method)}</span>
+                    <span className="text-sm font-semibold text-green-800">{verificationMethodLabel(business.verification_method)}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                     <div>
@@ -993,7 +993,7 @@ export default function AdminBusinessDetailPage() {
                 <button
                   onClick={submitVerify}
                   disabled={actionLoading}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 disabled:opacity-50 transition"
                 >
                   {actionLoading ? 'Verifying...' : '✓ Mark as Verified'}
                 </button>

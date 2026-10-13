@@ -1,4 +1,4 @@
-const CONTACT_EMAIL = 'hello@patnafinder.com';
+const CONTACT_EMAIL = 'hello@khoyjafinder.com';
 
 /**
  * Submits an inquiry (contact / claim-business). Tries the backend endpoint
@@ -28,7 +28,7 @@ export async function submitInquiry(
     // API down — fall through to the mailto hand-off
   }
 
-  const subject = encodeURIComponent(`[${topic}] Patna Finder inquiry`);
+  const subject = encodeURIComponent(`[${topic}] Khojya inquiry`);
   window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${encodeURIComponent(readable)}`;
   return { via: 'mailto' };
 }

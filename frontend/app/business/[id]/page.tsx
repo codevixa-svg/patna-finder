@@ -691,19 +691,12 @@ export default function PublicBusinessPage() {
                     {business.tagline || business.category?.name || 'Business'}
                   </p>
 
-                  {business.is_verified ? (
-                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-[#FFF9E5] text-[#062B49] text-xs font-semibold">
-                      <span className="w-4 h-4 rounded-full bg-[#FFF4CC] flex items-center justify-center">
-                        <Icon name="check" className="w-3 h-3" />
+                  {business.is_verified && (
+                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-green-50 border border-green-200 text-green-800 text-xs font-semibold">
+                      <span className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                        <Icon name="check" className="w-3 h-3 text-green-600" />
                       </span>
-                      {business.verification_label || 'Verified Business'}
-                    </div>
-                  ) : (
-                    <div className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 text-xs font-semibold border border-gray-200">
-                      <span className="w-4 h-4 rounded-full bg-white border border-gray-300 flex items-center justify-center">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 13h-2v-6h2v6zm0 8h-2V5h2v4z" clipRule="evenodd" /></svg>
-                      </span>
-                      Not Verified by Patna Finder
+                      Verified Business
                     </div>
                   )}
                 </div>
