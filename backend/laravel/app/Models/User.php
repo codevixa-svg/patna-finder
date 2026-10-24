@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
+     * SECURITY FIX (CRITICAL-002): Only safe user-modifiable fields allowed.
+     * Sensitive fields protected via $guarded to prevent privilege escalation.
      *
      * @var array<int, string>
      */
@@ -23,17 +25,26 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
-        'role',
-        'permissions',
-        'is_active',
-        'last_login_at',
         'avatar',
-        'failed_login_attempts',
-        'locked_until',
-        'mfa_enabled',
-        'mfa_secret',
-        'last_login_ip',
-        'last_login_user_agent',
+    ];
+
+    /**
+     * The attributes that are NOT mass assignable.
+     * SECURITY: Protects against privilege escalation and lockout bypass.
+     *
+     * @var array<int, string>
+     */
+    protected $guarded = [
+        'id',
+        'role',                    // Only admins can change roles
+        'permissions',             // Only super_admins can grant permissions
+        'is_active',              // Only admins can activate/deactivate accounts
+        'mfa_secret',             // Only managed through MFA setup flow
+        'failed_login_attempts',  // Only system can modify lockout state
+        'locked_until',           // Only system can modify lockout state
+        'verified_at',
+        'email_verified_at',
+        'remember_token',
     ];
 
     /**

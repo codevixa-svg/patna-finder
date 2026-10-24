@@ -15,11 +15,25 @@ class MediaController extends Controller
      */
     public function store(Request $request)
     {
+        // SECURITY FIX (CRITICAL-003): SVG removed to prevent XSS attacks
         $request->validate([
-            'file' => 'required|image|mimes:jpg,jpeg,png,webp,gif,svg|max:5120',
+            'file' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $file = $request->file('file');
+        
+        // SECURITY: Verify actual MIME type matches declared type
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file->getRealPath());
+        finfo_close($finfo);
+        
+        if (!in_array($mimeType, $allowedMimes)) {
+            return response()->json([
+                'message' => 'File type mismatch. File content does not match extension.'
+            ], 422);
+        }
+        
         $directory = 'uploads/' . now()->format('Y/m');
         $path = $file->storeAs(
             $directory,

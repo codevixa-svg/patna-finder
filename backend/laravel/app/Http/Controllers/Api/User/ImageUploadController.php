@@ -11,14 +11,28 @@ class ImageUploadController extends Controller
 {
     public function upload(Request $request)
     {
+        // SECURITY FIX (CRITICAL-003): GIF removed, MIME type verification added
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:5120', // 5MB max
             'type' => 'required|in:logo,cover,gallery,update'
         ]);
 
         try {
             $image = $request->file('image');
             $type = $request->input('type');
+            
+            // SECURITY: Verify actual MIME type matches declared type
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_file($finfo, $image->getRealPath());
+            finfo_close($finfo);
+            
+            if (!in_array($mimeType, $allowedMimes)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File type mismatch. File content does not match extension.'
+                ], 422);
+            }
             
             // Generate unique filename
             $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
