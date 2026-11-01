@@ -66,6 +66,7 @@ class BusinessController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'owner_email' => 'required|email',
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'area_id' => 'required|exists:areas,id',
@@ -109,8 +110,28 @@ class BusinessController extends Controller
         }
 
         $data = $validator->validated();
+        
+        // Auto-create user from owner_email
+        $ownerEmail = $request->owner_email;
+        $user = \App\Models\User::where('email', $ownerEmail)->first();
+
+        if (!$user) {
+            // Create new user account
+            $user = \App\Models\User::create([
+                'name' => $request->name, // Use business name temporarily
+                'email' => $ownerEmail,
+                'password' => \Hash::make(\Str::random(32)), // Random secure password
+                'role' => 'user',
+                'is_active' => true,
+                'email_verified_at' => now(), // Pre-verified by admin
+            ]);
+            $newUserCreated = true;
+        } else {
+            $newUserCreated = false;
+        }
+        
         $data['slug'] = Str::slug($request->name) . '-' . Str::random(6);
-        $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $user->id; // Use the real owner's ID
 
         if (!isset($data['status'])) {
             $data['status'] = 'approved';
@@ -119,7 +140,7 @@ class BusinessController extends Controller
         $business = Business::create($data);
 
         return response()->json([
-            'message' => 'Business created successfully',
+            'message' => 'Business created successfully!' . ($newUserCreated ? ' Welcome email can be sent to owner.' : ''),
             'business' => $business->load(['category', 'area']),
         ], 201);
     }
