@@ -270,8 +270,16 @@ export const adminBusinessesApi = {
     return response.data;
   },
 
+  sendWelcomeEmail: async (id: number) => {
+    const response = await adminApi.post(`/admin/businesses/${id}/send-welcome-email`);
+    return response.data;
+  },
+
   uploadImageBase64: async (base64: string, type: string = 'logo') => {
-    const response = await adminApi.post('/admin/businesses', { image_base64: base64, image_type: type });
+    const response = await adminApi.post('/user/upload-image-base64', { 
+      image: base64, 
+      type: type 
+    });
     return response.data;
   },
 };

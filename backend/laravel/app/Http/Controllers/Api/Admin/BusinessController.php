@@ -460,4 +460,32 @@ class BusinessController extends Controller
             'affected' => $count,
         ]);
     }
+
+    public function sendWelcomeEmail($id)
+    {
+        $business = Business::with(['category', 'area', 'user'])->findOrFail($id);
+        
+        if (!$business->user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No user associated with this business'
+            ], 404);
+        }
+        
+        try {
+            Mail::to($business->user->email)->send(new BusinessOwnerWelcome($business, $business->user));
+            Log::info("Welcome email manually sent to {$business->user->email} for business {$business->name}");
+            
+            return response()->json([
+                'success' => true,
+                'message' => "Welcome email sent to {$business->user->email} successfully!"
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("Failed to send welcome email to {$business->user->email}: {$e->getMessage()}");
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send email. Please check logs.'
+            ], 500);
+        }
+    }
 }

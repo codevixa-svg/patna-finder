@@ -122,7 +122,7 @@ Route::prefix('v1')->group(function () {
 });
 
 // User Dashboard API Routes
-Route::prefix('v1/user')->middleware('cors')->group(function () {
+Route::prefix('v1/user')->group(function () {
     // Public user routes (no auth)
     Route::post('/register', [UserAuthController::class, 'register'])->middleware('throttle:5,1');
     // AWS Cognito-style: strict brute-force protection on login
@@ -253,6 +253,7 @@ Route::prefix('v1/admin')->group(function () {
         Route::post('/businesses/{id}/verify', [AdminBusinessController::class, 'verify']);
         Route::post('/businesses/{id}/unverify', [AdminBusinessController::class, 'unverify']);
         Route::get('/businesses/{id}/verification-logs', [AdminBusinessController::class, 'verificationLogs']);
+        Route::post('/businesses/{id}/send-welcome-email', [AdminBusinessController::class, 'sendWelcomeEmail']);
 
         // Verification Documents (admin review)
         Route::get('/businesses/{id}/documents', [AdminVerificationDocumentController::class, 'index']);
