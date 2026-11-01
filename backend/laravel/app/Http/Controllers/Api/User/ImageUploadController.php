@@ -138,6 +138,9 @@ class ImageUploadController extends Controller
         try {
             $path = $request->input('path');
             
+            // Normalize and decode path
+            $path = urldecode($path);
+            
             // Security: only allow deleting files within businesses/ directory
             if (!str_starts_with($path, 'businesses/')) {
                 return response()->json([
@@ -147,7 +150,18 @@ class ImageUploadController extends Controller
             }
             
             // Prevent directory traversal
-            if (str_contains($path, '..')) {
+            if (str_contains($path, '..') || str_contains($path, './')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid file path'
+                ], 403);
+            }
+            
+            // Verify real path is within allowed directory
+            $realPath = realpath(storage_path('app/public/' . $path));
+            $basePath = realpath(storage_path('app/public/businesses'));
+            
+            if (!$realPath || !str_starts_with($realPath, $basePath)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Invalid file path'

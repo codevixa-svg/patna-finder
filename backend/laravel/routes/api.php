@@ -55,7 +55,7 @@ use App\Http\Controllers\Api\Admin\NewsletterController as AdminNewsletterContro
 Route::prefix('v1')->group(function () {
     
     // Search
-    Route::get('/search', [SearchController::class, 'search']);
+    Route::get('/search', [SearchController::class, 'search'])->middleware('throttle:30,1');
     Route::get('/popular-searches', [SearchController::class, 'popularSearches']);
 
     // Categories
@@ -108,7 +108,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/reviews/{id}/like', [ReviewController::class, 'like']);
 
     // Performance tracking (GMB-style interactions)
-    Route::post('/businesses/{slugOrId}/track', [BusinessController::class, 'track'])->middleware('throttle:120,1');
+    Route::post('/businesses/{slugOrId}/track', [BusinessController::class, 'track'])->middleware('throttle:60,1');
 
     // Blog (Patna Pulse)
     Route::get('/blog', [BlogController::class, 'index']);
@@ -117,7 +117,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/blog/{slug}', [BlogController::class, 'show']);
 
     // Newsletter (public subscribe / unsubscribe)
-    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->middleware('throttle:10,1');
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->middleware('throttle:3,1');
     Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])->middleware('throttle:30,1');
 });
 
