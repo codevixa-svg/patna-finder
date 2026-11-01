@@ -75,9 +75,10 @@ function AddBusinessPageContent() {
   const editId = searchParams.get('id');
   const isEditMode = !!editId;
 
-  const { isAuthenticated, admin } = useAdminAuthStore();
+  const { isAuthenticated } = useAdminAuthStore();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [businessFetched, setBusinessFetched] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 7;
 
@@ -151,8 +152,8 @@ function AddBusinessPageContent() {
 
   // Preview Component
   const BusinessPreview = () => (
-    <div className="hidden lg:block lg:col-span-4">
-      <div className="lg:sticky lg:top-24">
+    <div className="hidden xl:block xl:col-span-5">
+      <div className="xl:sticky xl:top-6">
         <div className="mb-4">
           <h3 className="text-base font-bold text-gray-900">Listing Preview</h3>
           <p className="text-xs text-gray-500">This is how your listing will appear</p>
@@ -548,24 +549,47 @@ function AddBusinessPageContent() {
     }
   }, [galleryPhotos, mounted, isEditMode]);
 
+  // Debug: Log categories state changes
+  useEffect(() => {
+    console.log('[Categories] State changed, count:', categories.length);
+  }, [categories]);
+
   useEffect(() => {
     if (!mounted) return;
     if (!isAuthenticated) {
       router.push('/admin/login');
       return;
     }
-    if (isEditMode && editId) {
-      fetchBusiness();
+  }, [isAuthenticated, router, mounted]);
+
+  // Separate effect for edit mode - waits for categories
+  useEffect(() => {
+    if (!mounted || !isAuthenticated) return;
+    
+    if (isEditMode && editId && !businessFetched) {
+      if (categories.length > 0) {
+        console.log('[Edit Mode] Categories ready (', categories.length, '), fetching business...');
+        fetchBusiness();
+        setBusinessFetched(true);
+      } else {
+        console.log('[Edit Mode] Waiting for categories to load...');
+      }
     }
-  }, [isAuthenticated, router, mounted, isEditMode, editId]);
+  }, [mounted, isAuthenticated, isEditMode, editId, categories, businessFetched]);
 
   const fetchCategories = async () => {
     try {
+      console.log('[Categories] Starting fetch...');
+      // Public API has all 3000+ categories
       const response = await axios.get(`${API_BASE_URL}/categories`);
+      console.log('[Categories] Response received:', response.data);
       // Backend returns array directly, not wrapped in data
-      setCategories(response.data || []);
+      const cats = response.data || [];
+      console.log('[Categories] Setting', cats.length, 'categories');
+      setCategories(cats);
+      console.log('[Categories] State updated');
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      console.error('[Categories] Failed to fetch:', error);
     }
   };
 
@@ -582,10 +606,12 @@ function AddBusinessPageContent() {
   const fetchBusiness = async () => {
     try {
       setLoading(true);
+      
       const response = await adminBusinessesApi.getOne(Number(editId));
       const business = response.data;
       
       console.log('[Edit Mode] Fetched business:', business);
+      console.log('[Edit Mode] Categories available:', categories.length);
       
       setFormData(business);
 
@@ -823,8 +849,10 @@ function AddBusinessPageContent() {
           // Upload to backend
           const uploadResponse = await adminBusinessesApi.uploadImageBase64(result, 'logo');
           
+          console.log('[Logo Upload] Response:', uploadResponse);
+          
           if (uploadResponse.success) {
-            setFormData({ ...formData, logo: uploadResponse.url });
+            setFormData(prev => ({ ...prev, logo: uploadResponse.url }));
             toast.success('Logo uploaded successfully!', { id: toastId });
           } else {
             toast.error('Failed to upload logo', { id: toastId });
@@ -864,8 +892,10 @@ function AddBusinessPageContent() {
           // Upload to backend
           const uploadResponse = await adminBusinessesApi.uploadImageBase64(result, 'cover');
           
+          console.log('[Cover Upload] Response:', uploadResponse);
+          
           if (uploadResponse.success) {
-            setFormData({ ...formData, cover_image: uploadResponse.url });
+            setFormData(prev => ({ ...prev, cover_image: uploadResponse.url }));
             toast.success('Cover image uploaded successfully!', { id: toastId });
           } else {
             toast.error('Failed to upload cover image', { id: toastId });
@@ -976,16 +1006,16 @@ function AddBusinessPageContent() {
           },
         }}
       />
-      <div className="flex h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="lg:ml-64 flex flex-col min-h-screen">
           <AdminHeader />
-          <main className="flex-1 overflow-y-auto">
-      {/* Main Content without fixed header - handled by layout */}
-      <div className="p-3 sm:p-6">
+          <main className="flex-1 p-1 sm:p-1 overflow-y-auto mt-16">
+      {/* Main Content */}
+      <div className="max-w-[1600px] mx-auto">
         {/* Steps Progress Bar */}
-        <div className="bg-white border border-gray-200 rounded-lg px-3 sm:px-6 py-4 sm:py-5 mb-4 sm:mb-6">
-          <div className="flex items-center justify-between max-w-6xl mx-auto relative overflow-x-auto scrollbar-hide gap-2 sm:gap-0">
+        <div className="bg-white border border-gray-200 rounded-lg px-4 sm:px-6 py-4 sm:py-5 mb-6">
+          <div className="flex items-center justify-between relative overflow-x-auto scrollbar-hide gap-2 sm:gap-0">
             {/* Background Line */}
             <div className="absolute left-0 right-0 top-5 h-0.5 bg-gray-200 hidden sm:block" style={{ zIndex: 0 }}></div>
 
@@ -1029,8 +1059,8 @@ function AddBusinessPageContent() {
         <main className="p-3 sm:p-6">
           {/* STEP 1: Business Details */}
           {currentStep === 1 && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-              <div className="col-span-full lg:col-span-8">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <div className="col-span-full xl:col-span-7">
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-gray-900">Business Details</h2>
                   <p className="text-sm text-gray-500">Tell customers about your business</p>
@@ -1267,8 +1297,8 @@ function AddBusinessPageContent() {
 
           {/* STEP 2: Contact Information */}
           {currentStep === 2 && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-              <div className="col-span-full lg:col-span-8">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <div className="col-span-full xl:col-span-7">
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-gray-900">Contact Information</h2>
                   <p className="text-sm text-gray-500">Add ways for customers to contact you</p>
@@ -1532,8 +1562,8 @@ function AddBusinessPageContent() {
 
           {/* STEP 3: Location */}
           {currentStep === 3 && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-              <div className="col-span-full lg:col-span-8">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+              <div className="col-span-full xl:col-span-7">
                 <div className="mb-4">
                   <h2 className="text-lg font-bold text-gray-900">Business Location</h2>
                   <p className="text-sm text-gray-500">Help customers find you by adding accurate location details.</p>
@@ -1822,8 +1852,8 @@ function AddBusinessPageContent() {
 {/* STEP 4: Business Hours */ }
 {
   currentStep === 4 && (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-      <div className="col-span-full lg:col-span-8">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="col-span-full xl:col-span-7">
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900">Business Hours</h2>
           <p className="text-sm text-gray-500">Set your operating hours for customers</p>
@@ -1949,8 +1979,8 @@ function AddBusinessPageContent() {
 
           {/* STEP 5: Services */}
           {currentStep === 5 && (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-      <div className="col-span-full lg:col-span-8">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="col-span-full xl:col-span-7">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Services & Products</h2>
@@ -2187,8 +2217,8 @@ function AddBusinessPageContent() {
 
           {/* STEP 6: Photos & Videos */}
           {currentStep === 6 && (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-      <div className="col-span-full lg:col-span-8">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="col-span-full xl:col-span-7">
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900">Photos & Videos</h2>
           <p className="text-sm text-gray-500">Add high quality photos to showcase your business and attract more customers.</p>
@@ -2267,6 +2297,7 @@ function AddBusinessPageContent() {
 
                       // Upload to backend
                       const uploadResponse = await adminBusinessesApi.uploadImageBase64(base64, 'gallery');
+                      console.log('[Gallery Upload] Response:', uploadResponse);
                       if (uploadResponse.success) {
                         uploadedUrls.push(uploadResponse.url);
                         uploadedCount++;
@@ -2459,8 +2490,8 @@ function AddBusinessPageContent() {
 
           {/* STEP 7: Social Links */}
           {currentStep === 7 && (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 max-w-7xl mx-auto">
-      <div className="col-span-full lg:col-span-8">
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="col-span-full xl:col-span-7">
         <div className="mb-4">
           <h2 className="text-lg font-bold text-gray-900">Social Media & Website Links</h2>
           <p className="text-sm text-gray-500">Add your social media profiles and other important links to connect with your customers.</p>

@@ -70,11 +70,11 @@
                                 To access your business dashboard, you'll need to set a password for your account. Click the button below to get started:
                             </p>
                             <div style="text-align: center; margin: 20px 0;">
-                                <a href="{{ $frontendUrl }}/forgot-password" style="display: inline-block; background-color: #f97316; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; font-weight: bold;">Set Your Password</a>
+                                <a href="{{ $frontendUrl }}/dashboard/forgot-password" style="display: inline-block; background-color: #f97316; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-size: 16px; font-weight: bold;">Set Your Password</a>
                             </div>
                             <p style="margin: 15px 0 0 0; font-size: 13px; line-height: 1.5; color: #9ca3af;">
                                 Or copy and paste this link into your browser:<br>
-                                <a href="{{ $frontendUrl }}/forgot-password" style="color: #f97316; word-break: break-all;">{{ $frontendUrl }}/forgot-password</a>
+                                <a href="{{ $frontendUrl }}/dashboard/forgot-password" style="color: #f97316; word-break: break-all;">{{ $frontendUrl }}/dashboard/forgot-password</a>
                             </p>
                             <p style="margin: 10px 0 0 0; font-size: 13px; line-height: 1.5; color: #9ca3af;">
                                 Enter your email address (<strong>{{ $user->email }}</strong>) on the password reset page to receive instructions.
@@ -127,4 +127,4 @@
         </tr>
     </table>
 </body>
-</html>>
+</html>

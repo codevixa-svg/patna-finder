@@ -138,7 +138,18 @@ class BusinessController extends Controller
                 $newUserCreated = true;
             }
             
-            $data['slug'] = Str::slug($request->name) . '-' . Str::random(6);
+            // Generate clean slug (without random characters)
+            $baseSlug = Str::slug($request->name);
+            $slug = $baseSlug;
+            $counter = 1;
+            
+            // Check if slug exists, if yes add number
+            while (Business::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            
+            $data['slug'] = $slug;
             $data['user_id'] = $user->id; // Use the real owner's ID
 
             if (!isset($data['status'])) {
@@ -224,6 +235,21 @@ class BusinessController extends Controller
             'meta_title' => 'sometimes|nullable|string|max:255',
             'meta_description' => 'sometimes|nullable|string|max:500',
         ]);
+
+        // If name is being updated, regenerate slug
+        if (isset($validated['name']) && $validated['name'] !== $business->name) {
+            $baseSlug = Str::slug($validated['name']);
+            $slug = $baseSlug;
+            $counter = 1;
+            
+            // Check if slug exists (excluding current business)
+            while (Business::where('slug', $slug)->where('id', '!=', $business->id)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            
+            $validated['slug'] = $slug;
+        }
 
         $business->update($validated);
 
@@ -471,6 +497,17 @@ class BusinessController extends Controller
                 'message' => 'No user associated with this business'
             ], 404);
         }
+        
+        // Debug logging
+        Log::info("=== SEND WELCOME EMAIL DEBUG ===");
+        Log::info("Business ID: {$business->id}");
+        Log::info("Business Name: {$business->name}");
+        Log::info("Business User ID: {$business->user_id}");
+        Log::info("User ID: {$business->user->id}");
+        Log::info("User Name: {$business->user->name}");
+        Log::info("User Email: {$business->user->email}");
+        Log::info("Sending email TO: {$business->user->email}");
+        Log::info("================================");
         
         try {
             Mail::to($business->user->email)->send(new BusinessOwnerWelcome($business, $business->user));
