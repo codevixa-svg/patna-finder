@@ -13,6 +13,8 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { getCurrentFestival } from '@/lib/festivalThemes';
+import BackgroundPattern from '@/components/BackgroundPattern';
 
 // Build an absolute image URL from backend storage paths (/storage/...)
 const buildImageUrl = (path: string | null | undefined): string => {
@@ -129,7 +131,7 @@ export default function Home() {
   };
 
 
-  // Saved (bookmarked) businesses � persisted in localStorage
+  // Saved (bookmarked) businesses – persisted in localStorage
   const [savedBusinessIds, setSavedBusinessIds] = useState<number[]>([]);
   useEffect(() => {
     try {
@@ -146,17 +148,23 @@ export default function Home() {
     });
   };
 
+  // Get current festival theme
+  const festival = getCurrentFestival();
+
 
   return (
     <main>
-      {/* Hero Section */}
+      {/* Hero Section - Dynamic Festival Theme */}
       <section className="relative text-white overflow-hidden min-h-[400px] md:min-h-[480px]">
+        {/* Festival Background Pattern */}
+        <BackgroundPattern pattern={festival.hero.bgPattern} />
+
         {/* Full-width Background */}
         <div className="absolute inset-0 w-full h-full">
           {/* Patna Monument Background Image */}
           <Image
             src="/images/patna-monument1.png"
-            alt="Patna Monument1"
+            alt="Patna Monument"
             fill
             className="object-cover object-center"
             priority
@@ -164,26 +172,25 @@ export default function Home() {
           />
         </div>
 
-        {/* Dark Overlay - Deep Navy cinematic overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-[#062B49]/55 to-[#062B49]/65"></div>
+        {/* Dynamic Festival Gradient Overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-r ${festival.hero.gradient} opacity-75`}></div>
+
+        {/* Additional dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
 
         {/* Mobile-specific additional gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#062B49]/60 via-transparent to-transparent md:hidden"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent md:hidden"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 z-10">
           <div className="max-w-2xl">
-            {/* Top Navigation Breadcrumb Style Text */}
-            {/* <div className="flex items-center gap-4 mb-6 text-sm">
-              <span>CODEVIXA</span>
-            </div> */}
-
+            {/* Dynamic Festival Title */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-3 mt-2 sm:mt-5 py-2 sm:py-5">
-              Apna Bihar,<br />
-              Ab <span className="text-[#F4B400]">Aapki Khoj</span> Mein!
+              {festival.hero.title} {festival.hero.emoji}
             </h1>
 
-            <p className="text-base sm:text-lg text-gray-200 mb-5 sm:mb-6">
-              Discover trusted businesses, popular places, and hidden gems<br className="hidden sm:block" /> across Bihar — all in one place.
+            {/* Dynamic Festival Subtitle */}
+            <p className="text-base sm:text-lg text-gray-100 mb-5 sm:mb-6">
+              {festival.hero.subtitle}
             </p>
 
             {/* Stats Row with Icons */}
