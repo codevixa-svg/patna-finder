@@ -8,6 +8,7 @@ use App\Mail\BusinessVerificationMail;
 use App\Models\Business;
 use App\Models\BusinessVerificationLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -113,37 +114,39 @@ class BusinessController extends Controller
 
         $data = $validator->validated();
         
-        // Auto-create user from owner_email
+        // Auto-create user from owner_email and create business in a transaction
         $ownerEmail = $request->owner_email;
-        $user = \App\Models\User::where('email', $ownerEmail)->first();
+        $user = null;
+        $business = null;
+        $newUserCreated = false;
 
-        if (!$user) {
-            // Create new user account (only fillable fields)
-            $user = \App\Models\User::create([
-                'name' => $request->name, // Use business name temporarily
-                'email' => $ownerEmail,
-                'password' => \Hash::make(\Str::random(32)), // Random secure password
-            ]);
+        \DB::transaction(function () use ($request, $data, $ownerEmail, &$user, &$business, &$newUserCreated) {
+            $user = \App\Models\User::where('email', $ownerEmail)->first();
+
+            if (!$user) {
+                // Create new user account atomically with forceFill for guarded fields
+                $user = new \App\Models\User();
+                $user->forceFill([
+                    'name' => $request->name, // Use business name temporarily
+                    'email' => $ownerEmail,
+                    'password' => \Hash::make(\Str::random(32)), // Random secure password
+                    'role' => 'user',
+                    'is_active' => true,
+                    'email_verified_at' => now(), // Pre-verified by admin
+                ])->save();
+                
+                $newUserCreated = true;
+            }
             
-            // Set guarded fields explicitly after creation
-            $user->role = 'user';
-            $user->is_active = true;
-            $user->email_verified_at = now(); // Pre-verified by admin
-            $user->save();
-            
-            $newUserCreated = true;
-        } else {
-            $newUserCreated = false;
-        }
-        
-        $data['slug'] = Str::slug($request->name) . '-' . Str::random(6);
-        $data['user_id'] = $user->id; // Use the real owner's ID
+            $data['slug'] = Str::slug($request->name) . '-' . Str::random(6);
+            $data['user_id'] = $user->id; // Use the real owner's ID
 
-        if (!isset($data['status'])) {
-            $data['status'] = 'approved';
-        }
+            if (!isset($data['status'])) {
+                $data['status'] = 'approved';
+            }
 
-        $business = Business::create($data);
+            $business = Business::create($data);
+        });
 
         // Send welcome email to new users
         if ($newUserCreated === true) {
