@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BusinessOwnerWelcome;
 use App\Mail\BusinessVerificationMail;
 use App\Models\Business;
 use App\Models\BusinessVerificationLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -116,15 +118,19 @@ class BusinessController extends Controller
         $user = \App\Models\User::where('email', $ownerEmail)->first();
 
         if (!$user) {
-            // Create new user account
+            // Create new user account (only fillable fields)
             $user = \App\Models\User::create([
                 'name' => $request->name, // Use business name temporarily
                 'email' => $ownerEmail,
                 'password' => \Hash::make(\Str::random(32)), // Random secure password
-                'role' => 'user',
-                'is_active' => true,
-                'email_verified_at' => now(), // Pre-verified by admin
             ]);
+            
+            // Set guarded fields explicitly after creation
+            $user->role = 'user';
+            $user->is_active = true;
+            $user->email_verified_at = now(); // Pre-verified by admin
+            $user->save();
+            
             $newUserCreated = true;
         } else {
             $newUserCreated = false;
@@ -139,8 +145,18 @@ class BusinessController extends Controller
 
         $business = Business::create($data);
 
+        // Send welcome email to new users
+        if ($newUserCreated === true) {
+            try {
+                Mail::to($user->email)->send(new BusinessOwnerWelcome($business->fresh(['category', 'area']), $user));
+                Log::info("Welcome email sent to {$user->email} for business {$business->name}");
+            } catch (\Throwable $e) {
+                Log::error("Failed to send welcome email to {$user->email}: {$e->getMessage()}");
+            }
+        }
+
         return response()->json([
-            'message' => 'Business created successfully!' . ($newUserCreated ? ' Welcome email can be sent to owner.' : ''),
+            'message' => 'Business created successfully!' . ($newUserCreated ? ' Welcome email sent to owner.' : ''),
             'business' => $business->load(['category', 'area']),
         ], 201);
     }
@@ -157,19 +173,51 @@ class BusinessController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'short_description' => 'sometimes|string|max:500',
-            'tagline' => 'sometimes|string|max:255',
-            'phone' => 'sometimes|string|max:20',
-            'email' => 'sometimes|email|max:255',
+            'category_id' => 'sometimes|exists:categories,id',
+            'area_id' => 'sometimes|exists:areas,id',
+            'description' => 'sometimes|nullable|string',
+            'short_description' => 'sometimes|nullable|string|max:500',
+            'tagline' => 'sometimes|nullable|string|max:255',
+            'established_year' => 'sometimes|nullable|integer|min:1800|max:' . date('Y'),
+
+            'phone' => 'sometimes|nullable|string|max:20',
+            'alternate_phone' => 'sometimes|nullable|string|max:20',
+            'email' => 'sometimes|nullable|email|max:255',
             'website' => 'sometimes|nullable|url|max:500',
-            'address' => 'sometimes|string',
-            'city' => 'sometimes|string|max:100',
-            'state' => 'sometimes|string|max:100',
-            'pincode' => 'sometimes|string|max:10',
-            'category_id' => 'sometimes|integer|exists:categories,id',
-            'area_id' => 'sometimes|integer|exists:areas,id',
+            'whatsapp' => 'sometimes|nullable|string|max:20',
+            'inquiry_email' => 'sometimes|nullable|email',
+            'inquiry_preference' => 'sometimes|in:email,phone,whatsapp',
+
+            'address' => 'sometimes|nullable|string',
+            'address_line2' => 'sometimes|nullable|string',
+            'city' => 'sometimes|nullable|string|max:100',
+            'state' => 'sometimes|nullable|string|max:100',
+            'pincode' => 'sometimes|nullable|string|max:10',
+            'country' => 'sometimes|nullable|string',
+            'landmark' => 'sometimes|nullable|string',
+            'latitude' => 'sometimes|nullable|numeric',
+            'longitude' => 'sometimes|nullable|numeric',
+            'google_map_location' => 'sometimes|nullable|string',
+
+            'opening_hours' => 'sometimes|nullable',
+            'services' => 'sometimes|nullable',
+            'gallery' => 'sometimes|nullable',
+            'videos' => 'sometimes|nullable',
+            'social_links' => 'sometimes|nullable',
+            'amenities' => 'sometimes|nullable',
+
+            'logo' => 'sometimes|nullable|string',
+            'cover_image' => 'sometimes|nullable|string',
+            'featured_image' => 'sometimes|nullable|string',
+
             'status' => 'sometimes|in:pending,approved,rejected,suspended',
+            'is_verified' => 'sometimes|boolean',
+            'is_featured' => 'sometimes|boolean',
+            'is_sponsored' => 'sometimes|boolean',
+            'is_trending' => 'sometimes|boolean',
+            'is_popular' => 'sometimes|boolean',
+            'is_hidden_gem' => 'sometimes|boolean',
+            
             'meta_title' => 'sometimes|nullable|string|max:255',
             'meta_description' => 'sometimes|nullable|string|max:500',
         ]);
