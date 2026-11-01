@@ -1,0 +1,54 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle CORS preflight OPTIONS requests
+    <IfModule mod_headers.c>
+        # SECURITY FIX (CRITICAL-001): Only allow production domain in production
+        # For local development, use Laravel's config/cors.php instead
+        SetEnvIf Origin "^https://patnafinder\.codevixa\.com$" ORIGIN=$0
+        # Line below REMOVED for production security - localhost is NOT allowed
+        # SetEnvIf Origin "^http://localhost:3000$" ORIGIN=$0
+        Header always set Access-Control-Allow-Origin "%{ORIGIN}e" env=ORIGIN
+        Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin, X-CSRF-TOKEN"
+        Header always set Access-Control-Allow-Credentials "true"
+        Header always set Access-Control-Max-Age "86400"
+        
+        # Handle OPTIONS requests with 200 status
+        Header always set Access-Control-Expose-Headers "Authorization"
+        
+        # SECURITY HEADERS (CRITICAL-003 Defense in Depth)
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-Frame-Options "SAMEORIGIN"
+        Header always set Referrer-Policy "strict-origin-when-cross-origin"
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://patnafinder.codevixa.com https://patnafinderapi.codevixa.com;"
+    </IfModule>
+    
+    # SECURITY: Prevent direct access to .env file (CRITICAL-004)
+    <FilesMatch "^\.env">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    # Respond to OPTIONS requests immediately with 200 status
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule .* / [R=200,L]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

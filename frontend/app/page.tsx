@@ -13,8 +13,7 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { getCurrentFestival } from '@/lib/festivalThemes';
-import BackgroundPattern from '@/components/BackgroundPattern';
+import FestivalHero from '@/components/festival/FestivalHero';
 
 // Build an absolute image URL from backend storage paths (/storage/...)
 const buildImageUrl = (path: string | null | undefined): string => {
@@ -148,87 +147,10 @@ export default function Home() {
     });
   };
 
-  // Get current festival theme
-  const festival = getCurrentFestival();
-
-
   return (
     <main>
-      {/* Hero Section - Dynamic Festival Theme */}
-      <section className="relative text-white overflow-hidden min-h-[400px] md:min-h-[480px]">
-        {/* Festival Background Pattern */}
-        <BackgroundPattern pattern={festival.hero.bgPattern} />
-
-        {/* Full-width Background */}
-        <div className="absolute inset-0 w-full h-full">
-          {/* Patna Monument Background Image */}
-          <Image
-            src="/images/patna-monument1.png"
-            alt="Patna Monument"
-            fill
-            className="object-cover object-center"
-            priority
-            quality={90}
-          />
-        </div>
-
-        {/* Dynamic Festival Gradient Overlay */}
-        <div className={`absolute inset-0 bg-gradient-to-r ${festival.hero.gradient} opacity-75`}></div>
-
-        {/* Additional dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
-
-        {/* Mobile-specific additional gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent md:hidden"></div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 z-10">
-          <div className="max-w-2xl">
-            {/* Dynamic Festival Title */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-3 mt-2 sm:mt-5 py-2 sm:py-5">
-              {festival.hero.title} {festival.hero.emoji}
-            </h1>
-
-            {/* Dynamic Festival Subtitle */}
-            <p className="text-base sm:text-lg text-gray-100 mb-5 sm:mb-6">
-              {festival.hero.subtitle}
-            </p>
-
-            {/* Stats Row with Icons */}
-            <div className="grid grid-cols-4 md:flex md:gap-10 gap-2 sm:gap-8 mb-8">
-              <div className="text-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-blue-300 mb-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
-                </svg>
-                <div className="text-base sm:text-2xl md:text-3xl font-bold">5000+</div>
-                <div className="text-[10px] sm:text-sm text-gray-300">Businesses</div>
-              </div>
-              <div className="text-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-blue-300 mb-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5 3a1 1 0 000 2c5 0 9 4 9 9a1 1 0 002 0c0-6.075-4.925-11-11-11z" />
-                  <path d="M5 7a1 1 0 000 2c3.866 0 7 3.134 7 7a1 1 0 002 0c0-4.97-4.03-9-9-9z" />
-                  <circle cx="6" cy="16" r="2" />
-                </svg>
-                <div className="text-base sm:text-2xl md:text-3xl font-bold">50+</div>
-                <div className="text-[10px] sm:text-sm text-gray-300">Categories</div>
-              </div>
-              <div className="text-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-blue-300 mb-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <div className="text-base sm:text-2xl md:text-3xl font-bold">10K+</div>
-                <div className="text-[10px] sm:text-sm text-gray-300">Reviews</div>
-              </div>
-              <div className="text-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-blue-300 mb-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                </svg>
-                <div className="text-base sm:text-2xl md:text-3xl font-bold">100K+</div>
-                <div className="text-[10px] sm:text-sm text-gray-300">Happy Users</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section - Advanced Festival Theme with Animations */}
+      <FestivalHero />
 
       {/* Top Categories - Overlapping Hero */}
       <section className="relative bg-white -mt-16 z-20">

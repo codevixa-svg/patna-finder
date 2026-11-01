@@ -1,0 +1,28 @@
+{
+  "verdict": "CHANGES_REQUESTED",
+  "findings": [
+    {
+      "id": "BLOCKER-1",
+      "severity": "critical",
+      "title": "User email_verified_at Cannot Be Set Via Mass Assignment",
+      "file": "backend/laravel/app/Http/Controllers/Api/Admin/BusinessController.php",
+      "lines": "119-127",
+      "evidence": "User::create() attempts to set 'email_verified_at' => now(), but User model guards this field (User.php line 47), causing it to be silently ignored during mass assignment.",
+      "consequence": "New user accounts are created with NULL email_verified_at, preventing owner login even after password reset. Owner is locked out and cannot manage their business.",
+      "correction": "After User::create(), explicitly set $user->email_verified_at = now(); $user->save(); to bypass mass-assignment protection for this admin-controlled operation.",
+      "triggeringPath": "Admin creates business with new owner email → User created with NULL email_verified_at → Owner resets password → Owner attempts login → Laravel auth blocks unverified email → Owner locked out"
+    },
+    {
+      "id": "BLOCKER-2",
+      "severity": "critical",
+      "title": "User role and is_active Cannot Be Set Via Mass Assignment",
+      "file": "backend/laravel/app/Http\Controllers/Api/Admin/BusinessController.php",
+      "lines": "119-127",
+      "evidence": "User::create() attempts to set 'role' => 'user' and 'is_active' => true, but both fields are in the $guarded array (User.php lines 39, 42), causing them to be silently ignored.",
+      "consequence": "User account defaults to NULL role and false is_active. Authentication middleware or business logic may reject login attempts from users with invalid role or inactive status.",
+      "correction": "After User::create(), explicitly set $user->role = 'user'; $user->is_active = true; $user->save(); to properly configure the account for business owner access.",
+      "triggeringPath": "Admin creates business with new owner email → User created with NULL role and is_active=false → Owner resets password → Owner attempts login → Middleware blocks inactive/invalid role user → Owner locked out"
+    }
+  ],
+  "reviewDoc": "d:\\patna-finder\\.agents\\tasks\\admin-business-form-review.md"
+}
