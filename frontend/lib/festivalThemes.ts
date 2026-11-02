@@ -9,14 +9,16 @@ export interface FestivalTheme {
     subtitle: string;
     ctaText: string;
     bgPattern: 'diyas' | 'colors' | 'snowflakes' | 'fireworks' | 'tricolor' | 'default';
+    bgImage?: string; // Optional background image URL
+    overlayColor?: string; // Overlay color with opacity (e.g., 'rgba(255, 140, 0, 0.85)')
   };
 }
 
 export const festivals: FestivalTheme[] = [
   {
     name: 'Diwali',
-    startDate: '10-20',
-    endDate: '11-05',
+    startDate: '11-05',
+    endDate: '11-10',
     hero: {
       gradient: 'from-orange-500 via-amber-500 to-yellow-500',
       title: 'दीपावली की शुभकामनाएं!',
@@ -24,6 +26,8 @@ export const festivals: FestivalTheme[] = [
       subtitle: 'Discover trusted businesses and celebrate the festival of lights across Bihar',
       ctaText: 'Explore Diwali Offers',
       bgPattern: 'diyas',
+      bgImage: '/images/festivals/diwali-banner.jpg',
+      overlayColor: 'rgba(92, 25, 3, 0.79)', // Orange overlay
     },
   },
   {
@@ -37,12 +41,14 @@ export const festivals: FestivalTheme[] = [
       subtitle: 'Discover colorful businesses and celebrate the festival of colors across Bihar',
       ctaText: 'Explore Holi Specials',
       bgPattern: 'colors',
+      bgImage: '/images/festivals/holi-banner.jpg',
+      overlayColor: 'rgba(84, 4, 40, 0.77)', // Pink overlay
     },
   },
   {
     name: 'Chhath Puja',
-    startDate: '10-25',
-    endDate: '11-10',
+    startDate: '11-12',
+    endDate: '11-17',
     hero: {
       gradient: 'from-amber-500 via-orange-500 to-red-500',
       title: 'छठ पूजा की शुभकामनाएं!',
@@ -50,6 +56,8 @@ export const festivals: FestivalTheme[] = [
       subtitle: 'Discover trusted businesses and celebrate the great sun festival across Bihar',
       ctaText: 'Explore Chhath Offers',
       bgPattern: 'diyas',
+      bgImage: '/images/festivals/chhath-banner.jpg',
+      overlayColor: 'rgba(97, 54, 7, 0.6)', // Amber-Orange overlay
     },
   },
   {
@@ -63,6 +71,8 @@ export const festivals: FestivalTheme[] = [
       subtitle: 'Discover trusted businesses and celebrate the joy of Christmas across Bihar',
       ctaText: 'Explore Christmas Deals',
       bgPattern: 'snowflakes',
+      bgImage: '/images/festivals/christmas-banner.jpg',
+      overlayColor: 'rgba(220, 38, 38, 0.85)', // Red overlay
     },
   },
   {
@@ -76,6 +86,8 @@ export const festivals: FestivalTheme[] = [
       subtitle: 'Discover trusted businesses and start the new year right across Bihar',
       ctaText: 'Explore New Year Offers',
       bgPattern: 'fireworks',
+      bgImage: '/images/festivals/newyear-banner.jpg',
+      overlayColor: 'rgba(147, 51, 234, 0.85)', // Purple overlay
     },
   },
   {
@@ -89,6 +101,8 @@ export const festivals: FestivalTheme[] = [
       subtitle: 'Discover trusted businesses and celebrate the spirit of freedom across Bihar',
       ctaText: 'Explore Independence Offers',
       bgPattern: 'tricolor',
+      bgImage: '/images/festivals/independence-banner.jpg',
+      overlayColor: 'rgba(249, 115, 22, 0.85)', // Saffron-Orange overlay
     },
   },
 ];
@@ -100,11 +114,13 @@ const defaultTheme: FestivalTheme = {
   endDate: '12-31',
   hero: {
     gradient: 'from-[#062B49] via-blue-700 to-[#062B49]',
-    title: "Discover Patna's Best Businesses",
+    title: "Apna Bihar, Ab Aapki Khoj Mein!",
     emoji: '🏪',
     subtitle: 'Discover trusted businesses, popular places, and hidden gems across Bihar — all in one place.',
     ctaText: 'Start Exploring',
     bgPattern: 'default',
+    bgImage: '/images/patna-monument1.png',
+    overlayColor: 'rgba(3, 25, 43, 0.31)', // Blue overlay
   },
 };
 

@@ -21,6 +21,8 @@ module.exports = {
         'bounce-slow': 'bounce 3s infinite',
         'float': 'float 3s ease-in-out infinite',
         'wave': 'wave 8s linear infinite',
+        'typewriter': 'typewriter 2s steps(40) 0.5s forwards',
+        'blink': 'blink 1s step-end infinite',
       },
       keyframes: {
         'gradient-x': {
@@ -57,6 +59,22 @@ module.exports = {
           },
           '100%': { 
             transform: 'translateX(-50%)' 
+          },
+        },
+        'typewriter': {
+          '0%': { 
+            width: '0' 
+          },
+          '100%': { 
+            width: '100%' 
+          },
+        },
+        'blink': {
+          '0%, 100%': { 
+            'border-color': 'transparent' 
+          },
+          '50%': { 
+            'border-color': 'white' 
           },
         },
       },
