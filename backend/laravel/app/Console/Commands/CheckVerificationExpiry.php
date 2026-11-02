@@ -40,11 +40,11 @@ class CheckVerificationExpiry extends Command
             if ($email) {
                 $this->sendSafely(
                     $email,
-                    "Document expiring soon - {$doc->business->name} - Patna Finder",
+                    "Document expiring soon - {$doc->business->name} - Khojya",
                     "Namaste!\n\n" .
                     "Aapke business \"{$doc->business->name}\" ka {$doc->doc_type_label} " .
                     $doc->expires_at->format('d M Y') . " ko expire ho jayega ({$doc->days_until_expiry} din bache hain).\n\n" .
-                    "Kripya renewed document dashboard se upload karein taaki Verified badge bana rahe.\n\nTeam Patna Finder"
+                    "Kripya renewed document dashboard se upload karein taaki Verified badge bana rahe.\n\nTeam Khojya"
                 );
             }
 
@@ -65,11 +65,11 @@ class CheckVerificationExpiry extends Command
             if ($email) {
                 $this->sendSafely(
                     $email,
-                    "Document expired - {$doc->business->name} - Patna Finder",
+                    "Document expired - {$doc->business->name} - Khojya",
                     "Namaste!\n\n" .
                     "Aapke business \"{$doc->business->name}\" ka {$doc->doc_type_label} " .
                     $doc->expires_at->format('d M Y') . " ko expire ho chuka hai.\n\n" .
-                    "Naya document upload karein, warna aapka Verified badge remove ho sakta hai.\n\nTeam Patna Finder"
+                    "Naya document upload karein, warna aapka Verified badge remove ho sakta hai.\n\nTeam Khojya"
                 );
             }
 
@@ -97,11 +97,11 @@ class CheckVerificationExpiry extends Command
             if ($email) {
                 $this->sendSafely(
                     $email,
-                    "Re-verification needed - {$business->name} - Patna Finder",
+                    "Re-verification needed - {$business->name} - Khojya",
                     "Namaste!\n\n" .
                     "Aapke business \"{$business->name}\" ki verification 1 saal purani ho gayi hai.\n" .
                     "Verified badge banaye rakhne ke liye re-verification zaroori hai.\n\n" .
-                    "Team aapko jaldi hi contact karegi, ya aap dashboard se updated documents upload kar sakte hain.\n\nTeam Patna Finder"
+                    "Team aapko jaldi hi contact karegi, ya aap dashboard se updated documents upload kar sakte hain.\n\nTeam Khojya"
                 );
             }
 

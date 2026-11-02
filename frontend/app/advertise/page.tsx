@@ -27,7 +27,7 @@ import {
 export const metadata: Metadata = {
   title: 'Advertise With Us - Grow Your Business in Patna',
   description:
-    'Get more visibility, more customers and faster growth for your business in Patna. Reach thousands of local customers with Patna Finder.',
+    'Get more visibility, more customers and faster growth for your business in Patna. Reach thousands of local customers with Khojya.',
   alternates: { canonical: '/advertise' },
 };
 
@@ -239,7 +239,7 @@ export default function AdvertisePage() {
               <h1 className="mt-6 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
                 Advertise on
                 <br />
-                <span className="text-[#F4B400]">Patna Finder</span>
+                <span className="text-[#F4B400]">Khojya</span>
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-200 sm:text-lg">
@@ -529,7 +529,7 @@ export default function AdvertisePage() {
                 <span className="text-[#F4B400]">Patna</span>
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-gray-300">
-                List, promote and grow your business with Patna Finder. Reach the right customers at
+                List, promote and grow your business with Khojya. Reach the right customers at
                 the right time.
               </p>
 

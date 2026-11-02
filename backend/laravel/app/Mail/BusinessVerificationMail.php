@@ -31,8 +31,8 @@ class BusinessVerificationMail extends Mailable
     public function build(): self
     {
         $subject = $this->action === 'verified'
-            ? "Your business \"{$this->business->name}\" has been verified - Patna Finder"
-            : "Verification removed for \"{$this->business->name}\" - Patna Finder";
+            ? "Your business \"{$this->business->name}\" has been verified - Khojya"
+            : "Verification removed for \"{$this->business->name}\" - Khojya";
 
         return $this->subject($subject)
             ->view('emails.business-verification');

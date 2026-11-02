@@ -12,9 +12,9 @@ import ContactForm from './ContactForm';
 import FaqAccordion from './FaqAccordion';
 
 export const metadata: Metadata = {
-  title: 'Contact Us | Patna Finder',
+  title: 'Contact Us | Khojya',
   description:
-    'Get in touch with the Patna Finder team — questions, feedback, partnerships or support, we would love to hear from you.',
+    'Get in touch with the Khojya team — questions, feedback, partnerships or support, we would love to hear from you.',
   alternates: { canonical: '/contact' },
 };
 
@@ -43,7 +43,7 @@ const CONTACT_CARDS = [
 
 const FAQS = [
   {
-    q: 'How can I list my business on Patna Finder?',
+    q: 'How can I list my business on Khojya?',
     a: 'Simply click on "Add Your Business", fill in your business details, and our team will verify and publish your listing — usually within 24-48 hours. Listing is completely free.',
   },
   {
@@ -52,7 +52,7 @@ const FAQS = [
   },
   {
     q: 'Is there any charge to list a business?',
-    a: 'No. Basic business listings on Patna Finder are completely free forever. We also offer optional premium features like featured placement and highlights for extra visibility.',
+    a: 'No. Basic business listings on Khojya are completely free forever. We also offer optional premium features like featured placement and highlights for extra visibility.',
   },
   {
     q: 'Can I collaborate for events or promotions?',
@@ -182,7 +182,7 @@ export default function ContactPage() {
               {/* Map */}
               <div className="mt-4 rounded-xl overflow-hidden border border-gray-100 h-56 relative">
                 <iframe
-                  title="Patna Finder office location"
+                  title="Khojya office location"
                   src="https://www.openstreetmap.org/export/embed.html?bbox=85.05%2C25.58%2C85.20%2C25.65&layer=mapnik&marker=25.6135%2C85.1350"
                   className="absolute inset-0 w-full h-full"
                   loading="lazy"

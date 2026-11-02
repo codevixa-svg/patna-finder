@@ -68,7 +68,7 @@ class TotpService
     /**
      * otpauth:// URI for authenticator apps / QR codes.
      */
-    public function otpauthUri(string $secret, string $email, string $issuer = 'Patna Finder'): string
+    public function otpauthUri(string $secret, string $email, string $issuer = 'Khojya'): string
     {
         return sprintf(
             'otpauth://totp/%s:%s?secret=%s&issuer=%s&algorithm=SHA1&digits=%d&period=%d',

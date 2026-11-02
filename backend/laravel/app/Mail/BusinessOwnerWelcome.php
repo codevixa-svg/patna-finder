@@ -32,7 +32,7 @@ class BusinessOwnerWelcome extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to Patna Finder - Your Business is Live!',
+            subject: 'Welcome to Khojya - Your Business is Live!',
         );
     }
 

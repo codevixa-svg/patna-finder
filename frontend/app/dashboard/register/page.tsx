@@ -26,7 +26,7 @@ import { useUserAuthStore } from '@/store/userAuthStore';
 import { userAuthApi } from '@/lib/userApi';
 
 /**
- * Register page — layout mirrors the approved "Join Patna Finder" design:
+ * Register page — layout mirrors the approved "Join Khojya" design:
  * navy + gold brand panel (city photo + gold Patna skyline) on the left and a
  * white form card on the right. All colours stay on the site tokens defined in
  * globals.css / tailwind.config.js (navy #081C3A, gold #F4B400, text #102A43,
@@ -358,7 +358,7 @@ export default function RegisterPage() {
         {/* ── Brand panel ── */}
         <section className="hidden lg:flex lg:w-[56%] lg:flex-col lg:justify-between lg:py-1">
           <div className="max-w-[620px]">
-            <Link href="/" className="inline-flex items-center gap-3.5" aria-label="Patna Finder home">
+            <Link href="/" className="inline-flex items-center gap-3.5" aria-label="Khojya home">
               <BrandMark className="h-[58px] w-[58px] text-[#F4B400]" />
               <span className="leading-none">
                 <span className="block font-heading text-[26px] font-extrabold tracking-[0.05em] text-white">
@@ -372,7 +372,7 @@ export default function RegisterPage() {
             </Link>
 
             <h1 className="mt-6 text-[34px] font-extrabold leading-[1.1] tracking-tight text-white xl:text-[40px]">
-              Join <span className="text-[#F4B400]">Patna Finder</span>
+              Join <span className="text-[#F4B400]">Khojya</span>
             </h1>
             <p className="mt-3 max-w-[520px] text-[14.5px] leading-relaxed text-white/85">
               Create your account and explore the best businesses, services and places in Patna.
@@ -419,7 +419,7 @@ export default function RegisterPage() {
         <section className="w-full lg:flex lg:w-[44%] lg:items-center lg:justify-center">
           <div className="w-full max-w-[560px]">
             {/* Compact brand lockup for small screens */}
-            <Link href="/" className="mb-4 inline-flex items-center gap-3 lg:hidden" aria-label="Patna Finder home">
+            <Link href="/" className="mb-4 inline-flex items-center gap-3 lg:hidden" aria-label="Khojya home">
               <BrandMark className="h-10 w-10 text-[#F4B400]" />
               <span className="leading-none">
                 <span className="block font-heading text-[19px] font-extrabold tracking-[0.04em] text-white">
@@ -448,7 +448,7 @@ export default function RegisterPage() {
                 Create Your Account
               </h1>
               <p className="mt-1 text-[13px] text-[#486581]">
-                Join Patna Finder and discover a smarter, better Patna.
+                Join Khojya and discover a smarter, better Patna.
               </p>
 
               {errorText(errors.general) && (

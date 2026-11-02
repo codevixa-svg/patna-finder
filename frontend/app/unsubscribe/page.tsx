@@ -138,7 +138,7 @@ function UnsubscribeContent() {
             status: 'success',
             text:
               res?.message ||
-              'You have been unsubscribed from the Patna Finder newsletter.',
+              'You have been unsubscribed from the Khojya newsletter.',
           });
         }
       } catch (error) {

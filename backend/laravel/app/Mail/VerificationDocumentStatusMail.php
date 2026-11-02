@@ -28,8 +28,8 @@ class VerificationDocumentStatusMail extends Mailable
         $status = $this->document->status;
 
         $subject = $status === 'approved'
-            ? "Document approved for \"{$this->business->name}\" - Patna Finder"
-            : "Document needs attention for \"{$this->business->name}\" - Patna Finder";
+            ? "Document approved for \"{$this->business->name}\" - Khojya"
+            : "Document needs attention for \"{$this->business->name}\" - Khojya";
 
         return $this->subject($subject)->view('emails.verification-document-status');
     }

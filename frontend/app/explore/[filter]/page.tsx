@@ -8,12 +8,12 @@ import {
 } from '@/lib/explore-filters';
 
 const DESCRIPTIONS: Record<string, string> = {
-  all: 'Every business listed on Patna Finder — browse them all in one place',
+  all: 'Every business listed on Khojya — browse them all in one place',
   trending: 'The most popular businesses in Patna right now',
   'highest-rated': 'Top-rated businesses loved by people across Patna',
-  'recently-added': 'The newest businesses on Patna Finder',
+  'recently-added': 'The newest businesses on Khojya',
   'hidden-gems': 'Underrated places, unique cafés and local secrets',
-  featured: "Hand-picked favourites from the Patna Finder editors",
+  featured: "Hand-picked favourites from the Khojya editors",
 };
 
 export async function generateMetadata({
@@ -28,7 +28,7 @@ export async function generateMetadata({
   const label = FILTER_LABELS[key];
   return {
     title: `${label} in Patna`,
-    description: `${DESCRIPTIONS[key]}. Discover the best businesses on Patna Finder.`,
+    description: `${DESCRIPTIONS[key]}. Discover the best businesses on Khojya.`,
     alternates: { canonical: `/explore/${key}` },
   };
 }

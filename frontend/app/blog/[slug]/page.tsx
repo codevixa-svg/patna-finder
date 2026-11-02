@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-const SITE_NAME = 'Patna Finder';
+const SITE_NAME = 'Khojya';
 
 function formatDate(value?: string) {
   if (!value) return '';

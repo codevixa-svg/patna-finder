@@ -27,7 +27,7 @@ class NewsletterController extends Controller
 
         if ($subscriber && $subscriber->is_active()) {
             return response()->json([
-                'message' => 'You are already subscribed to the Patna Finder newsletter.',
+                'message' => 'You are already subscribed to the Khojya newsletter.',
                 'already_subscribed' => true,
             ]);
         }
@@ -42,7 +42,7 @@ class NewsletterController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Welcome back! You are subscribed to the Patna Finder newsletter.',
+                'message' => 'Welcome back! You are subscribed to the Khojya newsletter.',
                 'subscriber' => $subscriber,
             ]);
         }
@@ -106,7 +106,7 @@ class NewsletterController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'You have been unsubscribed from the Patna Finder newsletter.',
+            'message' => 'You have been unsubscribed from the Khojya newsletter.',
         ]);
     }
 }

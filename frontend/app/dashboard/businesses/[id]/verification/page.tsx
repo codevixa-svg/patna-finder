@@ -113,7 +113,7 @@ export default function BusinessVerificationPage() {
 
         {/* Status Card */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Get Verified by Patna Finder</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Get Verified by Khojya</h1>
           {isVerified ? (
             <div className="flex items-center gap-2 p-3 bg-[#FFF9E5] border border-green-200 rounded-lg">
               <span className="text-2xl">✓</span>
@@ -190,7 +190,7 @@ export default function BusinessVerificationPage() {
               <button onClick={upload} disabled={busy} className="w-full py-2.5 bg-[#D89E00] text-white rounded-xl text-sm font-bold hover:bg-[#B58200] disabled:opacity-50 transition">
                 {busy ? 'Uploading...' : 'Upload Document'}
               </button>
-              <p className="text-[11px] text-gray-400">Documents securely store hote hain — sirf Patna Finder team dekh sakti hai.</p>
+              <p className="text-[11px] text-gray-400">Documents securely store hote hain — sirf Khojya team dekh sakti hai.</p>
             </div>
           </div>
         )}

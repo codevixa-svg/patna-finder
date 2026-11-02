@@ -163,7 +163,7 @@ function ForgotPasswordContent() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <h1 className="text-3xl font-bold text-orange-600">Patna Finder</h1>
+            <h1 className="text-3xl font-bold text-orange-600">Khojya</h1>
           </Link>
           <p className="text-gray-600 mt-2">
             {step === 'email' && 'Reset your password'}

@@ -18,15 +18,15 @@ export async function generateMetadata({
     const data: any = await api.getCategory(slug);
     const name = data?.name || 'Category';
     return {
-      title: `Top ${name} in Patna - Patna Finder`,
+      title: `Top ${name} in Patna - Khojya`,
       description:
         data?.meta_description ||
         data?.description ||
-        `Find the best ${name.toLowerCase()} in Patna — verified listings, ratings and reviews on Patna Finder.`,
+        `Find the best ${name.toLowerCase()} in Patna — verified listings, ratings and reviews on Khojya.`,
       alternates: { canonical: `/categories/${slug}` },
     };
   } catch {
-    return { title: 'Category - Patna Finder' };
+    return { title: 'Category - Khojya' };
   }
 }
 
@@ -80,4 +80,4 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     </main>
   );
 }
-
+

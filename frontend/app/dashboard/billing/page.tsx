@@ -112,7 +112,7 @@ export default function BillingPage() {
         key: orderData.key_id,
         amount: orderData.amount * 100,
         currency: 'INR',
-        name: 'Patna Finder',
+        name: 'Khojya',
         description: plan.name + ' Plan - ' + plan.price + '/month',
         order_id: orderData.order_id,
         prefill: {

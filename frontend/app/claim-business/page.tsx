@@ -6,7 +6,7 @@ import ClaimForm from './ClaimForm';
 export const metadata: Metadata = {
   title: 'Claim Your Business',
   description:
-    'Already listed on Patna Finder? Claim your business profile to update details, respond to reviews and unlock owner tools.',
+    'Already listed on Khojya? Claim your business profile to update details, respond to reviews and unlock owner tools.',
   alternates: { canonical: '/claim-business' },
 };
 
@@ -14,7 +14,7 @@ const STEPS = [
   {
     step: '1',
     title: 'Find Your Listing',
-    text: 'Search Patna Finder for your business. If it is already listed, you can claim it in minutes.',
+    text: 'Search Khojya for your business. If it is already listed, you can claim it in minutes.',
   },
   {
     step: '2',
@@ -48,7 +48,7 @@ export default function ClaimBusinessPage() {
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">Claim Your Business</h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Already on Patna Finder? Take ownership of your profile and make it work for you.
+            Already on Khojya? Take ownership of your profile and make it work for you.
           </p>
         </div>
       </section>

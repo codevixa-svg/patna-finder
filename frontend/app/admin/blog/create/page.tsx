@@ -101,7 +101,7 @@ export default function CreateBlogPage() {
         status: formData.status,
         featured_image: formData.featured_image?.trim() || null,
         image_alt: formData.image_alt?.trim() || null,
-        author_name: formData.author_name?.trim() || 'Patna Finder Team',
+        author_name: formData.author_name?.trim() || 'Khojya Team',
         author_bio: formData.author_bio?.trim() || null,
         author_avatar: formData.author_avatar?.trim() || null,
         category: formData.category,
@@ -302,10 +302,10 @@ export default function CreateBlogPage() {
                         value={formData.author_name}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B3A63] focus:border-transparent"
-                        placeholder="Patna Finder Team"
+                        placeholder="Khojya Team"
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Default: "Patna Finder Team" if left empty
+                        Default: "Khojya Team" if left empty
                       </p>
                     </div>
 

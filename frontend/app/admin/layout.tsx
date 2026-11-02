@@ -14,6 +14,6 @@ export default function AdminLayout({
 }
 
 export const metadata = {
-  title: 'Admin Dashboard - Patna Finder',
-  description: 'Admin management portal for Patna Finder',
+  title: 'Admin Dashboard - Khojya',
+  description: 'Admin management portal for Khojya',
 };

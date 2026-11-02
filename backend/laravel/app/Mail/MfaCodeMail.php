@@ -19,7 +19,7 @@ class MfaCodeMail extends Mailable
     public function build()
     {
         return $this
-            ->subject("Patna Finder verification code: {$this->code}")
+            ->subject("Khojya verification code: {$this->code}")
             ->view('mail.mfa-code');
     }
 }

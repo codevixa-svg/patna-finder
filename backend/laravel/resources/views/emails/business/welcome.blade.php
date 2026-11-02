@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Patna Finder</title>
+    <title>Welcome to Khojya</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
     <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 0;">
@@ -13,7 +13,7 @@
                     <!-- Header -->
                     <tr>
                         <td style="background-color: #f97316; padding: 30px 20px; text-align: center;">
-                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Welcome to Patna Finder!</h1>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Welcome to Khojya!</h1>
                         </td>
                     </tr>
                     
@@ -24,7 +24,7 @@
                                 Dear {{ $user->name }},
                             </p>
                             <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
-                                Congratulations! Your business <strong style="color: #f97316;">{{ $business->name }}</strong> has been successfully registered on Patna Finder and is now live on our platform.
+                                Congratulations! Your business <strong style="color: #f97316;">{{ $business->name }}</strong> has been successfully registered on Khojya and is now live on our platform.
                             </p>
                         </td>
                     </tr>
@@ -115,10 +115,10 @@
                     <tr>
                         <td style="background-color: #1f2937; padding: 20px 30px; text-align: center;">
                             <p style="margin: 0 0 10px 0; font-size: 14px; color: #9ca3af;">
-                                Thank you for choosing Patna Finder!
+                                Thank you for choosing Khojya!
                             </p>
                             <p style="margin: 0; font-size: 12px; color: #6b7280;">
-                                &copy; {{ date('Y') }} Patna Finder. All rights reserved.
+                                &copy; {{ date('Y') }} Khojya. All rights reserved.
                             </p>
                         </td>
                     </tr>

@@ -7,7 +7,7 @@
 <body style="margin:0;padding:0;background:#F7F9FC;font-family:Arial,Helvetica,sans-serif;">
     <div style="max-width:520px;margin:24px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(8,28,58,0.08);">
         <div style="background:linear-gradient(135deg,#062B49,#144272);padding:28px 32px;text-align:center;">
-            <h1 style="color:#ffffff;margin:0;font-size:20px;">Patna Finder</h1>
+            <h1 style="color:#ffffff;margin:0;font-size:20px;">Khojya</h1>
             <p style="color:#9FB6CC;margin:6px 0 0;font-size:13px;">Account Security</p>
         </div>
         <div style="padding:32px;">
@@ -22,7 +22,7 @@
             <p style="color:#486581;font-size:13px;margin:0;">&#128274; Never share this code. If you didn't request it, someone may be trying to access your account — please change your password immediately.</p>
         </div>
         <div style="background:#F7F9FC;padding:16px 32px;text-align:center;">
-            <p style="color:#829AB1;font-size:12px;margin:0;">Patna Finder Security Team</p>
+            <p style="color:#829AB1;font-size:12px;margin:0;">Khojya Security Team</p>
         </div>
     </div>
 </body>

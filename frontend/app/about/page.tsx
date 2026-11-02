@@ -18,9 +18,9 @@ import {
 import TestimonialCarousel from '@/components/TestimonialCarousel';
 
 export const metadata = {
-  title: 'About Us | Patna Finder — Our Story, Mission & Team',
+  title: 'About Us | Khojya — Our Story, Mission & Team',
   description:
-    'Discover the story, mission and people behind Patna Finder — a platform built to connect, support and grow the vibrant community of Patna.',
+    'Discover the story, mission and people behind Khojya — a platform built to connect, support and grow the vibrant community of Patna.',
 };
 
 /** Small green uppercase section label with a leading dash line. */
@@ -84,7 +84,7 @@ export default function AboutPage() {
                 About <span className="text-[#F4B400]">Patna</span> Finder
               </h1>
               <p className="mt-5 text-base md:text-lg text-[#FFF4CC]/90 leading-relaxed max-w-xl">
-                Discover the story, mission and people behind Patna Finder — a platform built to
+                Discover the story, mission and people behind Khojya — a platform built to
                 connect, support and grow the vibrant community of Patna.
               </p>
             </div>
@@ -125,7 +125,7 @@ export default function AboutPage() {
               Building a Stronger Patna Together
             </h2>
             <p className="mt-5 text-gray-600 leading-relaxed">
-              Patna Finder was born out of a simple idea — to create a trusted and easy-to-use
+              Khojya was born out of a simple idea — to create a trusted and easy-to-use
               platform that connects people with the best businesses, services, events and stories
               from Patna. We saw a need for a local platform that not only helps users discover
               great places but also supports local businesses and showcases the true spirit of
@@ -133,7 +133,7 @@ export default function AboutPage() {
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
               From popular cafés and coaching institutes to hospitals, event venues and hidden
-              gems, Patna Finder brings everything together in one place. Our goal is to make it
+              gems, Khojya brings everything together in one place. Our goal is to make it
               easier for everyone — residents, students, professionals and visitors — to explore,
               connect and grow with Patna.
             </p>
@@ -164,7 +164,7 @@ export default function AboutPage() {
                   A platform for people, by the people, to make Patna shine brighter.
                 </p>
               </div>
-              <p className="mt-2 text-xs font-medium text-gray-500 pl-9">— Team Patna Finder</p>
+              <p className="mt-2 text-xs font-medium text-gray-500 pl-9">— Team Khojya</p>
             </div>
             {/* Script accent — bottom left */}
             <p className="font-script absolute -bottom-10 left-4 text-2xl text-[#F4B400] -rotate-3">
@@ -232,7 +232,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Why Patna Finder ─────────────────────────────────────────────── */}
+      {/* ── Why Khojya ─────────────────────────────────────────────── */}
       <section className="bg-[#F4FAF6] py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative">
@@ -264,7 +264,7 @@ export default function AboutPage() {
           </div>
 
           <div>
-            <SectionLabel>Why Patna Finder</SectionLabel>
+            <SectionLabel>Why Khojya</SectionLabel>
             <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-[#102A43]">
               More Than Just a Directory
             </h2>

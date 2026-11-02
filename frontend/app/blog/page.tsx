@@ -133,7 +133,7 @@ export default async function BlogPage({
           className="pointer-events-none absolute inset-y-0 right-0 h-full w-[55%] object-cover object-left opacity-25 [mask-image:linear-gradient(to_right,transparent,black_45%)]"
         />
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-[#D89E00]">Patna Finder</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-[#D89E00]">Khojya</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 md:text-5xl">Blogs &amp; Articles</h1>
           <p className="mt-3 max-w-xl leading-relaxed text-gray-600">
             Discover stories, updates, and useful information about Patna, Bihar and beyond. Explore our

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getCurrentFestival } from '@/lib/festivalThemes';
 import FestivalParticles from './FestivalParticles';
@@ -15,6 +15,45 @@ import {
 
 const FestivalHero: React.FC = () => {
   const festival = getCurrentFestival();
+  const [displayedTitle, setDisplayedTitle] = useState('');
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+
+  // Typewriter effect
+  useEffect(() => {
+    const title = festival.hero.title;
+    let currentIndex = 0;
+
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= title.length) {
+        setDisplayedTitle(title.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        setIsTypingComplete(true);
+        clearInterval(typingInterval);
+      }
+    }, 80); // Speed of typing (80ms per character)
+
+    return () => clearInterval(typingInterval);
+  }, [festival.hero.title]);
+
+  // Function to split title for color highlighting (for default theme)
+  const renderTitle = () => {
+    const title = displayedTitle;
+    
+    // For default theme: highlight "Aapki Khoj" in yellow
+    if (festival.name === 'Default' && title.includes('Aapki Khoj')) {
+      const parts = title.split('Aapki Khoj');
+      return (
+        <>
+          {parts[0]}
+          <span className="text-yellow-400">Aapki Khoj</span>
+          {parts[1]}
+        </>
+      );
+    }
+    
+    return title;
+  };
 
   // Select the appropriate icon component
   const getIconComponent = () => {
@@ -44,9 +83,22 @@ const FestivalHero: React.FC = () => {
   const gradientClass = `bg-gradient-to-br ${festival.hero.gradient}`;
 
   return (
-    <section className="relative text-white overflow-hidden min-h-[500px] md:min-h-[600px]">
-      {/* Animated Gradient Background */}
-      <div className={`absolute inset-0 ${gradientClass} animate-gradient-x`}></div>
+    <section className="relative text-white overflow-hidden min-h-[400px] md:min-h-[450px]">
+      {/* Background Image (if provided) or Gradient */}
+      {festival.hero.bgImage ? (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${festival.hero.bgImage})` }}
+        >
+          {/* Festival-specific Overlay for better text readability */}
+          <div 
+            className="absolute inset-0" 
+            style={{ backgroundColor: festival.hero.overlayColor || 'rgba(0, 0, 0, 0.5)' }}
+          ></div>
+        </div>
+      ) : (
+        <div className={`absolute inset-0 ${gradientClass} animate-gradient-x`}></div>
+      )}
 
       {/* Particle Animation Overlay */}
       <FestivalParticles festivalName={festival.name} />
@@ -57,21 +109,21 @@ const FestivalHero: React.FC = () => {
       <div className="absolute top-40 right-20 w-24 h-24 bg-white/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }}></div>
 
       {/* Content Container */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-          {/* Left Side - Text Content */}
-          <div className="flex-1 max-w-2xl text-center md:text-left">
-            {/* Festival Icon */}
-            <div className="mb-6 flex justify-center md:justify-start animate-fade-in-up">
-              {getIconComponent()}
-            </div>
-
-            {/* Title with Animation */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 z-10">
+        <div className="flex flex-col items-start text-left">
+          {/* Text Content - Left Aligned */}
+          <div className="max-w-3xl">
+            {/* Title with Human-like Typewriter Effect */}
             <h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4 animate-fade-in-up"
-              style={{ animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards' }}
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-4 mt-8"
+              style={{ opacity: 1 }}
             >
-              {festival.hero.title}
+              <span className="inline-block">
+                {renderTitle()}
+                {!isTypingComplete && (
+                  <span className="inline-block w-1 h-12 sm:h-14 md:h-16 bg-white ml-1 animate-blink align-middle"></span>
+                )}
+              </span>
             </h1>
 
             {/* Subtitle with Animation */}
@@ -109,51 +161,25 @@ const FestivalHero: React.FC = () => {
 
             {/* Stats Row */}
             <div 
-              className="grid grid-cols-4 gap-4 mt-12 animate-fade-in-up"
+              className="grid grid-cols-4 gap-4 mt-10 animate-fade-in-up"
               style={{ animationDelay: '0.8s', opacity: 0, animationFillMode: 'forwards' }}
             >
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">5000+</div>
+              <div className="text-left">
+                <div className="text-2xl sm:text-3xl font-bold mb-1">5000+</div>
                 <div className="text-xs sm:text-sm text-white/80">Businesses</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">50+</div>
+              <div className="text-left">
+                <div className="text-2xl sm:text-3xl font-bold mb-1">50+</div>
                 <div className="text-xs sm:text-sm text-white/80">Categories</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">10K+</div>
+              <div className="text-left">
+                <div className="text-2xl sm:text-3xl font-bold mb-1">10K+</div>
                 <div className="text-xs sm:text-sm text-white/80">Reviews</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">100K+</div>
+              <div className="text-left">
+                <div className="text-2xl sm:text-3xl font-bold mb-1">100K+</div>
                 <div className="text-xs sm:text-sm text-white/80">Users</div>
               </div>
-            </div>
-          </div>
-
-          {/* Right Side - Decorative Floating Elements */}
-          <div className="hidden md:block relative w-64 h-64 lg:w-80 lg:h-80">
-            {/* Floating Emoji Decorations */}
-            <div className="absolute top-0 left-0 text-6xl opacity-60 animate-float">
-              {festival.hero.emoji}
-            </div>
-            <div 
-              className="absolute top-20 right-0 text-5xl opacity-50 animate-float" 
-              style={{ animationDelay: '0.5s' }}
-            >
-              {festival.hero.emoji}
-            </div>
-            <div 
-              className="absolute bottom-10 left-10 text-7xl opacity-70 animate-float" 
-              style={{ animationDelay: '1s' }}
-            >
-              {festival.hero.emoji}
-            </div>
-            <div 
-              className="absolute bottom-0 right-10 text-4xl opacity-40 animate-float" 
-              style={{ animationDelay: '1.5s' }}
-            >
-              {festival.hero.emoji}
             </div>
           </div>
         </div>

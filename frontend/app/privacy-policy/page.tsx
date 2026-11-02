@@ -4,7 +4,7 @@ import PrivacyContent from '@/components/PrivacyContent';
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
-    'How Patna Finder collects, uses and protects your personal information when you use our platform.',
+    'How Khojya collects, uses and protects your personal information when you use our platform.',
   alternates: { canonical: '/privacy-policy' },
 };
 

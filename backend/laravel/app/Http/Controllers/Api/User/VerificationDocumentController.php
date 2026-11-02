@@ -64,7 +64,7 @@ class VerificationDocumentController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Document uploaded. Patna Finder team review karega.',
+            'message' => 'Document uploaded. Khojya team review karega.',
             'document' => $this->serialize($doc),
         ], 201);
     }

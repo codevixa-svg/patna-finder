@@ -1,7 +1,7 @@
 import { api } from '@/lib/api';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-const SITE_NAME = 'Patna Finder';
+const SITE_NAME = 'Khojya';
 
 // RSS feed — powers the "Follow" button inside Google Discover
 export const revalidate = 1800;
